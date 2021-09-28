@@ -16,16 +16,29 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import org.scalatestplus.mockito._
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.http.HeaderNames
+import play.api.mvc.Results
+import play.api.test.FakeHeaders
 
-@Singleton()
-class MicroserviceHelloWorldController @Inject()(cc: ControllerComponents)
-    extends BackendController(cc) {
+class BaseControllerSpec extends
+  PlaySpec
+  with MockitoSugar // TODO remove if unneeded
+  with Results
+  with GuiceOneAppPerSuite {
 
-  def hello(): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(Ok("Hello world"))
-  }
+//  val mockAction = mock[AuthAndEnvAction]
+//  val eisService = app.injector.instanceOf[EisService]
+
+  val fakeHeaders =
+    FakeHeaders(
+      Seq(
+        "Content-type" -> "application/json",
+        HeaderNames.AUTHORIZATION -> s"Bearer FOOBAR",
+        "Environment" -> "ist0"
+      )
+    )
+
 }

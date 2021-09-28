@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.eusubsidycompliancestub.models
+package uk.gov.hmrc.eusubsidycompliancestub.services
 
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{PhoneNumber, phonenumberFormat}
+import javax.inject.Singleton
+import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
+import uk.gov.hmrc.smartstub._
 
-case class ContactDetails(
-  phone: Option[PhoneNumber],
-  mobile: Option[PhoneNumber]
-)
+@Singleton
+class EisService {
 
-case object ContactDetails {
-  implicit val format: OFormat[ContactDetails] = Json.format[ContactDetails]
+  def retrieveUndertaking(eori: String): Undertaking =
+    DataGenerator
+      .genRetrievedUndertaking(eori)
+      .seeded(
+        eori.substring(2).toLong
+      ).get
+
 }
-

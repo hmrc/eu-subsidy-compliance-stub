@@ -1,7 +1,5 @@
 # microservice specific routes
 
-GET        /hello-world                uk.gov.hmrc.eusubsidycompliancestub.controllers.MicroserviceHelloWorldController.hello
-
 # retrieveUndertaking
 POST       /scp/retrieveundertaking/v1 uk.gov.hmrc.eusubsidycompliancestub.controllers.UndertakingController.retrieve
 

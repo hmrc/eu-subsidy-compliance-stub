@@ -16,11 +16,17 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EORI
 
 case class BusinessEntity(
   businessEntityIdentifier: EORI,
   leadEORI: Boolean,
-  address: Option[Address],
+//  address: Option[Address], // not needed but still included in EIS API...
   contacts: Option[ContactDetails]
 )
+
+case object BusinessEntity {
+  implicit val format: OFormat[BusinessEntity] =
+    Json.format[BusinessEntity]
+}

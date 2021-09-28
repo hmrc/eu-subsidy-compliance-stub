@@ -16,10 +16,63 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
-import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
+import java.time.LocalDate
 
-class DataGenerator {
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, ContactDetails, Undertaking}
+import org.scalacheck.Gen
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, PhoneNumber, Sector, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.smartstub._
 
-  def genUndertaking(seed: Long): Undertaking = ???
+object DataGenerator {
+
+  private def variableLengthString(min: Int, max: Int) = {
+    Gen.choose(min, max).flatMap(len => Gen.listOfN(len, Gen.alphaLowerChar)).map(_.mkString)
+  }
+
+  def genEORIPrefix: Gen[String] =
+    Gen.oneOf(List("GB", "XI"))
+
+  def genEORIDigits: Gen[String] = {
+    def short: Gen[String] = pattern"999999999999"
+    def long: Gen[String] = pattern"999999999999999"
+    Gen.oneOf(long, short)
+  }
+
+  def genEORI: Gen[EORI] = {
+    for {
+      prefix <- genEORIPrefix
+      rest <- genEORIDigits
+    } yield EORI(s"$prefix$rest")
+  }
+
+  def genContactDetails: Gen[ContactDetails] =
+    for {
+      phone <- Gen.option(variableLengthString(1,24).map(PhoneNumber(_)))
+      mobile <- Gen.option(variableLengthString(1,24).map(PhoneNumber(_)))
+    } yield ContactDetails(phone, mobile)
+
+  def genBusinessEntity: Gen[BusinessEntity] =
+    for {
+      e <- genEORI
+      contactDetails <- Gen.option(genContactDetails)
+    } yield BusinessEntity(e, false, contactDetails)
+
+  def genRetrievedUndertaking(eori: String): Gen[Undertaking] =
+    for {
+      ref <- variableLengthString(1, 17)
+      name <- variableLengthString(1, 105)
+      industrySector <- Gen.oneOf(List("0","1","2","3"))
+      industrySectorLimit <- Gen.choose(0.1, 99999999999.99)
+      lastSubsidyUsageUpdt <- Gen.date(LocalDate.of(2020,1,1), LocalDate.now)
+      nBusinessEntities <- Gen.choose(1,25)
+      undertakingBusinessEntity <- Gen.listOfN(nBusinessEntities,genBusinessEntity)
+    } yield Undertaking(
+      Some(UndertakingRef(ref)),
+      UndertakingName(name),
+      Sector(industrySector),
+      industrySectorLimit,
+      Some(lastSubsidyUsageUpdt),
+      undertakingBusinessEntity.head.copy(businessEntityIdentifier = EORI(eori), leadEORI = true) :: undertakingBusinessEntity.tail
+    )
 
 }

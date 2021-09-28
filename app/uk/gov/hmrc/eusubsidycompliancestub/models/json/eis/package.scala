@@ -16,43 +16,160 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models.json
 
-import play.api.libs.json.{JsValue, Json, Writes}
-import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.EORI
+import java.time.format.DateTimeFormatter
+import java.time.{Clock, Instant, LocalDate, LocalDateTime}
+
+import play.api.libs.json._
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisStatus, EisStatusString, Sector, UndertakingName, UndertakingRef}
 
 package object eis {
 
-  implicit val undertakingWrites: Writes[Undertaking] = new Writes[Undertaking] {
-    override def writes(o: Undertaking): JsValue = ???
+  val clock = Clock.systemUTC()
+  val formatter = DateTimeFormatter.ISO_INSTANT
+
+  def receiptDate: String = {
+    val instant = Instant.now(clock)
+    val withoutNanos = instant.minusNanos(instant.getNano)
+    formatter.format(withoutNanos)
   }
 
-  implicit val eoriWrites: Writes[EORI] = new Writes[EORI] {
-    val receiptDate = "some date"
-    val acknowledgementReference = "some ref"
-    override def writes(o: EORI): JsValue = Json.parse(
-      s"""
-         | {
-         |   "retrieveUndertakingRequest": {
-         |    "requestCommon": {
-         |      "originatingSystem": "MDTP",
-         |      "receiptDate": "$receiptDate",
-         |      "acknowledgementReference": "$acknowledgementReference",
-         |      "messageTypes": {
-         |        "messageType": "RetrieveUndertaking"
-         |      },
-         |      "requestParameters": [
-         |        {
-         |          "paramName": "REGIME",
-         |          "paramValue": "ESC"
-         |        }
-         |      ]
-         |    },
-         |    "requestDetail": {
-         |      "idType": "EORI",
-         |      "idValue": "$o"
-         |    }
-         |  }
-         | }
-      """.stripMargin)
+  implicit val undertakingFormat: Format[Undertaking] = new Format[Undertaking] {
+
+    val requestCommon = RequestCommon(
+      "acknowledgementReferenceTODO", // TODO
+      "CreateNewUndertaking"
+    )
+
+    // provides json for EIS createUndertaking call
+    override def writes(o: Undertaking): JsValue = {
+      val lead: BusinessEntity =
+        o.undertakingBusinessEntity match {
+          case h :: Nil => h // TODO should test they are a lead, or maybe EIS will infer that :)?
+          case _ => throw new IllegalStateException(s"unable to create undertaking with missing or multiple business entities")
+        }
+
+      val dateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
+      Json.obj(
+        "createUndertakingRequest" -> Json.obj(
+          "requestCommon" -> requestCommon,
+          "requestDetail" -> Json.obj(
+            "undertakingName" -> o.name,
+            "industrySector" -> o.industrySector,
+            "businessEntity" -> Json.arr(
+              Json.obj(
+                "idType" -> "EORI",
+                "id" -> lead.businessEntityIdentifier,
+                "contacts" -> lead.contacts
+              )
+            ),
+            "undertakingStartDate" -> dateFormatter.format(LocalDate.now)
+          )
+        )
+      )
+
+    }
+
+    // provides Undertaking from EIS retrieveUndertaking response
+    // ...
+    // we get 403 if the json schema is violated, 500 is they err or 200 is OK
+    // we get 107 is they can't find an undertaking (should be 404)
+    // two error codes that will be masked by 403
+    // and 103 that will probably be masked too or mean something else...
+    // think we should handle the 403 and 500 as UpstreamErrorResponse
+    // sadly have to build a wrapper just for the 107 & 103
+    override def reads(retrieveUndertakingResponse: JsValue): JsResult[Undertaking] = {
+      val json: JsLookupResult = retrieveUndertakingResponse \ "retrieveUndertakingResponse" \ "responseDetail"
+      val undertakingRef: Option[UndertakingRef] = (json \ "undertakingReference").asOpt[UndertakingRef]
+      val undertakingName: UndertakingName = (json \ "undertakingName").as[UndertakingName]
+      val industrySector: Sector = (json \ "industrySector").as[Sector]
+      val industrySectorLimit: BigDecimal = (json \ "industrySectorLimit").as[BigDecimal]
+      val lastSubsidyUsageUpdt: Option[LocalDate] = (json \ "lastSubsidyUsageUpdt").asOpt[LocalDate]
+      val undertakingBusinessEntity: List[BusinessEntity] = (json \ "undertakingBusinessEntity").as[List[BusinessEntity]]
+      JsSuccess(
+        Undertaking(
+          undertakingRef,
+          undertakingName,
+          industrySector,
+          industrySectorLimit,
+          lastSubsidyUsageUpdt,
+          undertakingBusinessEntity
+        )
+      )
+    }
   }
+
+  // provides json for EIS retrieveUndertaking call
+  implicit val retrieveUndertakingEORIWrites: Writes[EORI] = new Writes[EORI] {
+
+    val requestCommon = RequestCommon(
+      "acknowledgementReference".padTo(32,'X'), // TODO find out what this ref is supposed to look like
+      "RetrieveUndertaking"
+    )
+
+    override def writes(o: EORI): JsValue = Json.obj(
+      "retrieveUndertakingRequest" -> Json.obj(
+        "requestCommon" -> requestCommon,
+        "requestDetail" -> Json.obj(
+          "idType" -> "EORI",
+          "idValue" -> o.toString
+        )
+      )
+    )
+  }
+
+  // provides response for EIS retrieveUndertaking call
+  implicit val eisRetrieveUndertakingResponse: Writes[Undertaking] = new Writes[Undertaking] {
+    override def writes(o: Undertaking): JsValue = Json.obj(
+      "retrieveUndertakingResponse" -> Json.obj(
+        "responseCommon" -> ResponseCommon(EisStatus.OK, EisStatusString("ok"), LocalDateTime.now, None),
+        "responseDetail" -> o.reference,
+        "undertakingName" -> o.name,
+        "industrySector" -> o.industrySector,
+        "industrySectorLimit" -> o.industrySectorLimit,
+        "lastSubsidyUsageUpdt" -> o.lastSubsidyUsageUpdt,
+        "undertakingBusinessEntity" -> o.undertakingBusinessEntity
+      )
+    )
+  }
+
+  val retUndResp: JsValue = Json.parse(
+    """
+      |{
+      |  "retrieveUndertakingResponse": {
+      |    "responseCommon": {
+      |      "status": "OK",
+      |      "processingDate": "3446-92-08T17:31:33Z",
+      |      "statusText": "ABCDEFGHIJKLMNOPQRSTUVWXY",
+      |      "returnParameters": []
+      |    },
+      |    "responseDetail": {
+      |      "undertakingReference": "ABCDE",
+      |      "undertakingName": "ABCDEFGHIJKLMNOPQRSTUV",
+      |      "industrySector": "0",
+      |      "industrySectorLimit": 511.5,
+      |      "lastSubsidyUsageUpdt": "2136/08-03",
+      |      "undertakingBusinessEntity": [
+      |        {
+      |          "businessEntityIdentifier": "GB123456789012",
+      |          "leadEORI": true,
+      |          "address": {
+      |            "addressLine1": "ABCDE",
+      |            "countryCode": "AB",
+      |            "addressLine2": "ABCDEFGHIJKLMNOPQRSTUVWXYZAB",
+      |            "addressLine3": "ABCDEF",
+      |            "postcode": "ABCDEF"
+      |          },
+      |          "contacts": {
+      |            "phone": "ABCDEFGHIJKLMNOPQRSTUV",
+      |            "mobile": "ABCDE"
+      |          }
+      |        }
+      |      ]
+      |    }
+      |  }
+      |}
+    """.stripMargin)
+
+
 }

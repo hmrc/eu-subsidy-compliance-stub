@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
+import play.api.libs.json.Json
 import shapeless.tag.@@
 
-package object types {
+package object types extends SimpleJson {
 
   type UndertakingName = String @@ UndertakingName.Tag
   object UndertakingName extends RegexValidatedString(
@@ -28,6 +29,11 @@ package object types {
   type EORI = String @@ EORI.Tag
   object EORI extends RegexValidatedString(
     """^(GB|XI)[0-9]{12,15}$"""
+  )
+
+  type UndertakingRef = String @@ UndertakingRef.Tag
+  object UndertakingRef extends RegexValidatedString(
+    regex = """.{1,17}"""
   )
 
   type Sector = String @@ Sector.Tag
@@ -58,6 +64,30 @@ package object types {
       case "UK" => "GB"
       case other => other
     }
+  )
+
+  object EisStatus extends Enumeration {
+    type EisStatus = Value
+    val OK, NOT_OK = Value
+
+    implicit val format = Json.formatEnum(EisStatus)
+  }
+
+  object EisParamName extends Enumeration {
+    type EisParamName = Value
+    val ERRORCODE, ERRORTEXT = Value
+
+    implicit val format = Json.formatEnum(EisParamName)
+  }
+
+  type EisParamValue = String @@ EisParamValue.Tag
+  object EisParamValue extends RegexValidatedString(
+    """.{1,255}"""
+  )
+
+  type EisStatusString = String @@ EisStatusString.Tag
+  object EisStatusString extends RegexValidatedString(
+    """.{0,100}"""
   )
 
 }

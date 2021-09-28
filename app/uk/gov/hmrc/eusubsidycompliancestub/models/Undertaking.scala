@@ -16,14 +16,16 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
+import java.time.LocalDate
+
 import uk.gov.hmrc.eusubsidycompliancestub.models.types._
 
 case class Undertaking(
-  undertakingReference: EORI, // 1-17 char // TODO assuming also an EORI
-  undertakingName: UndertakingName, // 1-105 char
-  industrySector: Sector, // 0-3 TODO this needs to be an enumeration
-  industrySectorLimit: BigDecimal, // max 99999999999.99
-  lastSubsidyUsageUpdt: String, // some sort of date! "2136/08-03" TODO - turn into LocalDate
+  reference: Option[UndertakingRef], // 1-17 char //
+  name: UndertakingName, // 1-105 char
+  industrySector: Sector, // 0-3 TODO should this be an enumeration
+  industrySectorLimit: BigDecimal, // max 99999999999.99 TODO presumably this is a fixed value for each Sector
+  lastSubsidyUsageUpdt: Option[LocalDate], // some sort of date! "2136/08-03" TODO - turn into LocalDate, last update to the undertaking subsidies, only there on retrieve
   undertakingBusinessEntity: List[BusinessEntity]
 )
 
@@ -61,3 +63,45 @@ case class Undertaking(
 //  }
 //  }
 //}
+
+
+
+//{
+//  "createUndertakingRequest": {
+//    "requestCommon": {
+//    "originatingSystem": "MDTP",
+//    "receiptDate": "3446-92-08T17:31:33Z",
+//    "acknowledgementReference": "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEF",
+//    "messageTypes": {
+//    "messageType": "CreateNewUndertaking"
+//  },
+//    "requestParameters": [
+//  {
+//    "paramName": "REGIME",
+//    "paramValue": "ABCDEF"
+//  }
+//    ]
+//  },
+//    "requestDetail": {
+//    "undertakingName": "ABCDEFGHIJKLMNOPQRSTUVWXYZAB",
+//    "industrySector": "2",
+//    "businessEntity": {
+//    "idType": "ABCD",
+//    "id": "ABCD",
+//    "address": {
+//    "addressLine1": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+//    "countryCode": "AB",
+//    "addressLine2": "ABCDEFGHIJKLMNO",
+//    "addressLine3": "ABCDEFGHIJKLMNOPQRSTUVWXY",
+//    "postCode": "ABCDEFGHI"
+//  },
+//    "contacts": {
+//    "phone": "ABCDE",
+//    "mobile": "ABCDE"
+//  }
+//  },
+//    "undertakingStartDate": "2011/02.31"
+//  }
+//  }
+//}
+//
