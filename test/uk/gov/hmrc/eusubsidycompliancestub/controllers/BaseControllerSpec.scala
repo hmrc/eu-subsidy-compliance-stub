@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
+import org.mockito.Mockito._
 import org.scalatestplus.mockito._
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.http.HeaderNames
 import play.api.mvc.Results
 import play.api.test.FakeHeaders
@@ -27,10 +29,8 @@ class BaseControllerSpec extends
   PlaySpec
   with MockitoSugar // TODO remove if unneeded
   with Results
-  with GuiceOneAppPerSuite {
-
-//  val mockAction = mock[AuthAndEnvAction]
-//  val eisService = app.injector.instanceOf[EisService]
+  with GuiceOneAppPerSuite
+  with ScalaCheckDrivenPropertyChecks {
 
   val fakeHeaders =
     FakeHeaders(

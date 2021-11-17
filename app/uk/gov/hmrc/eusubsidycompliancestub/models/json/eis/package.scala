@@ -21,7 +21,7 @@ import java.time.{Clock, Instant, LocalDate, LocalDateTime}
 
 import play.api.libs.json._
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisStatus, EisStatusString, Sector, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisStatus, EisStatusString, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
 
 package object eis {
 
@@ -71,20 +71,14 @@ package object eis {
     }
 
     // provides Undertaking from EIS retrieveUndertaking response
-    // ...
-    // we get 403 if the json schema is violated, 500 is they err or 200 is OK
-    // we get 107 is they can't find an undertaking (should be 404)
-    // two error codes that will be masked by 403
-    // and 103 that will probably be masked too or mean something else...
-    // think we should handle the 403 and 500 as UpstreamErrorResponse
-    // sadly have to build a wrapper just for the 107 & 103
+    // TODO handle responseCommon
     override def reads(retrieveUndertakingResponse: JsValue): JsResult[Undertaking] = {
       val json: JsLookupResult = retrieveUndertakingResponse \ "retrieveUndertakingResponse" \ "responseDetail"
       val undertakingRef: Option[UndertakingRef] = (json \ "undertakingReference").asOpt[UndertakingRef]
       val undertakingName: UndertakingName = (json \ "undertakingName").as[UndertakingName]
       val industrySector: Sector = (json \ "industrySector").as[Sector]
-      val industrySectorLimit: BigDecimal = (json \ "industrySectorLimit").as[BigDecimal]
-      val lastSubsidyUsageUpdt: Option[LocalDate] = (json \ "lastSubsidyUsageUpdt").asOpt[LocalDate]
+      val industrySectorLimit: IndustrySectorLimit = (json \ "industrySectorLimit").as[IndustrySectorLimit]
+      val lastSubsidyUsageUpdt: LocalDate = (json \ "lastSubsidyUsageUpdt").as[LocalDate]
       val undertakingBusinessEntity: List[BusinessEntity] = (json \ "undertakingBusinessEntity").as[List[BusinessEntity]]
       JsSuccess(
         Undertaking(
@@ -120,15 +114,18 @@ package object eis {
 
   // provides response for EIS retrieveUndertaking call
   implicit val eisRetrieveUndertakingResponse: Writes[Undertaking] = new Writes[Undertaking] {
+    val oddEisDateFormat = DateTimeFormatter.ofPattern("YYYY/MM-dd")
     override def writes(o: Undertaking): JsValue = Json.obj(
       "retrieveUndertakingResponse" -> Json.obj(
-        "responseCommon" -> ResponseCommon(EisStatus.OK, EisStatusString("ok"), LocalDateTime.now, None),
-        "responseDetail" -> o.reference,
-        "undertakingName" -> o.name,
-        "industrySector" -> o.industrySector,
-        "industrySectorLimit" -> o.industrySectorLimit,
-        "lastSubsidyUsageUpdt" -> o.lastSubsidyUsageUpdt,
-        "undertakingBusinessEntity" -> o.undertakingBusinessEntity
+        "responseCommon" -> ResponseCommon(EisStatus.OK, EisStatusString("ok"), LocalDateTime.now, List.empty[Params]),
+        "responseDetail" -> Json.obj(
+          "undertakingReference" ->  o.reference,
+          "undertakingName" -> o.name,
+          "industrySector" -> o.industrySector,
+          "industrySectorLimit" -> o.industrySectorLimit,
+          "lastSubsidyUsageUpdt" -> o.lastSubsidyUsageUpdt.format(oddEisDateFormat),
+          "undertakingBusinessEntity" -> o.undertakingBusinessEntity
+        )
       )
     )
   }

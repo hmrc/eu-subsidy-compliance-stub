@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models.json.eis
 
-import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.{Instant, LocalDateTime}
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json._
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisParamName.EisParamName
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisStatus.EisStatus
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EisParamValue, EisStatusString}
@@ -38,11 +39,26 @@ case class ResponseCommon(
   status: EisStatus,
   statusText: EisStatusString,
   processingDate: LocalDateTime,
-  returnParameters: Option[Params]
+  returnParameters: List[Params] // TODO make an option
 )
 
-case object ResponseCommon {
-  implicit val format: OFormat[ResponseCommon] =
-    Json.format[ResponseCommon]
+object ResponseCommon {
+
+  implicit val writes = new Writes[ResponseCommon] {
+    val oddEisFormat = DateTimeFormatter.ofPattern("YYYY-MM-dd'T'HH:mm:ss'Z'")
+    override def writes(o: ResponseCommon): JsValue = Json.obj(
+      "status" -> o.status,
+      "statusText" -> o.statusText,
+      "processingDate" -> o.processingDate.format(oddEisFormat),
+      "returnParameters" -> o.returnParameters
+    )
+  }
+
+
+//  "responseCommon": {
+    //    "status": "NOT_OK",
+    //    "processingDate": "3446-92-08T17:31:33Z",
+    //    "statusText": "ABCDEFGHIJKLMNOPQRSTUVWXY",
+    //    "returnParameters": []
 }
 

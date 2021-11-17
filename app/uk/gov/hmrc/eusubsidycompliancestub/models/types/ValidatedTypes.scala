@@ -80,6 +80,25 @@ trait SimpleJson {
     ): JsValue = JsString(o)
   }
 
+
+  implicit val percentFormat: Format[IndustrySectorLimit] = new Format[IndustrySectorLimit] {
+    override def reads(json: JsValue): JsResult[IndustrySectorLimit] = {
+      json match {
+        case JsNumber(value) =>
+          IndustrySectorLimit.validateAndTransform(value) match {
+            case Some(validCode) => JsSuccess(IndustrySectorLimit(validCode))
+            case None => JsError(s"Expected a valid IndustrySectorLimit, got $value instead.")
+          }
+
+        case xs: JsValue => JsError(
+          JsPath -> JsonValidationError(Seq(s"""Expected a valid IndustrySectorLimit, got $xs instead"""))
+        )
+      }
+    }
+
+    override def writes(o: IndustrySectorLimit): JsValue = JsNumber(BigDecimal(o.toString))
+  }
+
   implicit val phonenumberFormat: Format[@@[String, types.PhoneNumber.Tag]] =
     validatedStringFormat(PhoneNumber, "phonenumber")
 

@@ -21,6 +21,15 @@ import shapeless.tag.@@
 
 package object types extends SimpleJson {
 
+  type IndustrySectorLimit = BigDecimal @@ IndustrySectorLimit.Tag
+  object IndustrySectorLimit extends ValidatedType[BigDecimal] {
+    override def validateAndTransform(in: BigDecimal): Option[BigDecimal] = {
+      Some(in).filter { x =>
+        (x <= 99999999999.99) && (x.scale <= 2)
+      }
+    }
+  }
+
   type UndertakingName = String @@ UndertakingName.Tag
   object UndertakingName extends RegexValidatedString(
     regex = """.{1,105}"""
@@ -89,5 +98,32 @@ package object types extends SimpleJson {
   object EisStatusString extends RegexValidatedString(
     """.{0,100}"""
   )
+
+  type ErrorCode = String @@ ErrorCode.Tag
+  object ErrorCode extends RegexValidatedString(
+    """.{1,35}"""
+  )
+
+  type ErrorMessage = String @@ ErrorMessage.Tag
+  object ErrorMessage extends RegexValidatedString(
+    """.{1,255}"""
+  )
+
+  type Source = String @@ Source.Tag
+  object Source extends RegexValidatedString(
+    """.{1,40}"""
+  )
+
+  type CorrelationID = String @@ CorrelationID.Tag
+  object CorrelationID extends RegexValidatedString(
+    """.{1,36}"""
+  )
+
+  type NonEmptyString = String @@ NonEmptyString.Tag
+  object NonEmptyString extends ValidatedType[String]{
+    def validateAndTransform(in: String): Option[String] =
+      Some(in).filter(_.nonEmpty)
+  }
+
 
 }

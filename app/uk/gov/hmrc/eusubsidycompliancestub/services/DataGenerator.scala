@@ -19,8 +19,8 @@ package uk.gov.hmrc.eusubsidycompliancestub.services
 import java.time.LocalDate
 
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, ContactDetails, Undertaking}
-import org.scalacheck.Gen
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, PhoneNumber, Sector, UndertakingName, UndertakingRef}
+import org.scalacheck.{Arbitrary, Gen}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit, PhoneNumber, Sector, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.smartstub._
 
 object DataGenerator {
@@ -62,7 +62,7 @@ object DataGenerator {
       ref <- variableLengthString(1, 17)
       name <- variableLengthString(1, 105)
       industrySector <- Gen.oneOf(List("0","1","2","3"))
-      industrySectorLimit <- Gen.choose(0.1, 99999999999.99)
+      industrySectorLimit <- Gen.choose(1L, 9999999999999L).map(x => IndustrySectorLimit(x / 100))
       lastSubsidyUsageUpdt <- Gen.date(LocalDate.of(2020,1,1), LocalDate.now)
       nBusinessEntities <- Gen.choose(1,25)
       undertakingBusinessEntity <- Gen.listOfN(nBusinessEntities,genBusinessEntity)
@@ -71,7 +71,7 @@ object DataGenerator {
       UndertakingName(name),
       Sector(industrySector),
       industrySectorLimit,
-      Some(lastSubsidyUsageUpdt),
+      lastSubsidyUsageUpdt,
       undertakingBusinessEntity.head.copy(businessEntityIdentifier = EORI(eori), leadEORI = true) :: undertakingBusinessEntity.tail
     )
 

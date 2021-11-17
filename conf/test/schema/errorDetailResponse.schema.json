@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Comment describing your JSON Schema",
+  "type": "object",
+  "definitions": {
+    "fault": {
+      "type": "object",
+      "description": "This is to wrapping the lower-level fault returned from a SOAP or REST backend system"
+    }
+  },
+  "properties": {
+    "errorDetail": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 35
+        },
+        "correlationId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 36
+        },
+        "errorCode": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 35
+        },
+        "errorMessage": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "sourceFaultDetail": {
+          "type": "object",
+          "properties": {
+            "restFault": {
+              "$ref": "#/definitions/fault"
+            },
+            "soapFault": {
+              "$ref": "#/definitions/fault"
+            },
+            "detail": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "timestamp",
+        "correlationId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "errorDetail"
+  ],
+  "additionalProperties": false
+}

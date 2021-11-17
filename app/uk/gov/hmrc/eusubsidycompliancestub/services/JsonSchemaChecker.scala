@@ -39,19 +39,19 @@ object JsonSchemaChecker {
     JsonLoader.fromString(schemaText)
   }
 
-  def apply[A](model: A, file: String)(implicit format: Format[A]): Boolean = {
+  def apply[A](model: A, file: String)(implicit format: Format[A]): ProcessingReport = {
     val schema = retrieveSchema(file)
     val validator = JsonSchemaFactory.byDefault.getValidator
     val json = JsonLoader.fromString(Json.prettyPrint(Json.toJson(model)))
     val processingReport: ProcessingReport = validator.validate(schema, json)
     if (!processingReport.isSuccess) processingReport.foreach {
       x =>
+        x.getMessage
         logger.warn(
-          s"failed to validate against json schema, schema: ${x.asJson().get("schema")}, " +
-            s"instance: ${x.asJson().get("instance")}, problem: ${x.asJson().get("keyword")}"
+          s"json schema validation problem: ${x.getMessage}"
         )
     }
-    processingReport.isSuccess
+    processingReport
   }
 
 }

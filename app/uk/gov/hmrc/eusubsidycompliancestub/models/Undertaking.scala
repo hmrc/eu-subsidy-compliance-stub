@@ -24,8 +24,8 @@ case class Undertaking(
   reference: Option[UndertakingRef], // 1-17 char //
   name: UndertakingName, // 1-105 char
   industrySector: Sector, // 0-3 TODO should this be an enumeration
-  industrySectorLimit: BigDecimal, // max 99999999999.99 TODO presumably this is a fixed value for each Sector
-  lastSubsidyUsageUpdt: Option[LocalDate], // some sort of date! "2136/08-03" TODO - turn into LocalDate, last update to the undertaking subsidies, only there on retrieve
+  industrySectorLimit: IndustrySectorLimit,//BigDecimal, // max 99999999999.99 TODO presumably this is a fixed value for each Sector
+  lastSubsidyUsageUpdt: LocalDate, // some sort of date! "2136/08-03" TODO - turn into LocalDate, last update to the undertaking subsidies, only there on retrieve
   undertakingBusinessEntity: List[BusinessEntity]
 )
 
