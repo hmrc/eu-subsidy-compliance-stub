@@ -16,16 +16,14 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
-import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito._
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{ControllerComponents, Result}
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, _}
-import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{eisRetrieveUndertakingResponse, retrieveUndertakingEORIWrites}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.EORI
-import uk.gov.hmrc.eusubsidycompliancestub.services.{EisService, JsonSchemaChecker}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.retrieveUndertakingEORIWrites
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisParamName, EisParamValue, EisStatus}
+import uk.gov.hmrc.eusubsidycompliancestub.services.JsonSchemaChecker
 
 import scala.concurrent.Future
 
@@ -38,7 +36,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
     val okEori = EORI("GB123456789012345")
     val internalServerErrorEori = EORI("GB123456789012999")
-    val notFoundEori = EORI("GB123456789012888") // TODO remember this returns a 107 in the ResponseCommon
+    val notFoundEori = EORI("GB123456789012888")
 
     def validRetrieveUndertakingBody(eori: EORI): JsValue =
       Json.toJson(eori)(retrieveUndertakingEORIWrites)
@@ -79,9 +77,32 @@ class UndertakingControllerSpec extends BaseControllerSpec {
             )
           )
         )
+      JsonSchemaChecker[JsValue](
+        contentAsJson(result),
+        "errorDetailResponse"
+      ).isSuccess mustEqual true
       status(result) mustEqual  play.api.http.Status.INTERNAL_SERVER_ERROR
     }
 
+    "return 200 but with NOT_OK responseCommon.status and ERRORCODE 107 if EORI ends in 888 (not found)" in {
+      val result: Future[Result] =
+        controller.retrieve.apply(
+          fakeRetrieveUndertakingPost(
+            validRetrieveUndertakingBody(
+              notFoundEori
+            )
+          )
+        )
+      val json = contentAsJson(result)
+      (json \ "retrieveUndertakingResponse" \ "responseCommon" \ "status").as[String] mustEqual
+        EisStatus.NOT_OK.toString
+      (json \ "retrieveUndertakingResponse" \ "responseCommon" \ "returnParameters").as[List[Params]].head mustEqual
+        Params(EisParamName.ERRORCODE, EisParamValue("107"))
+      JsonSchemaChecker[JsValue](
+        json,
+        "retrieveUndertakingResponse"
+      ).isSuccess mustEqual true
+      status(result) mustEqual  play.api.http.Status.OK
+    }
   }
-
 }

@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
-import org.mockito.Mockito._
 import org.scalatestplus.mockito._
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite

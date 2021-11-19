@@ -17,16 +17,17 @@
 package uk.gov.hmrc.eusubsidycompliancestub.models.json
 
 import java.time.format.DateTimeFormatter
-import java.time.{Clock, Instant, LocalDate, LocalDateTime}
+import java.time._
 
 import play.api.libs.json._
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisStatus, EisStatusString, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
+import uk.gov.hmrc.eusubsidycompliancestub.models.types._
 
 package object eis {
 
-  val clock = Clock.systemUTC()
-  val formatter = DateTimeFormatter.ISO_INSTANT
+  val clock: Clock = Clock.systemUTC()
+  val formatter: DateTimeFormatter = DateTimeFormatter.ISO_INSTANT
+  val oddEisDateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("YYYY/MM-dd")
 
   def receiptDate: String = {
     val instant = Instant.now(clock)
@@ -34,90 +35,23 @@ package object eis {
     formatter.format(withoutNanos)
   }
 
-  implicit val undertakingFormat: Format[Undertaking] = new Format[Undertaking] {
-
-    val requestCommon = RequestCommon(
-      "acknowledgementReferenceTODO", // TODO
-      "CreateNewUndertaking"
-    )
-
-    // provides json for EIS createUndertaking call
-    override def writes(o: Undertaking): JsValue = {
-      val lead: BusinessEntity =
-        o.undertakingBusinessEntity match {
-          case h :: Nil => h // TODO should test they are a lead, or maybe EIS will infer that :)?
-          case _ => throw new IllegalStateException(s"unable to create undertaking with missing or multiple business entities")
-        }
-
-      val dateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
-      Json.obj(
-        "createUndertakingRequest" -> Json.obj(
-          "requestCommon" -> requestCommon,
-          "requestDetail" -> Json.obj(
-            "undertakingName" -> o.name,
-            "industrySector" -> o.industrySector,
-            "businessEntity" -> Json.arr(
-              Json.obj(
-                "idType" -> "EORI",
-                "id" -> lead.businessEntityIdentifier,
-                "contacts" -> lead.contacts
-              )
-            ),
-            "undertakingStartDate" -> dateFormatter.format(LocalDate.now)
-          )
-        )
-      )
-
-    }
-
-    // provides Undertaking from EIS retrieveUndertaking response
-    // TODO handle responseCommon
-    override def reads(retrieveUndertakingResponse: JsValue): JsResult[Undertaking] = {
-      val json: JsLookupResult = retrieveUndertakingResponse \ "retrieveUndertakingResponse" \ "responseDetail"
-      val undertakingRef: Option[UndertakingRef] = (json \ "undertakingReference").asOpt[UndertakingRef]
-      val undertakingName: UndertakingName = (json \ "undertakingName").as[UndertakingName]
-      val industrySector: Sector = (json \ "industrySector").as[Sector]
-      val industrySectorLimit: IndustrySectorLimit = (json \ "industrySectorLimit").as[IndustrySectorLimit]
-      val lastSubsidyUsageUpdt: LocalDate = (json \ "lastSubsidyUsageUpdt").as[LocalDate]
-      val undertakingBusinessEntity: List[BusinessEntity] = (json \ "undertakingBusinessEntity").as[List[BusinessEntity]]
-      JsSuccess(
-        Undertaking(
-          undertakingRef,
-          undertakingName,
-          industrySector,
-          industrySectorLimit,
-          lastSubsidyUsageUpdt,
-          undertakingBusinessEntity
-        )
-      )
-    }
-  }
-
-  // provides json for EIS retrieveUndertaking call
-  implicit val retrieveUndertakingEORIWrites: Writes[EORI] = new Writes[EORI] {
-
-    val requestCommon = RequestCommon(
-      "acknowledgementReference".padTo(32,'X'), // TODO find out what this ref is supposed to look like
-      "RetrieveUndertaking"
-    )
-
-    override def writes(o: EORI): JsValue = Json.obj(
-      "retrieveUndertakingRequest" -> Json.obj(
-        "requestCommon" -> requestCommon,
-        "requestDetail" -> Json.obj(
-          "idType" -> "EORI",
-          "idValue" -> o.toString
-        )
-      )
-    )
+  implicit class RichLocalDateTime(in: LocalDateTime) {
+    def eisFormat: String =
+      formatter.format(in.toInstant(ZoneOffset.UTC).minusNanos(in.getNano))
   }
 
   // provides response for EIS retrieveUndertaking call
   implicit val eisRetrieveUndertakingResponse: Writes[Undertaking] = new Writes[Undertaking] {
-    val oddEisDateFormat = DateTimeFormatter.ofPattern("YYYY/MM-dd")
+
     override def writes(o: Undertaking): JsValue = Json.obj(
       "retrieveUndertakingResponse" -> Json.obj(
-        "responseCommon" -> ResponseCommon(EisStatus.OK, EisStatusString("ok"), LocalDateTime.now, List.empty[Params]),
+        "responseCommon" ->
+          ResponseCommon(
+            EisStatus.OK,
+            EisStatusString("ok"),
+            LocalDateTime.now,
+            None
+          ),
         "responseDetail" -> Json.obj(
           "undertakingReference" ->  o.reference,
           "undertakingName" -> o.name,
@@ -167,6 +101,4 @@ package object eis {
       |  }
       |}
     """.stripMargin)
-
-
 }

@@ -20,7 +20,6 @@ import cats.implicits._
 import play.api.libs.json._
 import shapeless._
 import tag._
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
 import uk.gov.hmrc.eusubsidycompliancestub.models.types
 
 import scala.util.matching.Regex

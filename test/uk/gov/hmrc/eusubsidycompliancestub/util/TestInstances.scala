@@ -18,12 +18,10 @@ package uk.gov.hmrc.eusubsidycompliancestub.util
 
 import java.time._
 
-import org.scalacheck
-import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.ErrorDetail
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{CorrelationID, EORI, ErrorCode, ErrorMessage, NonEmptyString, Source}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{CorrelationID, EORI, ErrorCode, ErrorMessage, Source}
 import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator.{genEORI, genRetrievedUndertaking}
 import wolfendale.scalacheck.regexp.RegexpGen
 

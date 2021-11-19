@@ -19,7 +19,8 @@ package uk.gov.hmrc.eusubsidycompliancestub.controllers
 import org.scalatest.Assertion
 import play.api.libs.json.{JsValue, Json, Writes}
 import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetail, eisRetrieveUndertakingResponse, retrieveUndertakingEORIWrites}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetail, eisRetrieveUndertakingResponse}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.retrieveUndertakingEORIWrites
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EORI
 import uk.gov.hmrc.eusubsidycompliancestub.services.JsonSchemaChecker
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances._
@@ -47,9 +48,8 @@ class JsonConversionSpec extends BaseControllerSpec {
   }
 
   def checkWrites[A](in: A, schema: String)(implicit writes: Writes[A]): Assertion = {
-    val json = Json.toJson(in)
     JsonSchemaChecker[JsValue](
-      json,
+      Json.toJson(in),
       schema
     ).isSuccess mustEqual true
   }

@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models.json.eis
 
-import java.time.format.DateTimeFormatter
-import java.time.{Instant, LocalDateTime}
+import java.time.LocalDateTime
 
+import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisParamName.EisParamName
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisStatus.EisStatus
@@ -39,26 +39,20 @@ case class ResponseCommon(
   status: EisStatus,
   statusText: EisStatusString,
   processingDate: LocalDateTime,
-  returnParameters: List[Params] // TODO make an option
+  returnParameters: Option[List[Params]] // TODO make an option
 )
 
 object ResponseCommon {
 
-  implicit val writes = new Writes[ResponseCommon] {
-    val oddEisFormat = DateTimeFormatter.ofPattern("YYYY-MM-dd'T'HH:mm:ss'Z'")
-    override def writes(o: ResponseCommon): JsValue = Json.obj(
-      "status" -> o.status,
-      "statusText" -> o.statusText,
-      "processingDate" -> o.processingDate.format(oddEisFormat),
-      "returnParameters" -> o.returnParameters
-    )
+  implicit val ldtwrites: Writes[LocalDateTime] = new Writes[LocalDateTime] {
+    override def writes(o: LocalDateTime): JsValue = JsString(o.eisFormat)
   }
+  implicit val writes: Writes[ResponseCommon] = (
+    (JsPath \ "status").write[EisStatus] and
+      (JsPath \ "statusText").write[EisStatusString] and
+      (JsPath \ "processingDate").write[LocalDateTime] and
+      (JsPath \ "returnParameters").writeNullable[List[Params]]
+  )(unlift(ResponseCommon.unapply))
 
-
-//  "responseCommon": {
-    //    "status": "NOT_OK",
-    //    "processingDate": "3446-92-08T17:31:33Z",
-    //    "statusText": "ABCDEFGHIJKLMNOPQRSTUVWXY",
-    //    "returnParameters": []
 }
 
