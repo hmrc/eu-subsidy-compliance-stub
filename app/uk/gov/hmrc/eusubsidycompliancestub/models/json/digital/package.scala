@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models.json
 
-import java.time.{LocalDate, LocalDateTime}
+import java.time.{LocalDate, ZonedDateTime}
 import java.time.format.DateTimeFormatter
 
 import play.api.libs.json._
@@ -67,7 +67,7 @@ package object digital {
       val responseCommon: JsLookupResult = retrieveUndertakingResponse \ "retrieveUndertakingResponse" \ "responseCommon"
       (responseCommon \ "status").as[String] match {
         case "NOT_OK" =>
-          val processingDate = (responseCommon \ "processingDate").as[LocalDateTime]
+          val processingDate = (responseCommon \ "processingDate").as[ZonedDateTime]
           val statusText = (responseCommon \ "statusText").asOpt[String]
           val returnParameters = (responseCommon \ "returnParameters").asOpt[List[Params]]
           throw new EisBadResponseException("NOT_OK", processingDate, statusText, returnParameters)
@@ -77,7 +77,10 @@ package object digital {
           val undertakingName: UndertakingName = (responseDetail \ "undertakingName").as[UndertakingName]
           val industrySector: Sector = (responseDetail \ "industrySector").as[Sector]
           val industrySectorLimit: IndustrySectorLimit = (responseDetail \ "industrySectorLimit").as[IndustrySectorLimit]
-          val lastSubsidyUsageUpdt: LocalDate = (responseDetail \ "lastSubsidyUsageUpdt").as[LocalDate]
+          val lastSubsidyUsageUpdt: LocalDate = (responseDetail \ "lastSubsidyUsageUpdt").as[LocalDate](new Reads[LocalDate] {
+            override def reads(json: JsValue): JsResult[LocalDate] =
+              JsSuccess(LocalDate.parse(json.as[String], eis.oddEisDateFormat))
+          })
           val undertakingBusinessEntity: List[BusinessEntity] = (responseDetail \ "undertakingBusinessEntity").as[List[BusinessEntity]]
           JsSuccess(
             Undertaking(

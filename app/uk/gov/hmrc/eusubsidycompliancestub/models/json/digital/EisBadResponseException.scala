@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
 
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
 
 class EisBadResponseException(
   status: String,
-  processingDate: LocalDateTime,
+  processingDate: ZonedDateTime,
   statusText: Option[String],
   returnParameters: Option[List[Params]]
 ) extends RuntimeException(s"$processingDate $status $statusText $returnParameters")

@@ -16,11 +16,13 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsResult, JsValue, Json}
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, _}
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.retrieveUndertakingEORIWrites
+import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, retrieveUndertakingEORIWrites}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisParamName, EisParamValue, EisStatus}
 import uk.gov.hmrc.eusubsidycompliancestub.services.JsonSchemaChecker
@@ -54,6 +56,9 @@ class UndertakingControllerSpec extends BaseControllerSpec {
         "retrieveUndertakingResponse"
       ).isSuccess mustEqual true
       status(result) mustEqual  play.api.http.Status.OK
+      // TODO this next test should live on the BE
+      val u: JsResult[Undertaking] = Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
+      u.isSuccess mustEqual true
     }
 
     "return 403 (weirdly) if the request payload is not valid" in {
@@ -103,6 +108,10 @@ class UndertakingControllerSpec extends BaseControllerSpec {
         "retrieveUndertakingResponse"
       ).isSuccess mustEqual true
       status(result) mustEqual  play.api.http.Status.OK
+      // TODO this next test should live on the BE
+      intercept[EisBadResponseException] {
+        Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
+      }
     }
   }
 }
