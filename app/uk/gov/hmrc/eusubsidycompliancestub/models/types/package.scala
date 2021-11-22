@@ -45,7 +45,7 @@ package object types extends SimpleJson {
     regex = """.{1,17}"""
   )
 
-  type Sector = String @@ Sector.Tag
+  type Sector = String @@ Sector.Tag // TODO if using enumeratum do enumeratum otherwise sealed trait
   object Sector extends RegexValidatedString(
     regex = "0|1|2|3"
   )

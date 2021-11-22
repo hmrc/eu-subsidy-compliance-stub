@@ -61,7 +61,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       u.isSuccess mustEqual true
     }
 
-    "return 403 (weirdly) if the request payload is not valid" in {
+    "return 403 (as per EIS spec) if the request payload is not valid" in {
       val result: Future[Result] =
         controller.retrieve.apply(
           fakeRetrieveUndertakingPost(Json.obj("foo" -> "bar"))

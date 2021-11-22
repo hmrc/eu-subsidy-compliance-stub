@@ -14,20 +14,14 @@ object AppDependencies {
   )
 
   val test = Seq(
-//    "org.scalatest"           %% "scalatest"                  % "3.0.8"              % Test,
-    "org.scalatestplus"       %% "scalacheck-1-15"           % "3.2.10.0" % "test",
-
-    "com.typesafe.play"         %% "play-test"                % current              % Test,
-    "org.scalacheck"          % "scalacheck_2.12" % "1.15.4" % Test,
-//    "org.scalacheck"          %% "scalacheck"                 % "1.14.3"             % Test,
-    "org.scalatestplus.play"    %% "scalatestplus-play"       % "3.1.3"              % Test,
+    "org.scalatestplus"       %% "scalacheck-1-15"            % "3.2.10.0"           % "test",
+    "com.typesafe.play"       %% "play-test"                  % current              % Test,
+    "org.scalacheck"          %% "scalacheck"                 % "1.15.4"             % Test,
+    "org.scalatestplus.play"  %% "scalatestplus-play"         % "3.1.3"              % Test,
     "uk.gov.hmrc"             %% "bootstrap-test-play-28"     % "5.13.0"             % Test,
     "org.scalatestplus"       %% "mockito-3-4"                % "3.2.9.0"            % Test,
-
-//    "org.mockito"             %  "mockito-core"             % "2.24.0"                % "test",
-
-    "com.vladsch.flexmark"    %  "flexmark-all"               % "0.60.0"              % Test,
-    "wolfendale"                %% "scalacheck-gen-regexp"    % "0.1.2"               % Test
+    "com.vladsch.flexmark"    %  "flexmark-all"               % "0.60.0"             % Test,
+    "wolfendale"              %% "scalacheck-gen-regexp"      % "0.1.2"              % Test
 
 
   )

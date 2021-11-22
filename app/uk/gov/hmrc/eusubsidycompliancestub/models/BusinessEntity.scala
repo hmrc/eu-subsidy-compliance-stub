@@ -22,7 +22,6 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.types.EORI
 case class BusinessEntity(
   businessEntityIdentifier: EORI,
   leadEORI: Boolean,
-//  address: Option[Address], // not needed but still included in EIS API...
   contacts: Option[ContactDetails]
 )
 

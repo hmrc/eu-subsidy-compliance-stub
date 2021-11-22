@@ -80,7 +80,7 @@ trait SimpleJson {
   }
 
 
-  implicit val percentFormat: Format[IndustrySectorLimit] = new Format[IndustrySectorLimit] {
+  implicit val sectorLimitFormat: Format[IndustrySectorLimit] = new Format[IndustrySectorLimit] {
     override def reads(json: JsValue): JsResult[IndustrySectorLimit] = {
       json match {
         case JsNumber(value) =>
