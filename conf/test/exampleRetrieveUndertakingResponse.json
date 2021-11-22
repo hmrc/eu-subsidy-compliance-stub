@@ -1,0 +1,34 @@
+{
+  "retrieveUndertakingResponse": {
+    "responseCommon": {
+      "status": "OK",
+      "processingDate": "3446-92-08T17:31:33Z", // TODO look at this date... generated from EIS schema
+      "statusText": "ABCDEFGHIJKLMNOPQRSTUVWXY",
+      "returnParameters": []
+    },
+    "responseDetail": {
+      "undertakingReference": "ABCDE",
+      "undertakingName": "ABCDEFGHIJKLMNOPQRSTUV",
+      "industrySector": "0",
+      "industrySectorLimit": 511.5,
+      "lastSubsidyUsageUpdt": "2136/08-03",
+      "undertakingBusinessEntity": [
+        {
+          "businessEntityIdentifier": "GB123456789012",
+          "leadEORI": true,
+          "address": {
+            "addressLine1": "ABCDE",
+            "countryCode": "AB",
+            "addressLine2": "ABCDEFGHIJKLMNOPQRSTUVWXYZAB",
+            "addressLine3": "ABCDEF",
+            "postcode": "ABCDEF"
+          },
+          "contacts": {
+            "phone": "ABCDEFGHIJKLMNOPQRSTUV",
+            "mobile": "ABCDE"
+          }
+        }
+      ]
+    }
+  }
+}

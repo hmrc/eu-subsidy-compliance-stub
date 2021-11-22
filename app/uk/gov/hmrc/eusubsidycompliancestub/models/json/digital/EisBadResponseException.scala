@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.eusubsidycompliancestub.config
+package uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
 
-import javax.inject.{Inject, Singleton}
-import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import java.time.ZonedDateTime
 
-@Singleton
-class AppConfig @Inject()
-  (
-    config: Configuration
-  , servicesConfig: ServicesConfig
-  ) {
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
 
-  val authBaseUrl: String = servicesConfig.baseUrl("auth")
-
-  val auditingEnabled: Boolean = config.get[Boolean]("auditing.enabled")
-  val graphiteHost: String     = config.get[String]("microservice.metrics.graphite.host")
-}
+class EisBadResponseException(
+  status: String,
+  processingDate: ZonedDateTime,
+  statusText: Option[String],
+  returnParameters: Option[List[Params]]
+) extends RuntimeException(s"$processingDate $status $statusText $returnParameters")

@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.eusubsidycompliancestub.config
+package uk.gov.hmrc.eusubsidycompliancestub.services
 
-import javax.inject.{Inject, Singleton}
-import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import javax.inject.Singleton
+import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
+import uk.gov.hmrc.smartstub._
 
 @Singleton
-class AppConfig @Inject()
-  (
-    config: Configuration
-  , servicesConfig: ServicesConfig
-  ) {
+class EisService {
 
-  val authBaseUrl: String = servicesConfig.baseUrl("auth")
+  def retrieveUndertaking(eori: String): Undertaking =
+    DataGenerator
+      .genRetrievedUndertaking(eori)
+      .seeded(
+        eori.substring(2).toLong
+      ).get
 
-  val auditingEnabled: Boolean = config.get[Boolean]("auditing.enabled")
-  val graphiteHost: String     = config.get[String]("microservice.metrics.graphite.host")
 }
