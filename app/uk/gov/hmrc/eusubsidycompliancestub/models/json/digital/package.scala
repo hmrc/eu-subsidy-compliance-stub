@@ -29,7 +29,7 @@ package object digital {
   implicit val undertakingFormat: Format[Undertaking] = new Format[Undertaking] {
 
     val requestCommon = RequestCommon(
-      "acknowledgementReferenceTODO", // TODO
+      "acknowledgementReferenceTODOxxxx", // TODO
       "CreateNewUndertaking"
     )
 
@@ -51,7 +51,7 @@ package object digital {
             "businessEntity" ->
               Json.obj(
                 "idType" -> "EORI",
-                "id" -> lead.businessEntityIdentifier,
+                "idValue" -> JsString(lead.businessEntityIdentifier),
                 "contacts" -> lead.contacts
               ),
             "undertakingStartDate" -> dateFormatter.format(LocalDate.now)

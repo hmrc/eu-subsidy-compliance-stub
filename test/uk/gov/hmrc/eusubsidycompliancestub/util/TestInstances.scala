@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.util
 
+import cats.implicits._
 import java.time._
 
 import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.ErrorDetail
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{CorrelationID, EORI, ErrorCode, ErrorMessage, Source}
-import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator.{genEORI, genRetrievedUndertaking}
+import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator.{genEORI, genRetrievedUndertaking, genContactDetails}
 import wolfendale.scalacheck.regexp.RegexpGen
 
 object TestInstances {
@@ -33,6 +34,20 @@ object TestInstances {
       undertaking <- genRetrievedUndertaking(eori)
     } yield undertaking
     Arbitrary(u)
+  }
+
+  def arbUndertakingForCreate: Arbitrary[Undertaking] = {
+    val cd = Arbitrary(genContactDetails.retryUntil(x => x.phone.nonEmpty || x.mobile.nonEmpty))
+    Arbitrary(arbUndertaking.arbitrary.map { x =>
+      x.copy(
+        undertakingBusinessEntity =
+          List(
+            x.undertakingBusinessEntity.head.copy(
+              contacts = cd.arbitrary.sample.get.some
+            )
+          )
+      )
+    })
   }
 
   implicit def arbEori: Arbitrary[EORI] = {
