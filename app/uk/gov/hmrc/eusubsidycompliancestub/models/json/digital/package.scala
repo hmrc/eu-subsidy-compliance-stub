@@ -48,13 +48,12 @@ package object digital {
           "requestDetail" -> Json.obj(
             "undertakingName" -> o.name,
             "industrySector" -> o.industrySector,
-            "businessEntity" -> Json.arr(
+            "businessEntity" ->
               Json.obj(
                 "idType" -> "EORI",
                 "id" -> lead.businessEntityIdentifier,
                 "contacts" -> lead.contacts
-              )
-            ),
+              ),
             "undertakingStartDate" -> dateFormatter.format(LocalDate.now)
           )
         )

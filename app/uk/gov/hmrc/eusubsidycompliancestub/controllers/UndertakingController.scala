@@ -40,18 +40,18 @@ class UndertakingController @Inject()(
   def create(): Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
     withJsonBody[JsValue] { json =>
 
-//      if (!JsonSchemaChecker[JsValue](json, "retrieveUndertakingRequest")) {
+      if (!JsonSchemaChecker[JsValue](json, "createUndertakingRequest").isSuccess) {
 //        // this should ideally be a BadRequest but the API specifies forbidden
-//        Future.successful(Forbidden(Json.toJson("TODO and error message"))) // TODO
-//      } else {
-//        val eori: String = (json \ "retrieveUndertakingRequest" \ "requestDetail" \ "idValue").as[String]
+        Future.successful(Forbidden(Json.toJson("TODO and error message"))) // TODO
+      } else {
+        val undertakingReference: String = (json \ "createUndertakingResponse" \ "responseDetail" \ "undertakingReference").as[String]
 //
 //        // TODO think about if the Gen is going to return the valid and invalid responses
 //        val undertaking = eis.retrieveUndertaking(eori)
 //
-//        Future.successful(Ok(Json.toJson(undertaking)(eisRetrieveUndertakingResponse)))
+//        Future.successful(Ok(Json.toJson(undertakingReference)(eisRetrieveUndertakingResponse)))
 //
-//      }
+      }
       ???
     }
   }
