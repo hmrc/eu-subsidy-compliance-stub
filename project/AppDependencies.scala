@@ -10,7 +10,8 @@ object AppDependencies {
     "org.typelevel"           %% "cats-core"                  % "2.6.1",
     "com.chuusai"             %% "shapeless"                  % "2.3.7",
     "uk.gov.hmrc"             %% "stub-data-generator"        % "0.5.3",
-    "com.github.fge"          %  "json-schema-validator"      % "2.2.6"
+    "com.github.fge"          %  "json-schema-validator"      % "2.2.6",
+    "wolfendale"              %% "scalacheck-gen-regexp"      % "0.1.2"
   )
 
   val test = Seq(
@@ -22,7 +23,5 @@ object AppDependencies {
     "org.scalatestplus"       %% "mockito-3-4"                % "3.2.9.0"            % Test,
     "com.vladsch.flexmark"    %  "flexmark-all"               % "0.60.0"             % Test,
     "wolfendale"              %% "scalacheck-gen-regexp"      % "0.1.2"              % Test
-
-
   )
 }

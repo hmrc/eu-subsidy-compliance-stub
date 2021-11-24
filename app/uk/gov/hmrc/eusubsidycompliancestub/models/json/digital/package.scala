@@ -25,27 +25,6 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisStatus, EisSta
 
 package object digital {
 
-  implicit val createUndertakingResponseWrites: Writes[Undertaking] = new Writes[Undertaking] {
-    override def writes(undertaking: Undertaking): JsValue = {
-       Json.obj(
-        "createUndertakingResponse" -> Json.obj(
-          "responseCommon" ->
-            ResponseCommon(
-              EisStatus.OK,
-              EisStatusString("String"),
-              LocalDateTime.now,
-              None
-            ),
-          "responseDetail" -> Json.obj(
-            "undertakingReference" -> undertaking.reference
-          )
-        )
-      )
-    }
-  }
-
-
-
   implicit val undertakingFormat: Format[Undertaking] = new Format[Undertaking] {
 
     val requestCommon = RequestCommon(

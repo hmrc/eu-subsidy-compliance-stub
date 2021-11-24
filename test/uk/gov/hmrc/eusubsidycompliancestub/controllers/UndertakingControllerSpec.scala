@@ -16,72 +16,121 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
+import cats.implicits._
+
 import play.api.libs.json.{JsResult, JsValue, Json}
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, _}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, ContactDetails, Undertaking}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, createUndertakingResponseWrites, retrieveUndertakingEORIWrites, undertakingFormat}
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, retrieveUndertakingEORIWrites, undertakingFormat}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{Params, eisCreateUndertakingResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisParamName, EisParamValue, EisStatus, IndustrySectorLimit, PhoneNumber, Sector, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.services.JsonSchemaChecker
-
 import java.time.LocalDate
+
+import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
+import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances.arbContactDetails
+
 import scala.concurrent.Future
 
 class UndertakingControllerSpec extends BaseControllerSpec {
 
   private val controller: UndertakingController =
     app.injector.instanceOf[UndertakingController]
+  val internalServerErrorEori = EORI("GB123456789012999")
+
+
   "Create Undertaking" must {
 
-    val u = Undertaking(
-      Some(UndertakingRef("XNH09765432124")),
-      UndertakingName("test name"),
-      Sector("1"),
-      IndustrySectorLimit(200.00),
-      LocalDate.now,
-      List(
-        BusinessEntity(
-          EORI("GB123456789123"),
-          true,
-          Some(
-            ContactDetails(
-              Some(PhoneNumber("12345678")),
-              None
-            )
-          )
-        )
-      )
-    )
+    val undertaking: Undertaking = TestInstances.arbUndertakingForCreate.arbitrary.sample.get
 
-    def validCreateUndertakingBody(): JsValue = {
-       Json.toJson(u)(createUndertakingResponseWrites)
+    def validCreateUndertakingBody(undertaking: Undertaking): JsValue = {
+      Json.toJson(undertaking)(undertakingFormat)
     }
 
     def fakeCreateUndertakingPost(body: JsValue): FakeRequest[JsValue] =
       FakeRequest("POST", "/scp/createundertaking/v1", fakeHeaders, body)
 
-    "return a createUndertakingResponse for a valid request" in {
-      val result: Future[Result] = controller.create().apply(
-         fakeCreateUndertakingPost(validCreateUndertakingBody())
+    def undertakingWithEori(eori: EORI) =
+      undertaking.copy(undertakingBusinessEntity =
+        List(
+          BusinessEntity(
+            eori,
+            leadEORI = true,
+            arbContactDetails.arbitrary.sample.get.some
+          )
+        )
       )
-      println(s"${contentAsJson(result)}CCCCCCCCCC")
 
+    "return 200 and an undertakingRef for a valid createUndertaking request" in {
+       val result: Future[Result] = controller.create.apply(
+          fakeCreateUndertakingPost(validCreateUndertakingBody(undertaking))
+        )
+
+        JsonSchemaChecker[JsValue](
+          contentAsJson(result),
+          "createUndertakingResponse"
+        ).isSuccess mustEqual true
+        status(result) mustEqual  play.api.http.Status.OK
+    }
+
+    "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
+      val result: Future[Result] =
+        controller.create.apply(
+          fakeCreateUndertakingPost(Json.obj("foo" -> "bar"))
+        )
       JsonSchemaChecker[JsValue](
         contentAsJson(result),
+        "errorDetailResponse"
+      ).isSuccess mustEqual true
+      status(result) mustEqual  play.api.http.Status.FORBIDDEN
+    }
+
+    "return 500 if the BusinessEntity.EORI ends in 999 " in {
+      val duffUndertaking: Undertaking = undertakingWithEori(internalServerErrorEori)
+      val result: Future[Result] =
+        controller.create.apply(
+          fakeCreateUndertakingPost(
+            validCreateUndertakingBody(
+              duffUndertaking
+            )
+          )
+        )
+      JsonSchemaChecker[JsValue](
+        contentAsJson(result),
+        "errorDetailResponse"
+      ).isSuccess mustEqual true
+      status(result) mustEqual  play.api.http.Status.INTERNAL_SERVER_ERROR
+    }
+
+    "return 200 but with NOT_OK responseCommon.status and ERRORCODE 004 if BusinessEntity.EORI ends in 888 (duplicate acknowledgementRef)" in {
+      val duffUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012888"))
+      val result: Future[Result] =
+        controller.create.apply(
+          fakeCreateUndertakingPost(
+            validCreateUndertakingBody(
+              duffUndertaking
+            )
+          )
+        )
+      val json = contentAsJson(result)
+      (json \ "createUndertakingResponse" \ "responseCommon" \ "status").as[String] mustEqual
+        EisStatus.NOT_OK.toString
+      (json \ "createUndertakingResponse" \ "responseCommon" \ "returnParameters").as[List[Params]].head mustEqual
+        Params(EisParamName.ERRORCODE, EisParamValue("004"))
+      JsonSchemaChecker[JsValue](
+        json,
         "createUndertakingResponse"
       ).isSuccess mustEqual true
       status(result) mustEqual  play.api.http.Status.OK
-
     }
   }
 
   "Retrieve Undertaking" must {
 
     val okEori = EORI("GB123456789012345")
-    val internalServerErrorEori = EORI("GB123456789012999")
     val notFoundEori = EORI("GB123456789012888")
 
     def validRetrieveUndertakingBody(eori: EORI): JsValue =
@@ -105,7 +154,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       u.isSuccess mustEqual true
     }
 
-    "return 403 (as per EIS spec) if the request payload is not valid" in {
+    "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
       val result: Future[Result] =
         controller.retrieve.apply(
           fakeRetrieveUndertakingPost(Json.obj("foo" -> "bar"))

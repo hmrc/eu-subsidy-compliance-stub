@@ -64,6 +64,26 @@ package object eis {
     )
   }
 
+  // formatter for the response from EIS when creating the Undertaking
+  implicit val eisCreateUndertakingResponse: Writes[UndertakingRef] = new Writes[UndertakingRef] {
+    override def writes(undertakingRef: UndertakingRef): JsValue = {
+      Json.obj(
+        "createUndertakingResponse" -> Json.obj(
+          "responseCommon" ->
+            ResponseCommon(
+              EisStatus.OK,
+              EisStatusString("String"),
+              LocalDateTime.now,
+              None
+            ),
+          "responseDetail" -> Json.obj(
+            "undertakingReference" -> undertakingRef
+          )
+        )
+      )
+    }
+  }
+
   val retUndResp: JsValue = Json.parse(
     """
       |{

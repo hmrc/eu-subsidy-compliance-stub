@@ -20,10 +20,10 @@ import cats.implicits._
 import java.time._
 
 import org.scalacheck.{Arbitrary, Gen}
-import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
+import uk.gov.hmrc.eusubsidycompliancestub.models.{ContactDetails, Undertaking}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.ErrorDetail
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{CorrelationID, EORI, ErrorCode, ErrorMessage, Source}
-import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator.{genEORI, genRetrievedUndertaking, genContactDetails}
+import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator.{genContactDetails, genEORI, genRetrievedUndertaking}
 import wolfendale.scalacheck.regexp.RegexpGen
 
 object TestInstances {
@@ -36,14 +36,16 @@ object TestInstances {
     Arbitrary(u)
   }
 
+  def arbContactDetails: Arbitrary[ContactDetails] =
+    Arbitrary(genContactDetails.retryUntil(x => x.phone.nonEmpty || x.mobile.nonEmpty))
+
   def arbUndertakingForCreate: Arbitrary[Undertaking] = {
-    val cd = Arbitrary(genContactDetails.retryUntil(x => x.phone.nonEmpty || x.mobile.nonEmpty))
     Arbitrary(arbUndertaking.arbitrary.map { x =>
       x.copy(
         undertakingBusinessEntity =
           List(
             x.undertakingBusinessEntity.head.copy(
-              contacts = cd.arbitrary.sample.get.some
+              contacts = arbContactDetails.arbitrary.sample.get.some
             )
           )
       )

@@ -16,19 +16,14 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
-import cats.implicits._
+import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetail, Params, ResponseCommon, eisRetrieveUndertakingResponse}
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.createUndertakingResponseWrites
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EisParamName, EisParamValue, EisStatus, EisStatusString, ErrorCode, ErrorMessage}
-import uk.gov.hmrc.eusubsidycompliancestub.services.{EisService, JsonSchemaChecker}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{eisCreateUndertakingResponse, eisRetrieveUndertakingResponse}
+import uk.gov.hmrc.eusubsidycompliancestub.services.EisService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-import java.time.LocalDateTime
-import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
-
 
 @Singleton
 class UndertakingController @Inject()(
@@ -37,88 +32,60 @@ class UndertakingController @Inject()(
   eis: EisService
 ) extends BackendController(cc) {
 
-  def create(): Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
+  def create: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
     withJsonBody[JsValue] { json =>
 
-//      if (!JsonSchemaChecker[JsValue](json, "createUndertakingRequest").isSuccess) {
-////        // this should ideally be a BadRequest but the API specifies forbidden
-//        Future.successful(Forbidden(Json.toJson("TODO and error message"))) // TODO
-//      } else {
-        val eori: String = (json \ "createUndertakingResponse" \ "requestDetail" \ "businessEntity" \ "idValue").as[String]
-
-        val createUndertakingResponse: JsValue = Json.obj(
-          "createUndertakingResponse" -> Json.obj(
-            "responseCommon" ->
-              ResponseCommon(
-                EisStatus.OK,
-                EisStatusString("String"), // taken verbatim from spec
-                LocalDateTime.now,
-                None
-              ),
-            "responseDetail" -> Json.obj(
-              "undertakingReference" -> "XNH09765432124"
-            )
-          )
-        )
-//        // TODO think about if the Gen is going to return the valid and invalid responses
-//        val undertaking = eis.retrieveUndertaking(eori)
-//
-        Future.successful(Ok(Json.toJson(createUndertakingResponse)))
-//
+      processPayload(json, "createUndertakingRequest") match {
+        case Some(errorDetail) => // payload schema check failed
+          Future.successful(Forbidden(Json.toJson(errorDetail)))
+        case _ =>
+          val eori: String = (json \ "createUndertakingRequest" \ "requestDetail" \ "businessEntity" \ "idValue").as[String]
+          eori match {
+            case a if a.endsWith("999") => // fake 500
+              Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
+            // TODO errorResponse for 101, 113, 102 (think others probably shadowed)
+            case b if b.endsWith("888") => // fake 004
+              val dupeAckRef: JsValue = Json.obj(
+                "createUndertakingResponse" -> Json.obj(
+                  "responseCommon" -> badResponseCommon(
+                    "004",
+                    "Duplicate submission acknowledgment reference"
+                  )
+                )
+              )
+              Future.successful(Ok(Json.toJson(dupeAckRef)))
+            case _ =>
+              val undertakingRef = eis.undertakingRef(eori)
+              Future.successful(Ok(Json.toJson(undertakingRef)))
+          }
       }
     }
-//  }
+  }
 
   def retrieve: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
     withJsonBody[JsValue] { json =>
-      val processingReport = JsonSchemaChecker[JsValue](json, "retrieveUndertakingRequest")
-      if (!processingReport.isSuccess) {
-        // this should ideally be a BadRequest but the API specifies Forbidden
-        val errorMsg: String = processingReport.iterator().next().getMessage
-        val errorDetail:ErrorDetail =
-          ErrorDetail(
-            ErrorCode("403"),
-            ErrorMessage("Invalid message : BEFORE TRANSFORMATION"),
-            List(errorMsg)
-          )
-        Future.successful(Forbidden(Json.toJson(errorDetail)))
-      } else {
-        val eori: String = (json \ "retrieveUndertakingRequest" \ "requestDetail" \ "idValue").as[String]
-        eori match {
-          case a if a.endsWith("999") =>
-            val errorDetail =
-              ErrorDetail(
-                ErrorCode("500"),
-                ErrorMessage("Error connecting to the server"),
-                List("112233 - Send timeout")
-              )
-            Future.successful(InternalServerError(Json.toJson(errorDetail)))
-          case b if b.endsWith("888") =>
-            val noUndertakingFoundResponse: JsValue = Json.obj(
-              "retrieveUndertakingResponse" -> Json.obj(
-                "responseCommon" ->
-                  ResponseCommon(
-                    EisStatus.NOT_OK,
-                    EisStatusString("String"), // taken verbatim from spec
-                    LocalDateTime.now,
-                    List(
-                      Params(
-                        EisParamName.ERRORCODE,
-                        EisParamValue("107")
-                      ),
-                      Params(
-                        EisParamName.ERRORTEXT,
-                        EisParamValue("Undertaking reference in the API not Subscribed in ETMP")
-                      )
-                    ).some
+      processPayload(json, "retrieveUndertakingRequest") match {
+        case Some(errorDetail) => // payload fails schema check
+          Future.successful(Forbidden(Json.toJson(errorDetail)))
+        case _ =>
+          val eori: String = (json \ "retrieveUndertakingRequest" \ "requestDetail" \ "idValue").as[String]
+          eori match {
+            case a if a.endsWith("999") => // fake 500
+              Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
+            case b if b.endsWith("888") => // fake not found (ideally should have been 404)
+              val noUndertakingFoundResponse: JsValue = Json.obj(
+                "retrieveUndertakingResponse" -> Json.obj(
+                  "responseCommon" -> badResponseCommon(
+                    "107",
+                    "Undertaking reference in the API not Subscribed in ETMP"
                   )
+                )
               )
-            )
-            Future.successful(Ok(Json.toJson(noUndertakingFoundResponse)))
-          case _ =>
-            val undertaking = eis.retrieveUndertaking(eori)
-            Future.successful(Ok(Json.toJson(undertaking)(eisRetrieveUndertakingResponse)))
-        }
+              Future.successful(Ok(Json.toJson(noUndertakingFoundResponse)))
+            case _ => // successful retrieval
+              val undertaking = eis.retrieveUndertaking(eori)
+              Future.successful(Ok(Json.toJson(undertaking)(eisRetrieveUndertakingResponse)))
+          }
       }
     }
   }

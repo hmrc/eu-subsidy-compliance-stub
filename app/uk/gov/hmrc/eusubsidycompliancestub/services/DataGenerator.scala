@@ -20,8 +20,9 @@ import java.time.LocalDate
 
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, ContactDetails, Undertaking}
 import org.scalacheck.Gen
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit, PhoneNumber, Sector, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{CorrelationID, EORI, IndustrySectorLimit, PhoneNumber, Sector, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.smartstub._
+import wolfendale.scalacheck.regexp.RegexpGen
 
 object DataGenerator {
 
@@ -44,6 +45,9 @@ object DataGenerator {
       rest <- genEORIDigits
     } yield EORI(s"$prefix$rest")
   }
+
+  def genUndertakingRef: Gen[UndertakingRef] =
+    RegexpGen.from(UndertakingRef.regex).map(UndertakingRef.apply)
 
   def genContactDetails: Gen[ContactDetails] =
     for {
