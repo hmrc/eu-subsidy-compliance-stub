@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models.json
 
-import java.time.{LocalDate, LocalDateTime, ZonedDateTime}
-import java.time.format.DateTimeFormatter
 import play.api.libs.json._
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{Params, RequestCommon}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking}
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{Params, RequestCommon, ResponseCommon}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisStatus, EisStatusString, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
+
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, ZonedDateTime}
 
 package object digital {
 

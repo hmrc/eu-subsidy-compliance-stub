@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
-import java.time.LocalDate
-
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, ContactDetails, Undertaking}
 import org.scalacheck.Gen
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{CorrelationID, EORI, IndustrySectorLimit, PhoneNumber, Sector, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit, PhoneNumber, Sector, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, ContactDetails, Undertaking}
 import uk.gov.hmrc.smartstub._
 import wolfendale.scalacheck.regexp.RegexpGen
+
+import java.time.LocalDate
 
 object DataGenerator {
 

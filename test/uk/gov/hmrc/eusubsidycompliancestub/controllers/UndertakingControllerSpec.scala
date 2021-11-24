@@ -17,19 +17,16 @@
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
 import cats.implicits._
-
 import play.api.libs.json.{JsResult, JsValue, Json}
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, _}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, ContactDetails, Undertaking}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, retrieveUndertakingEORIWrites, undertakingFormat}
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{Params, eisCreateUndertakingResponse}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisParamName, EisParamValue, EisStatus, IndustrySectorLimit, PhoneNumber, Sector, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisParamName, EisParamValue, EisStatus}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking}
 import uk.gov.hmrc.eusubsidycompliancestub.services.JsonSchemaChecker
-import java.time.LocalDate
-
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances.arbContactDetails
 
