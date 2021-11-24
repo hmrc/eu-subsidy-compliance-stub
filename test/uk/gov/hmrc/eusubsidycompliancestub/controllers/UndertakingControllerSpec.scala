@@ -20,19 +20,63 @@ import play.api.libs.json.{JsResult, JsValue, Json}
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, _}
-import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, ContactDetails, Undertaking}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, retrieveUndertakingEORIWrites}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, createUndertakingResponseWrites, retrieveUndertakingEORIWrites, undertakingFormat}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisParamName, EisParamValue, EisStatus}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisParamName, EisParamValue, EisStatus, IndustrySectorLimit, PhoneNumber, Sector, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.services.JsonSchemaChecker
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class UndertakingControllerSpec extends BaseControllerSpec {
 
   private val controller: UndertakingController =
     app.injector.instanceOf[UndertakingController]
+  "Create Undertaking" must {
+
+    val u = Undertaking(
+      Some(UndertakingRef("XNH09765432124")),
+      UndertakingName("test name"),
+      Sector("1"),
+      IndustrySectorLimit(200.00),
+      LocalDate.now,
+      List(
+        BusinessEntity(
+          EORI("GB123456789123"),
+          true,
+          Some(
+            ContactDetails(
+              Some(PhoneNumber("12345678")),
+              None
+            )
+          )
+        )
+      )
+    )
+
+    def validCreateUndertakingBody(): JsValue = {
+       Json.toJson(u)(createUndertakingResponseWrites)
+    }
+
+    def fakeCreateUndertakingPost(body: JsValue): FakeRequest[JsValue] =
+      FakeRequest("POST", "/scp/createundertaking/v1", fakeHeaders, body)
+
+    "return a createUndertakingResponse for a valid request" in {
+      val result: Future[Result] = controller.create().apply(
+         fakeCreateUndertakingPost(validCreateUndertakingBody())
+      )
+      println(s"${contentAsJson(result)}CCCCCCCCCC")
+
+      JsonSchemaChecker[JsValue](
+        contentAsJson(result),
+        "createUndertakingResponse"
+      ).isSuccess mustEqual true
+      status(result) mustEqual  play.api.http.Status.OK
+
+    }
+  }
 
   "Retrieve Undertaking" must {
 

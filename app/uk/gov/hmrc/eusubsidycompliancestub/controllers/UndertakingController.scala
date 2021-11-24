@@ -16,17 +16,17 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
-import java.time.LocalDateTime
-
 import cats.implicits._
-import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetail, Params, ResponseCommon, eisRetrieveUndertakingResponse}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.createUndertakingResponseWrites
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EisParamName, EisParamValue, EisStatus, EisStatusString, ErrorCode, ErrorMessage}
 import uk.gov.hmrc.eusubsidycompliancestub.services.{EisService, JsonSchemaChecker}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
+import java.time.LocalDateTime
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 
@@ -40,21 +40,34 @@ class UndertakingController @Inject()(
   def create(): Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
     withJsonBody[JsValue] { json =>
 
-      if (!JsonSchemaChecker[JsValue](json, "createUndertakingRequest").isSuccess) {
-//        // this should ideally be a BadRequest but the API specifies forbidden
-        Future.successful(Forbidden(Json.toJson("TODO and error message"))) // TODO
-      } else {
-        val undertakingReference: String = (json \ "createUndertakingResponse" \ "responseDetail" \ "undertakingReference").as[String]
-//
+//      if (!JsonSchemaChecker[JsValue](json, "createUndertakingRequest").isSuccess) {
+////        // this should ideally be a BadRequest but the API specifies forbidden
+//        Future.successful(Forbidden(Json.toJson("TODO and error message"))) // TODO
+//      } else {
+        val eori: String = (json \ "createUndertakingResponse" \ "requestDetail" \ "businessEntity" \ "idValue").as[String]
+
+        val createUndertakingResponse: JsValue = Json.obj(
+          "createUndertakingResponse" -> Json.obj(
+            "responseCommon" ->
+              ResponseCommon(
+                EisStatus.OK,
+                EisStatusString("String"), // taken verbatim from spec
+                LocalDateTime.now,
+                None
+              ),
+            "responseDetail" -> Json.obj(
+              "undertakingReference" -> "XNH09765432124"
+            )
+          )
+        )
 //        // TODO think about if the Gen is going to return the valid and invalid responses
 //        val undertaking = eis.retrieveUndertaking(eori)
 //
-//        Future.successful(Ok(Json.toJson(undertakingReference)(eisRetrieveUndertakingResponse)))
+        Future.successful(Ok(Json.toJson(createUndertakingResponse)))
 //
       }
-      ???
     }
-  }
+//  }
 
   def retrieve: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
     withJsonBody[JsValue] { json =>
