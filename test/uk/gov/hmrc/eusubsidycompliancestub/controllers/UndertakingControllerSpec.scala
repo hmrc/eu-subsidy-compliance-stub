@@ -105,26 +105,55 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       status(result) mustEqual  play.api.http.Status.INTERNAL_SERVER_ERROR
     }
 
-    "return 200 but with NOT_OK responseCommon.status and ERRORCODE 004 if BusinessEntity.EORI ends in 888 (duplicate acknowledgementRef)" in {
-      val duffUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012888"))
-      val result: Future[Result] =
+    def notOkCreateUndertakingResponseCheck(undertaking: Undertaking, responseCode: String) = {
+      val result: Future[Result] = {
         controller.create.apply(
           fakeCreateUndertakingPost(
             validCreateUndertakingBody(
-              duffUndertaking
+              undertaking
             )
           )
         )
+      }
       val json = contentAsJson(result)
       (json \ "createUndertakingResponse" \ "responseCommon" \ "status").as[String] mustEqual
         EisStatus.NOT_OK.toString
+
       (json \ "createUndertakingResponse" \ "responseCommon" \ "returnParameters").as[List[Params]].head mustEqual
-        Params(EisParamName.ERRORCODE, EisParamValue("004"))
+        Params(EisParamName.ERRORCODE, EisParamValue(responseCode))
       JsonSchemaChecker[JsValue](
         json,
         "createUndertakingResponse"
       ).isSuccess mustEqual true
-      status(result) mustEqual  play.api.http.Status.OK
+      status(result) mustEqual play.api.http.Status.OK
+    }
+
+    "return 200 but with NOT_OK responseCommon.status and ERRORCODE 004 " +
+      "if BusinessEntity.EORI ends in 888 (duplicate acknowledgementRef)" in {
+      val duffUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012888"))
+
+      notOkCreateUndertakingResponseCheck(duffUndertaking, "004")
+    }
+
+    "return 200 but with NOT_OK responseCommon.status and ERRORCODE 101 " +
+      "if BusinessEntity.EORI ends in 777 (EORI associated with another Undertaking)" in {
+      val eoriAssocUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012777"))
+
+      notOkCreateUndertakingResponseCheck(eoriAssocUndertaking, "101")
+    }
+
+    "return 200 but with NOT_OK responseCommon.status and ERRORCODE 102 if " +
+      "BusinessEntity.EORI ends in 666 (invalid EORI number)" in {
+      val invalidEoriUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012666"))
+
+      notOkCreateUndertakingResponseCheck(invalidEoriUndertaking, "102")
+    }
+
+    "return 200 but with NOT_OK responseCommon.status and ERRORCODE 113 if " +
+      "BusinessEntity.EORI ends in 555 (Postcode missing for the address)" in {
+      val postcodeMissingUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012555"))
+
+      notOkCreateUndertakingResponseCheck(postcodeMissingUndertaking, "113")
     }
   }
 

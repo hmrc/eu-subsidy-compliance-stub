@@ -34,7 +34,6 @@ class UndertakingController @Inject()(
 
   def create: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
     withJsonBody[JsValue] { json =>
-
       processPayload(json, "createUndertakingRequest") match {
         case Some(errorDetail) => // payload schema check failed
           Future.successful(Forbidden(Json.toJson(errorDetail)))
@@ -43,7 +42,6 @@ class UndertakingController @Inject()(
           eori match {
             case a if a.endsWith("999") => // fake 500
               Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
-            // TODO errorResponse for 101, 113, 102 (think others probably shadowed)
             case b if b.endsWith("888") => // fake 004
               val dupeAckRef: JsValue = Json.obj(
                 "createUndertakingResponse" -> Json.obj(
@@ -54,6 +52,36 @@ class UndertakingController @Inject()(
                 )
               )
               Future.successful(Ok(Json.toJson(dupeAckRef)))
+            case c if c.endsWith("777") =>
+              val dupeEori: JsValue = Json.obj(
+                "createUndertakingResponse" -> Json.obj(
+                  "responseCommon" -> badResponseCommon(
+                    "101",
+                    s"EORI $eori already associated with another Undertaking $eori"
+                  )
+                )
+              )
+              Future.successful(Ok(Json.toJson(dupeEori)))
+            case d if d.endsWith("666") =>
+              val invalidEori: JsValue = Json.obj(
+                "createUndertakingResponse" -> Json.obj(
+                  "responseCommon" -> badResponseCommon(
+                    "102",
+                    s"Invalid EORI number $eori"
+                  )
+                )
+              )
+              Future.successful(Ok(Json.toJson(invalidEori)))
+            case e if e.endsWith("555") =>
+              val missingPostcode: JsValue = Json.obj(
+                "createUndertakingResponse" -> Json.obj(
+                  "responseCommon" -> badResponseCommon(
+                    "113",
+                    s"Postcode missing for the address"
+                  )
+                )
+              )
+              Future.successful(Ok(Json.toJson(missingPostcode)))
             case _ =>
               val undertakingRef = eis.undertakingRef(eori)
               Future.successful(Ok(Json.toJson(undertakingRef)))
