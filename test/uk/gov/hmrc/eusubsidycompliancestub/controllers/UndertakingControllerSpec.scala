@@ -244,5 +244,14 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       )(writes, implicitly)
     }
 
+    "return 200 and a valid response for a successful disable" in {
+      testResponse[Undertaking](
+        controller.update,
+        undertaking,
+        "updateUndertakingResponse",
+        play.api.http.Status.OK,
+      )(updateUndertakingWrites(EisAmendmentType.D), implicitly)
+    }
+
   }
 }
