@@ -17,10 +17,11 @@
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
 import org.scalatest.Assertion
-import play.api.libs.json.{JsValue, Json, Writes}
+import play.api.libs.json.{Format, JsValue, Json, Writes}
 import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetail, eisRetrieveUndertakingResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.retrieveUndertakingEORIWrites
+import uk.gov.hmrc.eusubsidycompliancestub.models.json
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EORI
 import uk.gov.hmrc.eusubsidycompliancestub.services.JsonSchemaChecker
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances._
@@ -32,6 +33,13 @@ class JsonConversionSpec extends BaseControllerSpec {
       forAll { undertaking: Undertaking =>
         checkWrites[Undertaking](undertaking,"retrieveUndertakingResponse")
       }
+    }
+
+    "match createUndertakingRequest.schema.json" in {
+      implicit val format: Format[Undertaking] = json.digital.undertakingFormat
+      forAll { undertaking: Undertaking =>
+        checkWrites[Undertaking](undertaking,"createUndertakingRequest")
+      }(implicitly, arbUndertakingForCreate, implicitly, implicitly, implicitly, implicitly)
     }
 
     "match retrieveUndertakingRequest.schema.json" in {

@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "SCP02 Create Undertaking Response Schema",
+  "type": "object",
+  "minProperties": 1,
+  "maxProperties": 1,
+  "properties": {
+    "createUndertakingResponse": {
+      "type": "object",
+      "properties": {
+        "responseCommon": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 6,
+              "enum": [
+                "OK",
+                "NOT_OK"
+              ]
+            },
+            "statusText": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "processingDate": {
+              "description": "The date and time the message was processed",
+              "type": "string",
+              "pattern": "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z"
+            },
+            "returnParameters": {
+              "description": "This will be populated if status is NOT_OK",
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "$ref": "#/definitions/returnParameters"
+              }
+            }
+          },
+          "required": [
+            "status",
+            "processingDate"
+          ],
+          "additionalProperties": false
+        },
+        "responseDetail": {
+          "type": "object",
+          "properties": {
+            "undertakingReference": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 17
+            }
+          },
+          "required": [
+            "undertakingReference"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "responseCommon"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "createUndertakingResponse"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "createUndertakingResponse": {
+      "type": "object"
+    },
+    "returnParameters": {
+      "type": "object",
+      "properties": {
+        "paramName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "enum": [
+            "ERRORCODE",
+            "ERRORTEXT"
+          ]
+        },
+        "paramValue": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        }
+      },
+      "required": [
+        "paramName",
+        "paramValue"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

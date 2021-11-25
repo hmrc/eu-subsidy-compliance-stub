@@ -16,20 +16,20 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models.json
 
-import java.time.{LocalDate, ZonedDateTime}
-import java.time.format.DateTimeFormatter
-
 import play.api.libs.json._
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{Params, RequestCommon}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking}
+
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, ZonedDateTime}
 
 package object digital {
 
   implicit val undertakingFormat: Format[Undertaking] = new Format[Undertaking] {
 
     val requestCommon = RequestCommon(
-      "acknowledgementReferenceTODO", // TODO
+      "acknowledgementReferenceTODOxxxx", // TODO
       "CreateNewUndertaking"
     )
 
@@ -48,13 +48,12 @@ package object digital {
           "requestDetail" -> Json.obj(
             "undertakingName" -> o.name,
             "industrySector" -> o.industrySector,
-            "businessEntity" -> Json.arr(
+            "businessEntity" ->
               Json.obj(
                 "idType" -> "EORI",
-                "id" -> lead.businessEntityIdentifier,
+                "idValue" -> JsString(lead.businessEntityIdentifier),
                 "contacts" -> lead.contacts
-              )
-            ),
+              ),
             "undertakingStartDate" -> dateFormatter.format(LocalDate.now)
           )
         )
