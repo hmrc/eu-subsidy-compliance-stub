@@ -17,13 +17,11 @@
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
 import org.scalatest.Assertion
-import play.api.libs.json.{Format, JsValue, Json, Writes}
-import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetail, eisRetrieveUndertakingResponse}
+import play.api.libs.json.{Format, Json, Writes}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{Undertaking, json}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.retrieveUndertakingEORIWrites
-import uk.gov.hmrc.eusubsidycompliancestub.models.json
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.EORI
-import uk.gov.hmrc.eusubsidycompliancestub.services.JsonSchemaChecker
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetail, eisRetrieveUndertakingResponse}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType}
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances._
 
 class JsonConversionSpec extends BaseControllerSpec {
@@ -48,6 +46,20 @@ class JsonConversionSpec extends BaseControllerSpec {
       }
     }
 
+    "match updateUndertakingRequest.schema.json for disable" in {
+      val writes = json.digital.updateUndertakingWrites(EisAmendmentType.D)
+      forAll { undertaking: Undertaking =>
+        checkWrites[Undertaking](undertaking,"updateUndertakingRequest")(writes)
+      }(implicitly, arbUndertaking, implicitly, implicitly, implicitly, implicitly)
+    }
+
+    "match updateUndertakingRequest.schema.json for amend" in {
+      val writes = json.digital.updateUndertakingWrites(EisAmendmentType.A)
+      forAll { undertaking: Undertaking =>
+        checkWrites[Undertaking](undertaking,"updateUndertakingRequest")(writes)
+      }(implicitly, arbUndertaking, implicitly, implicitly, implicitly, implicitly)
+    }
+
     "match errorDetailResponse.schema.json" in {
       forAll { errorDetail: ErrorDetail =>
         checkWrites[ErrorDetail](errorDetail, "errorDetailResponse")
@@ -55,10 +67,7 @@ class JsonConversionSpec extends BaseControllerSpec {
     }
   }
 
-  def checkWrites[A](in: A, schema: String)(implicit writes: Writes[A]): Assertion = {
-    JsonSchemaChecker[JsValue](
-      Json.toJson(in),
-      schema
-    ).isSuccess mustEqual true
+  def checkWrites[A](in: A, schemaName: String)(implicit writes: Writes[A]): Assertion = {
+    checkJson(Json.toJson(in), schemaName)
   }
 }

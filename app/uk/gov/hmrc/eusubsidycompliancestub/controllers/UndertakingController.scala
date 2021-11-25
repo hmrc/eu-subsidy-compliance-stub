@@ -19,7 +19,8 @@ package uk.gov.hmrc.eusubsidycompliancestub.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{eisCreateUndertakingResponse, eisRetrieveUndertakingResponse}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{eisCreateUndertakingResponse, eisRetrieveUndertakingResponse, eisUpdateUndertakingResponse}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef
 import uk.gov.hmrc.eusubsidycompliancestub.services.EisService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -84,7 +85,7 @@ class UndertakingController @Inject()(
               Future.successful(Ok(Json.toJson(missingPostcode)))
             case _ =>
               val undertakingRef = eis.undertakingRef(eori)
-              Future.successful(Ok(Json.toJson(undertakingRef)))
+              Future.successful(Ok(Json.toJson(undertakingRef)(eisCreateUndertakingResponse)))
           }
       }
     }
@@ -117,4 +118,32 @@ class UndertakingController @Inject()(
       }
     }
   }
+
+  def update: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
+    withJsonBody[JsValue] { json =>
+      processPayload(json, "updateUndertakingRequest") match {
+        case Some(errorDetail) => // payload fails schema check
+          Future.successful(Forbidden(Json.toJson(errorDetail)))
+        case _ =>
+          val undertakingRef: String = (json \ "updateUndertakingRequest" \ "requestDetail" \ "undertakingId").as[String]
+          undertakingRef match {
+            case a if a.endsWith("999") => // fake 500
+              Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
+            case b if b.endsWith("888") => // fake 004
+              val dupeAckRef: JsValue = Json.obj(
+                "updateUndertakingResponse" -> Json.obj(
+                  "responseCommon" -> badResponseCommon(
+                    "004",
+                    "Duplicate submission acknowledgment reference"
+                  )
+                )
+              )
+              Future.successful(Ok(Json.toJson(dupeAckRef)))
+            case _ => // successful ammend
+              Future.successful(Ok(Json.toJson(UndertakingRef(undertakingRef))(eisUpdateUndertakingResponse)))
+          }
+      }
+    }
+  }
+
 }

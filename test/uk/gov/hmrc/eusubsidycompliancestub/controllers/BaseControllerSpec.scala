@@ -16,13 +16,19 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
+import org.scalatest.Assertion
 import org.scalatestplus.mockito._
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.http.HeaderNames
-import play.api.mvc.Results
-import play.api.test.FakeHeaders
+import play.api.libs.json.{JsValue, Json, Writes}
+import play.api.mvc.{Action, Result, Results}
+import play.api.test.Helpers.{contentAsJson, status, _}
+import play.api.test.{FakeHeaders, FakeRequest}
+import uk.gov.hmrc.eusubsidycompliancestub.services.JsonSchemaChecker
+
+import scala.concurrent.Future
 
 class BaseControllerSpec extends
   PlaySpec
@@ -39,5 +45,27 @@ class BaseControllerSpec extends
         "Environment" -> "ist0"
       )
     )
+
+  def checkJson(json: JsValue, schemaName: String): Assertion = {
+    JsonSchemaChecker[JsValue](json, schemaName).isSuccess mustEqual true
+  }
+
+  def fakePost(body: JsValue)(implicit path: String): FakeRequest[JsValue] =
+    FakeRequest("POST", path, fakeHeaders, body)
+
+  def testResponse[A](
+    action: Action[JsValue],
+    model: A,
+    responseSchemaName: String,
+    expectedStatus: Int,
+    extraChecks: List[Future[Result] => Assertion] = List.empty
+  )(implicit writes: Writes[A], path: String) = {
+    val result = action.apply(fakePost(Json.toJson(model)))
+    checkJson(contentAsJson(result), responseSchemaName)
+    status(result) mustEqual expectedStatus
+    extraChecks.map(f => f(result))
+    result
+  }
+
 
 }

@@ -17,16 +17,15 @@
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
 import cats.implicits._
-import play.api.libs.json.{JsResult, JsValue, Json}
+import play.api.libs.json._
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, _}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, retrieveUndertakingEORIWrites, undertakingFormat}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, retrieveUndertakingEORIWrites, undertakingFormat, updateUndertakingWrites}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisParamName, EisParamValue, EisStatus}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType, EisParamName, EisParamValue, EisStatus, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking}
-import uk.gov.hmrc.eusubsidycompliancestub.services.JsonSchemaChecker
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances.arbContactDetails
 
@@ -37,14 +36,12 @@ class UndertakingControllerSpec extends BaseControllerSpec {
   private val controller: UndertakingController =
     app.injector.instanceOf[UndertakingController]
   val internalServerErrorEori = EORI("GB123456789012999")
-
+  val undertaking: Undertaking = TestInstances.arbUndertakingForCreate.arbitrary.sample.get
 
   "Create Undertaking" must {
 
-    val undertaking: Undertaking = TestInstances.arbUndertakingForCreate.arbitrary.sample.get
-
     def validCreateUndertakingBody(undertaking: Undertaking): JsValue = {
-      Json.toJson(undertaking)(undertakingFormat)
+      Json.toJson(undertaking)(undertakingFormat.writes)
     }
 
     def fakeCreateUndertakingPost(body: JsValue): FakeRequest[JsValue] =
@@ -65,12 +62,8 @@ class UndertakingControllerSpec extends BaseControllerSpec {
        val result: Future[Result] = controller.create.apply(
           fakeCreateUndertakingPost(validCreateUndertakingBody(undertaking))
         )
-
-        JsonSchemaChecker[JsValue](
-          contentAsJson(result),
-          "createUndertakingResponse"
-        ).isSuccess mustEqual true
-        status(result) mustEqual  play.api.http.Status.OK
+      checkJson(contentAsJson(result), "createUndertakingResponse")
+      status(result) mustEqual  play.api.http.Status.OK
     }
 
     "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
@@ -78,10 +71,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
         controller.create.apply(
           fakeCreateUndertakingPost(Json.obj("foo" -> "bar"))
         )
-      JsonSchemaChecker[JsValue](
-        contentAsJson(result),
-        "errorDetailResponse"
-      ).isSuccess mustEqual true
+      checkJson(contentAsJson(result), "errorDetailResponse")
       status(result) mustEqual  play.api.http.Status.FORBIDDEN
     }
 
@@ -95,12 +85,10 @@ class UndertakingControllerSpec extends BaseControllerSpec {
             )
           )
         )
-      JsonSchemaChecker[JsValue](
-        contentAsJson(result),
-        "errorDetailResponse"
-      ).isSuccess mustEqual true
+      checkJson(contentAsJson(result), "errorDetailResponse")
       status(result) mustEqual  play.api.http.Status.INTERNAL_SERVER_ERROR
     }
+
 
     def notOkCreateUndertakingResponseCheck(undertaking: Undertaking, responseCode: String) = {
       val result: Future[Result] = {
@@ -118,10 +106,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
       (json \ "createUndertakingResponse" \ "responseCommon" \ "returnParameters").as[List[Params]].head mustEqual
         Params(EisParamName.ERRORCODE, EisParamValue(responseCode))
-      JsonSchemaChecker[JsValue](
-        json,
-        "createUndertakingResponse"
-      ).isSuccess mustEqual true
+      checkJson(contentAsJson(result), "createUndertakingResponse")
       status(result) mustEqual play.api.http.Status.OK
     }
 
@@ -156,81 +141,108 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
   "Retrieve Undertaking" must {
 
+    implicit val path: String = "/scp/retrieveundertaking/v1"
     val okEori = EORI("GB123456789012345")
     val notFoundEori = EORI("GB123456789012888")
 
-    def validRetrieveUndertakingBody(eori: EORI): JsValue =
-      Json.toJson(eori)(retrieveUndertakingEORIWrites)
+    "return 200 and an Undertaking for a valid request" in {
+      val result: Future[Result] = testResponse[EORI](
+        controller.retrieve,
+        okEori,
+        "retrieveUndertakingResponse",
+        play.api.http.Status.OK
+      )
 
-    def fakeRetrieveUndertakingPost(body: JsValue): FakeRequest[JsValue] =
-      FakeRequest("POST", "/scp/retrieveundertaking/v1", fakeHeaders, body)
-
-    "return an Undertaking for a valid request" in {
-      val result: Future[Result] =
-        controller.retrieve.apply(
-          fakeRetrieveUndertakingPost(validRetrieveUndertakingBody(okEori))
-        )
-      JsonSchemaChecker[JsValue](
-        contentAsJson(result),
-        "retrieveUndertakingResponse"
-      ).isSuccess mustEqual true
-      status(result) mustEqual  play.api.http.Status.OK
       // TODO this next test should live on the BE
       val u: JsResult[Undertaking] = Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
       u.isSuccess mustEqual true
     }
 
     "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
-      val result: Future[Result] =
-        controller.retrieve.apply(
-          fakeRetrieveUndertakingPost(Json.obj("foo" -> "bar"))
-        )
-      JsonSchemaChecker[JsValue](
-        contentAsJson(result),
-        "errorDetailResponse"
-      ).isSuccess mustEqual true
-      status(result) mustEqual  play.api.http.Status.FORBIDDEN
+      testResponse[JsValue](
+        controller.retrieve,
+        Json.obj("foo" -> "bar"),
+        "errorDetailResponse",
+        play.api.http.Status.FORBIDDEN
+      )
     }
 
     "return 500 if the EORI ends in 999 " in {
-      val result: Future[Result] =
-        controller.retrieve.apply(
-          fakeRetrieveUndertakingPost(
-            validRetrieveUndertakingBody(
-              internalServerErrorEori
-            )
-          )
-        )
-      JsonSchemaChecker[JsValue](
-        contentAsJson(result),
-        "errorDetailResponse"
-      ).isSuccess mustEqual true
-      status(result) mustEqual  play.api.http.Status.INTERNAL_SERVER_ERROR
+      testResponse[EORI](
+        controller.retrieve,
+        internalServerErrorEori,
+        "errorDetailResponse",
+        play.api.http.Status.INTERNAL_SERVER_ERROR
+      )
     }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 107 if EORI ends in 888 (not found)" in {
-      val result: Future[Result] =
-        controller.retrieve.apply(
-          fakeRetrieveUndertakingPost(
-            validRetrieveUndertakingBody(
-              notFoundEori
-            )
-          )
+      val result: Future[Result] = testResponse[EORI](
+        controller.retrieve,
+        notFoundEori,
+        "retrieveUndertakingResponse",
+        play.api.http.Status.OK,
+        List(
+          contentAsJson(_)\\"status" mustEqual List(JsString("NOT_OK")),
+          contentAsJson(_)\\"paramValue" mustEqual
+            List(JsString("107"), JsString("Undertaking reference in the API not Subscribed in ETMP"))
         )
-      val json = contentAsJson(result)
-      (json \ "retrieveUndertakingResponse" \ "responseCommon" \ "status").as[String] mustEqual
-        EisStatus.NOT_OK.toString
-      (json \ "retrieveUndertakingResponse" \ "responseCommon" \ "returnParameters").as[List[Params]].head mustEqual
-        Params(EisParamName.ERRORCODE, EisParamValue("107"))
-      JsonSchemaChecker[JsValue](
-        json,
-        "retrieveUndertakingResponse"
-      ).isSuccess mustEqual true
-      status(result) mustEqual  play.api.http.Status.OK
+      )
+
       // TODO this next test should live on the BE
       intercept[EisBadResponseException] {
         Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
       }
     }
+  }
+
+  "amend Undertaking" must {
+
+    implicit val path: String = "/scp/updateundertaking/v1"
+    implicit val writes: Writes[Undertaking] = updateUndertakingWrites(EisAmendmentType.A)
+
+    "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
+      testResponse[JsValue](
+        controller.update,
+        Json.obj("foo" -> "bar"),
+        "errorDetailResponse",
+        play.api.http.Status.FORBIDDEN
+      )
+    }
+
+    "return 500 if the undertakingRef ends in 999 " in {
+      testResponse[Undertaking](
+        controller.update,
+        undertaking.copy(reference = Some(UndertakingRef("999"))),
+        "errorDetailResponse",
+        play.api.http.Status.INTERNAL_SERVER_ERROR
+      )(writes, implicitly)
+    }
+
+    "return 200 but with NOT_OK responseCommon.status and ERRORCODE 004 " +
+      "if Undertaking.reference ends in 888 (duplicate acknowledgementRef)" in {
+      testResponse[Undertaking](
+        controller.update,
+        undertaking.copy(reference = Some(UndertakingRef("888"))),
+        "updateUndertakingResponse",
+        play.api.http.Status.OK,
+        List(
+          contentAsJson(_)\\"status" mustEqual
+            List(JsString("NOT_OK")),
+          contentAsJson(_)\\"paramValue" mustEqual
+            List(JsString("004"), JsString("Duplicate submission acknowledgment reference"))
+        )
+      )(writes, implicitly)
+    }
+
+    "return 200 and a valid response for a successful amend" in {
+      testResponse[Undertaking](
+        controller.update,
+        undertaking,
+        "updateUndertakingResponse",
+        play.api.http.Status.OK,
+      )(writes, implicitly)
+    }
+
   }
 }
