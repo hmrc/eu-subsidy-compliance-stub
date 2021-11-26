@@ -17,7 +17,7 @@
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{JsString, JsValue, Json}
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{eisCreateUndertakingResponse, eisRetrieveUndertakingResponse, eisUpdateUndertakingResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef

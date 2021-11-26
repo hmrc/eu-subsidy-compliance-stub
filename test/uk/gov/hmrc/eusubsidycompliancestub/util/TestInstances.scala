@@ -20,13 +20,51 @@ import cats.implicits._
 import java.time._
 
 import org.scalacheck.{Arbitrary, Gen}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{ContactDetails, Undertaking}
+import uk.gov.hmrc.eusubsidycompliancestub.models._
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.ErrorDetail
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{CorrelationID, EORI, ErrorCode, ErrorMessage, Source}
-import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator.{genContactDetails, genEORI, genRetrievedUndertaking}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{CorrelationID, EORI, EisSubsidyAmendmentType, ErrorCode, ErrorMessage, IndustrySectorLimit, Source, SubsidyAmount, SubsidyRef}
+import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator.{genContactDetails, genEORI, genRetrievedUndertaking, genUndertakingRef}
+import uk.gov.hmrc.smartstub._
 import wolfendale.scalacheck.regexp.RegexpGen
 
 object TestInstances {
+
+  implicit def arbSubsidyUpdate: Arbitrary[SubsidyUpdate] = {
+    val su = for {
+      undertakingRef <- genUndertakingRef
+      n <- Gen.choose(1,25)
+      undertakingSubsidyAmendment <- Gen.listOfN(n, arbSubsidy.arbitrary)
+    } yield SubsidyUpdate(undertakingRef, undertakingSubsidyAmendment)
+    Arbitrary(su)
+  }
+
+  implicit def arbSubsidyRef: Arbitrary[SubsidyRef] = Arbitrary {
+    RegexpGen.from(SubsidyRef.regex).map(SubsidyRef.apply)
+  }
+
+  implicit def arbSubsidy: Arbitrary[Subsidy] = {
+    val a = for {
+      amendmentType <- Gen.oneOf(Seq("1","2","3")).map(x => Some(EisSubsidyAmendmentType(x)))
+      ref <- arbSubsidyRef.arbitrary.map(x => amendmentType.fold(Option.empty[SubsidyRef]){_ => Some(x)})
+      allocationDate <- Gen.date(LocalDate.of(2020,1,1), LocalDate.now)
+      submissionDate <- Gen.date(LocalDate.of(2020,1,1), LocalDate.now)
+      publicAuthority <- arbString.arbitrary
+      traderReference <- Gen.option(arbString.arbitrary)
+      nonHMRCSubsidyAmount <- Gen.choose(1L, 9999999999999L).map(x => SubsidyAmount(x / 100))
+      businessEntityIdentifier <- Gen.option(genEORI)
+    } yield
+      Subsidy(
+        ref,
+        allocationDate,
+        submissionDate,
+        publicAuthority,
+        traderReference,
+        nonHMRCSubsidyAmount,
+        businessEntityIdentifier,
+        amendmentType
+      )
+    Arbitrary(a)
+  }
 
   implicit def arbUndertaking: Arbitrary[Undertaking] = {
     val u = for {

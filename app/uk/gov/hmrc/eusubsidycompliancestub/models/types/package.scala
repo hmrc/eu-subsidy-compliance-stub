@@ -30,6 +30,40 @@ package object types extends SimpleJson {
     }
   }
 
+  // TODO consider merging with IndustrySectorLimit - need to know if sector limit can ever be negative (EIS regex allows)
+  type SubsidyAmount =  BigDecimal @@ SubsidyAmount.Tag
+  object SubsidyAmount extends ValidatedType[BigDecimal] {
+    override def validateAndTransform(in: BigDecimal): Option[BigDecimal] = {
+      Some(in).filter { x =>
+        (x >= 0) && (x <= 99999999999.99) && (x.scale <= 2)
+      }
+    }
+  }
+
+  type HmrcSubsidyAmount = BigDecimal @@ HmrcSubsidyAmount.Tag
+  object HmrcSubsidyAmount extends ValidatedType[BigDecimal] {
+    override def validateAndTransform(in: BigDecimal): Option[BigDecimal] = {
+      Some(in).filter { x =>
+        (x >= -99999999999.99) && (x <= 99999999999.99) && (x.scale <= 2)
+      }
+    }
+  }
+
+  type DeclarationID = String @@ DeclarationID.Tag
+  object DeclarationID extends RegexValidatedString(
+    regex = """.{1,18}"""
+  )
+
+  type TaxType = String @@ TaxType.Tag
+  object TaxType extends RegexValidatedString(
+    regex = """.{0,3}"""
+  )
+
+  type TradersOwnRefUCR = String @@ TradersOwnRefUCR.Tag
+  object TradersOwnRefUCR extends RegexValidatedString(
+    regex = """.{0,35}"""
+  )
+
   type UndertakingName = String @@ UndertakingName.Tag
   object UndertakingName extends RegexValidatedString(
     regex = """.{1,105}"""
@@ -75,6 +109,11 @@ package object types extends SimpleJson {
     }
   )
 
+  type SubsidyRef = String @@ SubsidyRef.Tag
+  object SubsidyRef extends RegexValidatedString(
+    "^.{0,10}$"
+  )
+
   object EisStatus extends Enumeration {
     type EisStatus = Value
     val OK, NOT_OK = Value
@@ -87,6 +126,11 @@ package object types extends SimpleJson {
     val A, D = Value
     implicit val format = Json.formatEnum(EisAmendmentType)
   }
+
+  type EisSubsidyAmendmentType = String @@ EisSubsidyAmendmentType.Tag
+  object EisSubsidyAmendmentType extends RegexValidatedString( // todo consider enum
+    regex = "1|2|3"
+  )
 
   object EisParamName extends Enumeration {
     type EisParamName = Value
@@ -130,6 +174,5 @@ package object types extends SimpleJson {
     def validateAndTransform(in: String): Option[String] =
       Some(in).filter(_.nonEmpty)
   }
-
 
 }

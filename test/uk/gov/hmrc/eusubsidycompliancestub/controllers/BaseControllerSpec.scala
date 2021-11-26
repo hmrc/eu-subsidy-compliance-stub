@@ -57,9 +57,13 @@ class BaseControllerSpec extends
     model: A,
     responseSchemaName: String,
     expectedStatus: Int,
-    extraChecks: List[Future[Result] => Assertion] = List.empty
+    extraChecks: List[Future[Result] => Assertion] = List.empty,
+    debug: Boolean = false
   )(implicit action: Action[JsValue], writes: Writes[A], path: String): Future[Result] = {
-    val result = action.apply(fakePost(Json.toJson(model)))
+    val json = Json.toJson(model)
+    if(debug) println(Json.prettyPrint(json))
+    val result = action.apply(fakePost(json))
+    if(debug) println(Json.prettyPrint(contentAsJson(result)))
     checkJson(contentAsJson(result), responseSchemaName)
     status(result) mustEqual expectedStatus
     extraChecks.map(f => f(result))

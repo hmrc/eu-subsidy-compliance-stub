@@ -16,19 +16,14 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
-import java.time.LocalDate
+import play.api.libs.json.Json
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef
 
-import uk.gov.hmrc.eusubsidycompliancestub.models.types._
-
-case class Undertaking(
-  reference: Option[UndertakingRef],
-  name: UndertakingName,
-  industrySector: Sector,
-  industrySectorLimit: IndustrySectorLimit,
-  lastSubsidyUsageUpdt: LocalDate,
-  undertakingBusinessEntity: List[BusinessEntity],
-  nonHMRCSubsidies: List[Subsidy] = List.empty,
-  hmrcSubsidies: List[HmrcSubsidy] = List.empty,
-  nilReturns: List[NilReturn] = List.empty,
-  tradersOwnRefUCR: Option[TradersOwnRefUCR] = None
+case class SubsidyUpdate(
+  undertakingIdentifier: UndertakingRef,
+  undertakingSubsidyAmendment: List[Subsidy]
 )
+
+object SubsidyUpdate {
+  implicit val format = Json.format[SubsidyUpdate]
+}
