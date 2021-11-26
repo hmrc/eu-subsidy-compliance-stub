@@ -230,6 +230,22 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       )(implicitly, writes, implicitly)
     }
 
+    "return 200 but with NOT_OK responseCommon.status and ERRORCODE 116 " +
+      "if Undertaking.reference ends in 777 (bad acknowledgementRef)" in {
+      val badId = "777"
+      testResponse[Undertaking](
+        undertaking.copy(reference = Some(UndertakingRef(badId))),
+        "updateUndertakingResponse",
+        play.api.http.Status.OK,
+        List(
+          contentAsJson(_)\\"status" mustEqual
+            List(JsString("NOT_OK")),
+          contentAsJson(_)\\"paramValue" mustEqual
+            List(JsString("116"), JsString(s"Invalid Undertaking ID $badId"))
+        )
+      )(implicitly, writes, implicitly)
+    }
+
     "return 200 and a valid response for a successful amend" in {
       testResponse[Undertaking](
         undertaking,

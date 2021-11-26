@@ -17,7 +17,7 @@
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{eisCreateUndertakingResponse, eisRetrieveUndertakingResponse, eisUpdateUndertakingResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef
@@ -139,6 +139,16 @@ class UndertakingController @Inject()(
                 )
               )
               Future.successful(Ok(Json.toJson(dupeAckRef)))
+            case c if c.endsWith("777") => // fake 116
+              val dupeAckRefTwo: JsValue = Json.obj(
+                "updateUndertakingResponse" -> Json.obj(
+                  "responseCommon" -> badResponseCommon(
+                    "116",
+                    s"Invalid Undertaking ID $c"
+                  )
+                )
+              )
+              Future.successful(Ok(Json.toJson(dupeAckRefTwo)))
             case _ => // successful ammend
               Future.successful(Ok(Json.toJson(UndertakingRef(undertakingRef))(eisUpdateUndertakingResponse)))
           }
