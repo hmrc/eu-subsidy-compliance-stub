@@ -82,6 +82,12 @@ package object types extends SimpleJson {
     implicit val format = Json.formatEnum(EisStatus)
   }
 
+  object EisAmendmentType extends Enumeration {
+    type EisAmendmentType = Value
+    val A, D = Value
+    implicit val format = Json.formatEnum(EisAmendmentType)
+  }
+
   object EisParamName extends Enumeration {
     type EisParamName = Value
     val ERRORCODE, ERRORTEXT = Value

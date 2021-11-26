@@ -1,0 +1,179 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Update Undertaking API Request",
+  "description": "SCP12 JSON Request Schema",
+  "type": "object",
+  "minProperties": 1,
+  "maxProperties": 1,
+  "properties": {
+    "updateUndertakingRequest": {
+      "$ref": "#/definitions/updateUndertakingRequestType"
+    }
+  },
+  "required": [
+    "updateUndertakingRequest"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "receiptDate": {
+      "description": "The date and time the message was created by the system sending the message.",
+      "type": "string",
+      "pattern": "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z"
+    },
+    "industrySector": {
+      "description": "0 = “Other, Non-Specific” \r\n1 = “Transport”\r\n 2 = “Agriculture”\r\n 3 = “Aquaculture”",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1,
+      "enum": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    "amendmentType": {
+      "description": "A = Amend Data\r\n D = Disable Undertaking ",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1,
+      "enum": [
+        "A",
+        "D"
+      ]
+    },
+    "undertakingId": {
+      "description": "Undertaking Identification",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 17
+    },
+    "undertakingName": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 105
+    },
+    "requestCommon": {
+      "description": "Transaction Header",
+      "type": "object",
+      "properties": {
+        "originatingSystem": {
+          "description": "The name or IP address of the application system that originally submitted the message.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30
+        },
+        "receiptDate": {
+          "$ref": "#/definitions/receiptDate"
+        },
+        "acknowledgementReference": {
+          "description": "Unique id created at Originating System for example MDTP. Unique ID throughout the journey of a message -- stored in the ETMP system for search and retrieval purposes",
+          "type": "string",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "messageTypes": {
+          "type": "object",
+          "properties": {
+            "messageType": {
+              "description": "Type of message - must be \"UpdateUndertaking\"",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 30,
+              "enum": [
+                "UpdateUndertaking"
+              ]
+            }
+          },
+          "required": [
+            "messageType"
+          ],
+          "additionalProperties": false
+        },
+        "requestParameters": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/requestParameters"
+          }
+        }
+      },
+      "required": [
+        "originatingSystem",
+        "receiptDate",
+        "acknowledgementReference",
+        "messageTypes",
+        "requestParameters"
+      ],
+      "additionalProperties": false
+    },
+    "requestDetail": {
+      "description": "Transaction Body",
+      "type": "object",
+      "properties": {
+        "amendmentType": {
+          "$ref": "#/definitions/amendmentType"
+        },
+        "undertakingId": {
+          "$ref": "#/definitions/undertakingId"
+        },
+        "undertakingName": {
+          "$ref": "#/definitions/undertakingName"
+        },
+        "industrySector": {
+          "$ref": "#/definitions/industrySector"
+        },
+        "disablementStartDate": {
+          "description": "Start date of Undertaking Disablement ",
+          "type": "string",
+          "pattern": "^((19|2[0-9])[0-9]{2})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$"
+        }
+      },
+      "required": [
+        "amendmentType",
+        "undertakingId"
+      ],
+      "additionalProperties": false
+    },
+    "updateUndertakingRequestType": {
+      "description": "Root",
+      "type": "object",
+      "properties": {
+        "requestCommon": {
+          "$ref": "#/definitions/requestCommon"
+        },
+        "requestDetail": {
+          "$ref": "#/definitions/requestDetail"
+        }
+      },
+      "required": [
+        "requestCommon",
+        "requestDetail"
+      ],
+      "additionalProperties": false
+    },
+    "requestParameters": {
+      "type": "object",
+      "properties": {
+        "paramName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "enum": [
+            "REGIME"
+          ]
+        },
+        "paramValue": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        }
+      },
+      "required": [
+        "paramName",
+        "paramValue"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
