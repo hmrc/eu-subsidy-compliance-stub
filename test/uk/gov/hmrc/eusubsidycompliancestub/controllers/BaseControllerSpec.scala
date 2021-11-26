@@ -54,12 +54,11 @@ class BaseControllerSpec extends
     FakeRequest("POST", path, fakeHeaders, body)
 
   def testResponse[A](
-    action: Action[JsValue],
     model: A,
     responseSchemaName: String,
     expectedStatus: Int,
     extraChecks: List[Future[Result] => Assertion] = List.empty
-  )(implicit writes: Writes[A], path: String) = {
+  )(implicit action: Action[JsValue], writes: Writes[A], path: String): Future[Result] = {
     val result = action.apply(fakePost(Json.toJson(model)))
     checkJson(contentAsJson(result), responseSchemaName)
     status(result) mustEqual expectedStatus

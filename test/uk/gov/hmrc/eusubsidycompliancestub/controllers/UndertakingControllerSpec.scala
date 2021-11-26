@@ -18,7 +18,7 @@ package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
 import cats.implicits._
 import play.api.libs.json._
-import play.api.mvc.Result
+import play.api.mvc.{Action, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, _}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
@@ -142,12 +142,12 @@ class UndertakingControllerSpec extends BaseControllerSpec {
   "Retrieve Undertaking" must {
 
     implicit val path: String = "/scp/retrieveundertaking/v1"
+    implicit val action: Action[JsValue] = controller.retrieve
     val okEori = EORI("GB123456789012345")
     val notFoundEori = EORI("GB123456789012888")
 
     "return 200 and an Undertaking for a valid request" in {
       val result: Future[Result] = testResponse[EORI](
-        controller.retrieve,
         okEori,
         "retrieveUndertakingResponse",
         play.api.http.Status.OK
@@ -160,7 +160,6 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
     "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
       testResponse[JsValue](
-        controller.retrieve,
         Json.obj("foo" -> "bar"),
         "errorDetailResponse",
         play.api.http.Status.FORBIDDEN
@@ -169,7 +168,6 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
     "return 500 if the EORI ends in 999 " in {
       testResponse[EORI](
-        controller.retrieve,
         internalServerErrorEori,
         "errorDetailResponse",
         play.api.http.Status.INTERNAL_SERVER_ERROR
@@ -178,7 +176,6 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 107 if EORI ends in 888 (not found)" in {
       val result: Future[Result] = testResponse[EORI](
-        controller.retrieve,
         notFoundEori,
         "retrieveUndertakingResponse",
         play.api.http.Status.OK,
@@ -199,11 +196,11 @@ class UndertakingControllerSpec extends BaseControllerSpec {
   "amend Undertaking" must {
 
     implicit val path: String = "/scp/updateundertaking/v1"
+    implicit val action: Action[JsValue] = controller.update
     implicit val writes: Writes[Undertaking] = updateUndertakingWrites(EisAmendmentType.A)
 
     "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
       testResponse[JsValue](
-        controller.update,
         Json.obj("foo" -> "bar"),
         "errorDetailResponse",
         play.api.http.Status.FORBIDDEN
@@ -212,17 +209,15 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
     "return 500 if the undertakingRef ends in 999 " in {
       testResponse[Undertaking](
-        controller.update,
         undertaking.copy(reference = Some(UndertakingRef("999"))),
         "errorDetailResponse",
         play.api.http.Status.INTERNAL_SERVER_ERROR
-      )(writes, implicitly)
+      )(implicitly, writes, implicitly)
     }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 004 " +
       "if Undertaking.reference ends in 888 (duplicate acknowledgementRef)" in {
       testResponse[Undertaking](
-        controller.update,
         undertaking.copy(reference = Some(UndertakingRef("888"))),
         "updateUndertakingResponse",
         play.api.http.Status.OK,
@@ -232,25 +227,23 @@ class UndertakingControllerSpec extends BaseControllerSpec {
           contentAsJson(_)\\"paramValue" mustEqual
             List(JsString("004"), JsString("Duplicate submission acknowledgment reference"))
         )
-      )(writes, implicitly)
+      )(implicitly, writes, implicitly)
     }
 
     "return 200 and a valid response for a successful amend" in {
       testResponse[Undertaking](
-        controller.update,
         undertaking,
         "updateUndertakingResponse",
         play.api.http.Status.OK,
-      )(writes, implicitly)
+      )(implicitly, writes, implicitly)
     }
 
     "return 200 and a valid response for a successful disable" in {
       testResponse[Undertaking](
-        controller.update,
         undertaking,
         "updateUndertakingResponse",
         play.api.http.Status.OK,
-      )(updateUndertakingWrites(EisAmendmentType.D), implicitly)
+      )(implicitly, updateUndertakingWrites(EisAmendmentType.D), implicitly)
     }
 
   }
