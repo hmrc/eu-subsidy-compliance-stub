@@ -27,7 +27,7 @@ case class Subsidy(
   submissionDate: LocalDate,
   publicAuthority: String, // no regex
   traderReference: Option[String], // no regex
-  nonHMRCSubsidyAmtEUR: SubsidyAmount, // euros
+  nonHMRCSubsidyAmtEUR: SubsidyAmount, // TODO consider using sane names and write a bespoke formatter
   businessEntityIdentifier: Option[EORI],
   amendmentType: Option[EisSubsidyAmendmentType] = Option.empty,
 )

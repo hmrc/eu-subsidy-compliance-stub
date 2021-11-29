@@ -22,7 +22,7 @@ import java.time._
 import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.eusubsidycompliancestub.models._
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.ErrorDetail
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{CorrelationID, EORI, EisSubsidyAmendmentType, ErrorCode, ErrorMessage, IndustrySectorLimit, Source, SubsidyAmount, SubsidyRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{CorrelationID, EORI, EisSubsidyAmendmentType, ErrorCode, ErrorMessage, Source, SubsidyAmount, SubsidyRef}
 import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator.{genContactDetails, genEORI, genRetrievedUndertaking, genUndertakingRef}
 import uk.gov.hmrc.smartstub._
 import wolfendale.scalacheck.regexp.RegexpGen
@@ -34,7 +34,22 @@ object TestInstances {
       undertakingRef <- genUndertakingRef
       n <- Gen.choose(1,25)
       undertakingSubsidyAmendment <- Gen.listOfN(n, arbSubsidy.arbitrary)
-    } yield SubsidyUpdate(undertakingRef, undertakingSubsidyAmendment)
+    } yield SubsidyUpdate(undertakingRef, UndertakingSubsidyAmendment(undertakingSubsidyAmendment))
+    Arbitrary(su)
+  }
+
+  implicit def arbSubsidyUpdateNilReturn: Arbitrary[SubsidyUpdate] = {
+    val su = for {
+      undertakingRef <- genUndertakingRef
+      nilSubmissionDate <-  Gen.date(LocalDate.of(2020,1,1), LocalDate.now)
+    } yield SubsidyUpdate(undertakingRef, NilSubmissionDate(nilSubmissionDate))
+    Arbitrary(su)
+  }
+
+  implicit def arbSubsidyUpdateWithSomeNilReturns: Arbitrary[SubsidyUpdate] = {
+    val su = for {
+      updateOrNilReturn <- Gen.oneOf(arbSubsidyUpdate.arbitrary, arbSubsidyUpdateNilReturn.arbitrary)
+    } yield updateOrNilReturn
     Arbitrary(su)
   }
 
@@ -51,7 +66,7 @@ object TestInstances {
       publicAuthority <- arbString.arbitrary
       traderReference <- Gen.option(arbString.arbitrary)
       nonHMRCSubsidyAmount <- Gen.choose(1L, 9999999999999L).map(x => SubsidyAmount(x / 100))
-      businessEntityIdentifier <- Gen.option(genEORI)
+      businessEntityIdentifier <- genEORI
     } yield
       Subsidy(
         ref,
@@ -60,7 +75,7 @@ object TestInstances {
         publicAuthority,
         traderReference,
         nonHMRCSubsidyAmount,
-        businessEntityIdentifier,
+        businessEntityIdentifier.some,
         amendmentType
       )
     Arbitrary(a)
