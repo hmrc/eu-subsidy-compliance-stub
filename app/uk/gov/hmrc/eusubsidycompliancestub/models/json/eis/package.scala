@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter
 import java.time._
 
 import play.api.libs.json._
-import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
+import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyUpdate, Undertaking}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types._
 
 package object eis {
@@ -66,7 +66,6 @@ package object eis {
 
   // provides response for EIS updateUndertaking call
   implicit val eisUpdateUndertakingResponse: Writes[UndertakingRef] = new Writes[UndertakingRef] {
-
     override def writes(o: UndertakingRef): JsValue = Json.obj(
       "updateUndertakingResponse" -> Json.obj(
         "responseCommon" ->
@@ -78,6 +77,24 @@ package object eis {
           ),
         "responseDetail" -> Json.obj(
           "undertakingReference" ->  o
+        )
+      )
+    )
+  }
+
+  // provides response for EIS updateSubsidyUsage call
+  implicit val eisUpdateSubsidyUsageResponse: Writes[SubsidyUpdate] = new Writes[SubsidyUpdate] {
+    override def writes(o: SubsidyUpdate): JsValue = Json.obj(
+      "amendUndertakingSubsidyUsageResponse" -> Json.obj(
+        "responseCommon" ->
+          ResponseCommon(
+            EisStatus.OK,
+            EisStatusString("Success"),
+            LocalDateTime.now,
+            None
+          ),
+        "responseDetail" -> Json.obj(
+          "undertakingIdentifier" ->  o.undertakingIdentifier
         )
       )
     )
@@ -102,42 +119,4 @@ package object eis {
       )
     }
   }
-
-  val retUndResp: JsValue = Json.parse(
-    """
-      |{
-      |  "retrieveUndertakingResponse": {
-      |    "responseCommon": {
-      |      "status": "OK",
-      |      "processingDate": "3446-92-08T17:31:33Z",
-      |      "statusText": "ABCDEFGHIJKLMNOPQRSTUVWXY",
-      |      "returnParameters": []
-      |    },
-      |    "responseDetail": {
-      |      "undertakingReference": "ABCDE",
-      |      "undertakingName": "ABCDEFGHIJKLMNOPQRSTUV",
-      |      "industrySector": "0",
-      |      "industrySectorLimit": 511.5,
-      |      "lastSubsidyUsageUpdt": "2136/08-03",
-      |      "undertakingBusinessEntity": [
-      |        {
-      |          "businessEntityIdentifier": "GB123456789012",
-      |          "leadEORI": true,
-      |          "address": {
-      |            "addressLine1": "ABCDE",
-      |            "countryCode": "AB",
-      |            "addressLine2": "ABCDEFGHIJKLMNOPQRSTUVWXYZAB",
-      |            "addressLine3": "ABCDEF",
-      |            "postcode": "ABCDEF"
-      |          },
-      |          "contacts": {
-      |            "phone": "ABCDEFGHIJKLMNOPQRSTUV",
-      |            "mobile": "ABCDE"
-      |          }
-      |        }
-      |      ]
-      |    }
-      |  }
-      |}
-    """.stripMargin)
 }

@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models.json
 
-import play.api.libs.json._
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{Params, RequestCommon}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking}
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, ZonedDateTime}
 
+import play.api.libs.json._
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{Params, RequestCommon}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking}
 
 package object digital {
 
@@ -144,4 +144,5 @@ package object digital {
     }
     amendUndertakingWrites
   }
+
 }

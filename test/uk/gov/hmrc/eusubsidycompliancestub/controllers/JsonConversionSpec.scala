@@ -18,7 +18,7 @@ package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
 import org.scalatest.Assertion
 import play.api.libs.json.{Format, Json, Writes}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{Undertaking, json}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyUpdate, Undertaking, json}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.retrieveUndertakingEORIWrites
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetail, eisRetrieveUndertakingResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType}
@@ -64,6 +64,12 @@ class JsonConversionSpec extends BaseControllerSpec {
       forAll { errorDetail: ErrorDetail =>
         checkWrites[ErrorDetail](errorDetail, "errorDetailResponse")
       }
+    }
+
+    "match updateSubsidyUsageRequest.schema.json" in {
+      forAll { subsidyUpdate: SubsidyUpdate =>
+        checkWrites[SubsidyUpdate](subsidyUpdate, "updateSubsidyUsageRequest")
+      }(implicitly, arbSubsidyUpdateWithSomeNilReturns, implicitly, implicitly, implicitly, implicitly)
     }
   }
 

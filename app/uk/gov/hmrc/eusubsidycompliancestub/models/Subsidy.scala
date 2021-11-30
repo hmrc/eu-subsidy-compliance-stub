@@ -18,17 +18,20 @@ package uk.gov.hmrc.eusubsidycompliancestub.models
 
 import java.time.LocalDate
 
-import uk.gov.hmrc.eusubsidycompliancestub.models.types._
+import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisSubsidyAmendmentType, SubsidyAmount, SubsidyRef}
 
-case class Undertaking(
-  reference: Option[UndertakingRef],
-  name: UndertakingName,
-  industrySector: Sector,
-  industrySectorLimit: IndustrySectorLimit,
-  lastSubsidyUsageUpdt: LocalDate,
-  undertakingBusinessEntity: List[BusinessEntity],
-  nonHMRCSubsidies: List[Subsidy] = List.empty,
-  hmrcSubsidies: List[HmrcSubsidy] = List.empty,
-//  nilReturns: List[NilReturn] = List.empty,
-  tradersOwnRefUCR: Option[TradersOwnRefUCR] = None
+case class Subsidy(
+  subsidyUsageTransactionId: Option[SubsidyRef],
+  allocationDate: LocalDate,
+  submissionDate: LocalDate,
+  publicAuthority: String, // no regex
+  traderReference: Option[String], // no regex
+  nonHMRCSubsidyAmtEUR: SubsidyAmount, // TODO consider using sane names and write a bespoke formatter
+  businessEntityIdentifier: Option[EORI],
+  amendmentType: Option[EisSubsidyAmendmentType] = Option.empty,
 )
+
+object Subsidy {
+  implicit val format: OFormat[Subsidy] = Json.format[Subsidy]
+}
