@@ -20,6 +20,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{eisCreateUndertakingResponse, eisRetrieveUndertakingResponse}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef
 import uk.gov.hmrc.eusubsidycompliancestub.services.EisService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -116,5 +117,71 @@ class UndertakingController @Inject()(
           }
       }
     }
+  }
+
+  def amendUndertakingMemberData: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
+    withJsonBody[JsValue] { json =>
+      processPayload(json, "amendUndertakingRequest") match {
+        case Some(errorDetail) =>
+          Future.successful(Forbidden(Json.toJson(errorDetail)))
+        case _ =>
+          val undertakingRef = (json \ "undertakingIdentifier").as[UndertakingRef]
+          undertakingRef match {
+            case a if a.endsWith("999") => // fake 500
+              Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
+            case b if b.endsWith("888") =>
+              val dupeAck = notOkCommonResponse(
+                "amendUndertakingMemberDataResponse",
+                "004",
+                "Duplicate submission acknowledgment reference"
+              )
+              Future.successful(Ok(Json.toJson(dupeAck)))
+            case c if c.endsWith("777") =>
+              val eoriNotFound = notOkCommonResponse(
+                "amendUndertakingMemberDataResponse",
+                "106",
+                "EORI not Subscribed in ETMP XXXXXXXXXXXX" //TODO add in EORI
+              )
+              Future.successful(Ok(Json.toJson(eoriNotFound)))
+            case d if d.endsWith("666") =>
+              val UndRefNotFound = notOkCommonResponse(
+                "amendUndertakingMemberDataResponse",
+                "107",
+                "Undertaking reference in the API not Subscribed in ETMP"
+              )
+              Future.successful(Ok(Json.toJson(UndRefNotFound)))
+            case e if e.endsWith("555") =>
+              val incorrectEORIForUnd = notOkCommonResponse(
+                "amendUndertakingMemberDataResponse",
+                "108",
+                "Relationship with another undertaking exist for EORI XXXXXXXXXXXXXX"
+              )
+              Future.successful(Ok(Json.toJson(incorrectEORIForUnd)))
+            case f if f.endsWith("444") =>
+              val noRelationshipExists = notOkCommonResponse(
+                "amendUndertakingMemberDataResponse",
+                "109",
+                "Relationship does not exist for EORI XXXXXXXXXXXXXX"
+              )
+              Future.successful(Ok(Json.toJson(noRelationshipExists)))
+            case g if g.endsWith("333") =>
+              val eoriNotFound = notOkCommonResponse(
+                "amendUndertakingMemberDataResponse",
+                "110",
+                "Subsidy Compliance address does not exist for EORI XXXXXXXXXXXXXX"
+              )
+              Future.successful(Ok(Json.toJson(eoriNotFound)))
+            case h if h.endsWith("222") =>
+              val eoriNotFound = notOkCommonResponse(
+                "amendUndertakingMemberDataResponse",
+                "113",
+                "Postcode missing for the address"
+              )
+              Future.successful(Ok(Json.toJson(eoriNotFound)))
+            case _ => ??? // Success
+          }
+      }
+    }
+
   }
 }
