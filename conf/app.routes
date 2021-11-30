@@ -1,10 +1,16 @@
 # microservice specific routes
 
 # retrieveUndertaking
-POST       /scp/retrieveundertaking/v1 uk.gov.hmrc.eusubsidycompliancestub.controllers.UndertakingController.retrieve
+POST       /scp/retrieveundertaking/v1          uk.gov.hmrc.eusubsidycompliancestub.controllers.UndertakingController.retrieve
 
 # createUndertaking
 POST       /scp/createundertaking/v1   uk.gov.hmrc.eusubsidycompliancestub.controllers.UndertakingController.create
 
 # amendUnderTakingMemberData
 POST       /scp/amendundertakingmemberdata/v1 uk.gov.hmrc.eusubsidycompliancestub.controllers.UndertakingController.amendUndertakingMemberData
+
+# amendUndertaking
+POST       /scp/updateundertaking/v1            uk.gov.hmrc.eusubsidycompliancestub.controllers.UndertakingController.update
+
+# amend subsidy usage
+POST       /scp/amendundertakingsubsidyusage/v1 uk.gov.hmrc.eusubsidycompliancestub.controllers.SubsidyController.updateUsage

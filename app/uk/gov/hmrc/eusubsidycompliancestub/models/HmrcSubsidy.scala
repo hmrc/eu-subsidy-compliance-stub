@@ -18,17 +18,14 @@ package uk.gov.hmrc.eusubsidycompliancestub.models
 
 import java.time.LocalDate
 
-import uk.gov.hmrc.eusubsidycompliancestub.models.types._
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{DeclarationID, EORI, HmrcSubsidyAmount, TaxType}
 
-case class Undertaking(
-  reference: Option[UndertakingRef],
-  name: UndertakingName,
-  industrySector: Sector,
-  industrySectorLimit: IndustrySectorLimit,
-  lastSubsidyUsageUpdt: LocalDate,
-  undertakingBusinessEntity: List[BusinessEntity],
-  nonHMRCSubsidies: List[Subsidy] = List.empty,
-  hmrcSubsidies: List[HmrcSubsidy] = List.empty,
-//  nilReturns: List[NilReturn] = List.empty,
-  tradersOwnRefUCR: Option[TradersOwnRefUCR] = None
+case class HmrcSubsidy(
+  declarationID: DeclarationID,
+  issueDate: Option[LocalDate],
+  acceptanceDate: LocalDate,
+  declarantEORI: EORI, // n.b. SCP09 uses looser validation but will stick with ours
+  consigneeEORI: EORI,
+  taxType: Option[TaxType],
+  amount: Option[HmrcSubsidyAmount]
 )

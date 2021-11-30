@@ -18,13 +18,17 @@ package uk.gov.hmrc.eusubsidycompliancestub.models.json
 
 import play.api.libs.json._
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{Params, RequestCommon}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{UndertakingBusinessEntityUpdate, BusinessEntity, Undertaking}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking, UndertakingBusinessEntityUpdate}
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, ZonedDateTime}
 
+
 package object digital {
+
+  val dateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
   implicit val undertakingFormat: Format[Undertaking] = new Format[Undertaking] {
 
@@ -37,11 +41,10 @@ package object digital {
     override def writes(o: Undertaking): JsValue = {
       val lead: BusinessEntity =
         o.undertakingBusinessEntity match {
-          case h :: Nil => h // TODO should test they are a lead, or maybe EIS will infer that :)?
+          case h :: Nil => h
           case _ => throw new IllegalStateException(s"unable to create undertaking with missing or multiple business entities")
         }
 
-      val dateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
       Json.obj(
         "createUndertakingRequest" -> Json.obj(
           "requestCommon" -> requestCommon,
@@ -115,13 +118,40 @@ package object digital {
       )
     )
   }
+
   // provides json for EIS Amend Undertaking Member Data
   implicit val amendUndertakingMemberDataWrites: Writes[UndertakingBusinessEntityUpdate] = new Writes[UndertakingBusinessEntityUpdate] {
     override def writes(o: UndertakingBusinessEntityUpdate): JsValue = Json.obj(
       "undertakingIdentifier" -> JsString(o.undertakingIdentifier),
-        "undertakingComplete" -> JsBoolean(true),
+      "undertakingComplete" -> JsBoolean(true),
       "memberAmendments" -> o.businessEntityUpdates
     )
+  }
+  // provides json for EIS updateUndertaking call
+  def updateUndertakingWrites(
+    amendmentType: EisAmendmentType = EisAmendmentType.A
+  ): Writes[Undertaking] = {
+    val amendUndertakingWrites: Writes[Undertaking] = new Writes[Undertaking] {
+      val requestCommon = RequestCommon(
+        "acknowledgementReferenceTODOxxxx", // TODO
+        "UpdateUndertaking"
+      )
+      override def writes(o: Undertaking): JsValue = {
+        Json.obj(
+          "updateUndertakingRequest" -> Json.obj(
+            "requestCommon" -> requestCommon,
+            "requestDetail" -> Json.obj(
+              "amendmentType" -> amendmentType,
+              "undertakingId" -> o.reference,
+              "undertakingName" -> o.name,
+              "industrySector" -> o.industrySector,
+              "disablementStartDate" -> dateFormatter.format(LocalDate.now)
+            )
+          )
+        )
+      }
+    }
+    amendUndertakingWrites
   }
 
 }
