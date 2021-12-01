@@ -17,13 +17,13 @@
 package uk.gov.hmrc.eusubsidycompliancestub.util
 
 import cats.implicits._
-import java.time._
 
+import java.time._
 import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.eusubsidycompliancestub.models._
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.ErrorDetail
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{CorrelationID, EORI, EisSubsidyAmendmentType, ErrorCode, ErrorMessage, Source, SubsidyAmount, SubsidyRef}
-import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator.{genContactDetails, genEORI, genRetrievedUndertaking, genUndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator.{genBusinessEntityUpdate, genContactDetails, genEORI, genRetrievedUndertaking, genUndertakingRef}
 import uk.gov.hmrc.smartstub._
 import wolfendale.scalacheck.regexp.RegexpGen
 
@@ -51,6 +51,18 @@ object TestInstances {
       updateOrNilReturn <- Gen.oneOf(arbSubsidyUpdate.arbitrary, arbSubsidyUpdateNilReturn.arbitrary)
     } yield updateOrNilReturn
     Arbitrary(su)
+  }
+
+  implicit def arbUndertakingBusinessEntityUpdate: Arbitrary[UndertakingBusinessEntityUpdate] = {
+    val ubeu = for {
+      undertakingIdentifier <- genUndertakingRef
+      undertakingComplete <- Gen.const(true)
+      n <- Gen.choose(1,5)
+      businessEntityUpdate <- Gen.listOfN(n, genBusinessEntityUpdate)
+    } yield {
+      UndertakingBusinessEntityUpdate(undertakingIdentifier, undertakingComplete, businessEntityUpdate)
+    }
+    Arbitrary(ubeu)
   }
 
   implicit def arbSubsidyRef: Arbitrary[SubsidyRef] = Arbitrary {

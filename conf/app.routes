@@ -4,7 +4,10 @@
 POST       /scp/retrieveundertaking/v1          uk.gov.hmrc.eusubsidycompliancestub.controllers.UndertakingController.retrieve
 
 # createUndertaking
-POST       /scp/createundertaking/v1            uk.gov.hmrc.eusubsidycompliancestub.controllers.UndertakingController.create
+POST       /scp/createundertaking/v1   uk.gov.hmrc.eusubsidycompliancestub.controllers.UndertakingController.create
+
+# amendUnderTakingMemberData
+POST       /scp/amendundertakingmemberdata/v1 uk.gov.hmrc.eusubsidycompliancestub.controllers.UndertakingController.amendUndertakingMemberData
 
 # amendUndertaking
 POST       /scp/updateundertaking/v1            uk.gov.hmrc.eusubsidycompliancestub.controllers.UndertakingController.update

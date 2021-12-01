@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 import shapeless.tag.@@
 
 package object types extends SimpleJson {
@@ -118,7 +118,7 @@ package object types extends SimpleJson {
     type EisStatus = Value
     val OK, NOT_OK = Value
 
-    implicit val format = Json.formatEnum(EisStatus)
+    implicit val format: Format[types.EisStatus.Value] = Json.formatEnum(EisStatus)
   }
 
   object EisAmendmentType extends Enumeration {
@@ -136,7 +136,18 @@ package object types extends SimpleJson {
     type EisParamName = Value
     val ERRORCODE, ERRORTEXT = Value
 
-    implicit val format = Json.formatEnum(EisParamName)
+    implicit val format: Format[types.EisParamName.Value] = Json.formatEnum(EisParamName)
+  }
+
+  object AmendmentType extends Enumeration {
+    type AmendmentType = Value
+
+    val add: types.AmendmentType.Value = Value("1")
+    val amend: types.AmendmentType.Value = Value("2")
+    val delete: types.AmendmentType.Value = Value("3")
+
+    implicit val format: Format[AmendmentType] = Json.formatEnum(AmendmentType)
+
   }
 
   type EisParamValue = String @@ EisParamValue.Tag
