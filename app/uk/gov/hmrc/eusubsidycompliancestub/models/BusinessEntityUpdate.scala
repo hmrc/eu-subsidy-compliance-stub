@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
-import play.api.libs.json.{JsValue, Json, OFormat, Writes}
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.AmendmentType.AmendmentType
-
 import java.time.LocalDate
+
+import play.api.libs.functional.syntax.unlift
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.EORI
 
 case class BusinessEntityUpdate(
 	amendmentType: AmendmentType,
@@ -28,13 +31,17 @@ case class BusinessEntityUpdate(
 )
 
 object BusinessEntityUpdate {
-	implicit val businessEntityWrites: Writes[BusinessEntity] = new Writes[BusinessEntity] {
-		override def writes(o: BusinessEntity): JsValue = { Json.obj(
-			"businessEntityIdentifier" -> o.businessEntityIdentifier,
-			"leadEORIIndicator" -> o.leadEORI,
-			"contacts" -> o.contacts
+	implicit val businessEntityWrites: Writes[BusinessEntity] = (
+		(JsPath \ "businessEntityIdentifier").write[EORI] and
+			(JsPath \ "leadEORIIndicator").write[Boolean] and
+			(JsPath \ "contacts").writeNullable[ContactDetails]
+		)(unlift(BusinessEntity.unapply))
+
+	implicit val businessEntityUpdateWrites: Writes[BusinessEntityUpdate] = new Writes[BusinessEntityUpdate] {
+		override def writes(o: BusinessEntityUpdate): JsValue = Json.obj(
+			"amendmentType" -> o.amendmentType,
+			"amendmentEffectiveDate" -> o.amendmentEffectiveDate,
+			"businessEntity" -> o.businessEntity
 		)
-		}
 	}
- implicit val format: OFormat[BusinessEntityUpdate] = Json.format[BusinessEntityUpdate]
 }

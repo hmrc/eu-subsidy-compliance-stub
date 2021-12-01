@@ -74,7 +74,6 @@ class JsonConversionSpec extends BaseControllerSpec {
 
     "match amendUndertakingMemberDataRequest.schema.json" in {
       forAll { undertakingBusinessEntityUpdate: UndertakingBusinessEntityUpdate =>
-        println(s"XXXXXXXX${Json.prettyPrint(Json.toJson(undertakingBusinessEntityUpdate))}")
         checkWrites[UndertakingBusinessEntityUpdate](undertakingBusinessEntityUpdate, "amendUndertakingMemberDataRequest")
       }
     }

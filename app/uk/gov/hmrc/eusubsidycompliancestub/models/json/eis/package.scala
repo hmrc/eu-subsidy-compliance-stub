@@ -42,7 +42,6 @@ package object eis {
 
   // provides response for EIS retrieveUndertaking call
   implicit val eisRetrieveUndertakingResponse: Writes[Undertaking] = new Writes[Undertaking] {
-
     override def writes(o: Undertaking): JsValue = Json.obj(
       "retrieveUndertakingResponse" -> Json.obj(
         "responseCommon" ->

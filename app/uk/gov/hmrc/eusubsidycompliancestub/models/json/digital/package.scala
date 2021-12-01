@@ -127,6 +127,7 @@ package object digital {
       "memberAmendments" -> o.businessEntityUpdates
     )
   }
+
   // provides json for EIS updateUndertaking call
   def updateUndertakingWrites(
     amendmentType: EisAmendmentType = EisAmendmentType.A
