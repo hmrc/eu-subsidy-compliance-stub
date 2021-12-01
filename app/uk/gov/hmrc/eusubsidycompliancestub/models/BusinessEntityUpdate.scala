@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{JsValue, Json, OFormat, Writes}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.AmendmentType.AmendmentType
 
 import java.time.LocalDate
@@ -28,5 +28,13 @@ case class BusinessEntityUpdate(
 )
 
 object BusinessEntityUpdate {
+	implicit val businessEntityWrites: Writes[BusinessEntity] = new Writes[BusinessEntity] {
+		override def writes(o: BusinessEntity): JsValue = { Json.obj(
+			"businessEntityIdentifier" -> o.businessEntityIdentifier,
+			"leadEORIIndicator" -> o.leadEORI,
+			"contacts" -> o.contacts
+		)
+		}
+	}
  implicit val format: OFormat[BusinessEntityUpdate] = Json.format[BusinessEntityUpdate]
 }

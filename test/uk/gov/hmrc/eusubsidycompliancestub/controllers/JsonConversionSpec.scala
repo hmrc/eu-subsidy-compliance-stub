@@ -18,8 +18,8 @@ package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
 import org.scalatest.Assertion
 import play.api.libs.json.{Format, Json, Writes}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyUpdate, Undertaking, json}
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.retrieveUndertakingEORIWrites
+import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyUpdate, Undertaking, UndertakingBusinessEntityUpdate, json}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{retrieveUndertakingEORIWrites, amendUndertakingMemberDataWrites}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetail, eisRetrieveUndertakingResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType}
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances._
@@ -70,6 +70,13 @@ class JsonConversionSpec extends BaseControllerSpec {
       forAll { subsidyUpdate: SubsidyUpdate =>
         checkWrites[SubsidyUpdate](subsidyUpdate, "updateSubsidyUsageRequest")
       }(implicitly, arbSubsidyUpdateWithSomeNilReturns, implicitly, implicitly, implicitly, implicitly)
+    }
+
+    "match amendUndertakingMemberDataRequest.schema.json" in {
+      forAll { undertakingBusinessEntityUpdate: UndertakingBusinessEntityUpdate =>
+        println(s"XXXXXXXX${Json.prettyPrint(Json.toJson(undertakingBusinessEntityUpdate))}")
+        checkWrites[UndertakingBusinessEntityUpdate](undertakingBusinessEntityUpdate, "amendUndertakingMemberDataRequest")
+      }
     }
   }
 

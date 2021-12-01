@@ -17,8 +17,8 @@
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
 import org.scalacheck.Gen
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit, PhoneNumber, Sector, UndertakingName, UndertakingRef}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, ContactDetails, Undertaking}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, IndustrySectorLimit, PhoneNumber, Sector, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, BusinessEntityUpdate, ContactDetails, Undertaking}
 import uk.gov.hmrc.smartstub._
 import wolfendale.scalacheck.regexp.RegexpGen
 
@@ -60,6 +60,13 @@ object DataGenerator {
       e <- genEORI
       contactDetails <- Gen.option(genContactDetails)
     } yield BusinessEntity(e, false, contactDetails)
+
+ def genBusinessEntityUpdate : Gen[BusinessEntityUpdate] =
+   for {
+     amendmentType <- Gen.oneOf(List(AmendmentType.add, AmendmentType.amend, AmendmentType.delete))
+     amendmentEffectiveDate <- Gen.date(LocalDate.of(2020,1,1), LocalDate.now)
+     businessEntity <- genBusinessEntity
+   } yield BusinessEntityUpdate(amendmentType, amendmentEffectiveDate, businessEntity)
 
   def genRetrievedUndertaking(eori: String): Gen[Undertaking] =
     for {
