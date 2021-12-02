@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
-import play.api.libs.json.{JsString, JsValue}
+import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.mvc.Action
 import play.api.test.Helpers._
-import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyUpdate}
+import uk.gov.hmrc.eusubsidycompliancestub.models.SubsidyUpdate
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
 
@@ -30,9 +30,41 @@ class SubsidyControllerSpec extends BaseControllerSpec {
 
   val subsidyUpdate: SubsidyUpdate = TestInstances.arbSubsidyUpdate.arbitrary.sample.get
   val nilReturn: SubsidyUpdate = TestInstances.arbSubsidyUpdateNilReturn.arbitrary.sample.get
+
+  "retrieve subsidy usage" must {
+    implicit val path: String = "/scp/getundertakingtransactions/v1"
+    implicit val action: Action[JsValue] = controller.retrieveUsage
+
+    "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
+      testResponse[JsValue](
+        Json.obj("foo" -> "bar"),
+        "errorDetailResponse",
+        play.api.http.Status.FORBIDDEN,
+        debug = true
+      )
+    }
+
+    "return 500 if the SubsidyRetrieve.undertakingIdentifier ends in 999 " in {
+      testResponse[SubsidyUpdate](
+        subsidyUpdate.copy(undertakingIdentifier = UndertakingRef("999")),
+        "errorDetailResponse",
+        play.api.http.Status.INTERNAL_SERVER_ERROR
+      )
+    }
+
+  }
+
   "update subsidy usage" must {
     implicit val path: String = "/scp/amendundertakingsubsidyusage/v1"
     implicit val action: Action[JsValue] = controller.updateUsage
+
+    "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
+      testResponse[JsValue](
+        Json.obj("foo" -> "bar"),
+        "errorDetailResponse",
+        play.api.http.Status.FORBIDDEN
+      )
+    }
 
     "return 200  and a valid response for a successful amend" in {
       testResponse[SubsidyUpdate](
@@ -47,6 +79,14 @@ class SubsidyControllerSpec extends BaseControllerSpec {
         nilReturn,
         "updateSubsidyUsageResponse",
         play.api.http.Status.OK
+      )
+    }
+
+    "return 500 if the SubsidyUpdate.undertakingRef ends in 999 " in {
+      testResponse[SubsidyUpdate](
+        subsidyUpdate.copy(undertakingIdentifier = UndertakingRef("999")),
+        "errorDetailResponse",
+        play.api.http.Status.INTERNAL_SERVER_ERROR
       )
     }
 

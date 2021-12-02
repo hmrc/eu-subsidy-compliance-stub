@@ -104,4 +104,13 @@ class SubsidyController @Inject()(
     }
   }
 
+  def retrieveUsage: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
+    withJsonBody[JsValue] { json =>
+      processPayload(json, "retrieveUndertakingSubsidiesRequest") match {
+        case Some(errorDetail) => // payload fails schema check
+          Future.successful(Forbidden(Json.toJson(errorDetail)))
+        case _ => ???
+      }
+    }
+  }
 }

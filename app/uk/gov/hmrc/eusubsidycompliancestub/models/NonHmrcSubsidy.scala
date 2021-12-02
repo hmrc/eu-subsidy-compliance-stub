@@ -19,20 +19,19 @@ package uk.gov.hmrc.eusubsidycompliancestub.models
 import java.time.LocalDate
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisSubsidyAmendmentType, PositiveSubsidyAmount, SubsidyRef, TraderRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisSubsidyAmendmentType, SubsidyAmount, SubsidyRef, TraderRef}
 
-// TODO - hopefully we can delete this - need to get bits of SCP06 and SCP09 aligned
-case class Subsidy(
-  subsidyUsageTransactionId: Option[SubsidyRef],
+case class NonHmrcSubsidy(
+  subsidyUsageTransactionId: Option[SubsidyRef], // TODO if we can't get SCP09 sorted we'll need to uppercase ID in the format
   allocationDate: LocalDate,
   submissionDate: LocalDate,
-  publicAuthority: String, // no regex
-  traderReference: Option[TraderRef], // no regex in create API but one in retrieve API!
-  nonHMRCSubsidyAmtEUR: PositiveSubsidyAmount, // TODO consider using sane names and write a bespoke formatter
+  publicAuthority: Option[String], // this shouldn't be optional, is required in create API but not retrieve
+  traderReference: Option[TraderRef],
+  nonHMRCSubsidyAmtEUR: SubsidyAmount,
   businessEntityIdentifier: Option[EORI],
-  amendmentType: Option[EisSubsidyAmendmentType] = Option.empty,
+  amendmentType: Option[EisSubsidyAmendmentType] = Option.empty // this only used for create
 )
 
-object Subsidy {
-  implicit val format: OFormat[Subsidy] = Json.format[Subsidy]
+object NonHmrcSubsidy {
+  implicit val format: OFormat[NonHmrcSubsidy] = Json.format[NonHmrcSubsidy]
 }

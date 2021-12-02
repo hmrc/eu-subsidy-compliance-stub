@@ -30,9 +30,8 @@ package object types extends SimpleJson {
     }
   }
 
-  // TODO consider merging with IndustrySectorLimit - need to know if sector limit can ever be negative (EIS regex allows)
-  type SubsidyAmount =  BigDecimal @@ SubsidyAmount.Tag
-  object SubsidyAmount extends ValidatedType[BigDecimal] {
+  type PositiveSubsidyAmount =  BigDecimal @@ PositiveSubsidyAmount.Tag
+  object PositiveSubsidyAmount extends ValidatedType[BigDecimal] {
     override def validateAndTransform(in: BigDecimal): Option[BigDecimal] = {
       Some(in).filter { x =>
         (x >= 0) && (x <= 99999999999.99) && (x.scale <= 2)
@@ -40,8 +39,8 @@ package object types extends SimpleJson {
     }
   }
 
-  type HmrcSubsidyAmount = BigDecimal @@ HmrcSubsidyAmount.Tag
-  object HmrcSubsidyAmount extends ValidatedType[BigDecimal] {
+  type SubsidyAmount = BigDecimal @@ SubsidyAmount.Tag
+  object SubsidyAmount extends ValidatedType[BigDecimal] {
     override def validateAndTransform(in: BigDecimal): Option[BigDecimal] = {
       Some(in).filter { x =>
         (x >= -99999999999.99) && (x <= 99999999999.99) && (x.scale <= 2)
@@ -59,8 +58,8 @@ package object types extends SimpleJson {
     regex = """.{0,3}"""
   )
 
-  type TradersOwnRefUCR = String @@ TradersOwnRefUCR.Tag
-  object TradersOwnRefUCR extends RegexValidatedString(
+  type TraderRef = String @@ TraderRef.Tag
+  object TraderRef extends RegexValidatedString(
     regex = """.{0,35}"""
   )
 

@@ -26,9 +26,5 @@ case class Undertaking(
   industrySector: Sector,
   industrySectorLimit: IndustrySectorLimit,
   lastSubsidyUsageUpdt: LocalDate,
-  undertakingBusinessEntity: List[BusinessEntity],
-  nonHMRCSubsidies: List[Subsidy] = List.empty,
-  hmrcSubsidies: List[HmrcSubsidy] = List.empty,
-//  nilReturns: List[NilReturn] = List.empty,
-  tradersOwnRefUCR: Option[TradersOwnRefUCR] = None
+  undertakingBusinessEntity: List[BusinessEntity]
 )
