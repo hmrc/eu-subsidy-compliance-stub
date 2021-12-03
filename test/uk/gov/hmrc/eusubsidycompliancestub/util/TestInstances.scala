@@ -22,7 +22,7 @@ import java.time._
 import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.eusubsidycompliancestub.models._
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.ErrorDetail
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{CorrelationID, EORI, EisSubsidyAmendmentType, ErrorCode, ErrorMessage, PositiveSubsidyAmount, Source, SubsidyAmount, SubsidyRef, TraderRef, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{CorrelationID, EORI, EisSubsidyAmendmentType, ErrorCode, ErrorMessage, Source, SubsidyAmount, SubsidyRef, TraderRef, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator._
 import uk.gov.hmrc.smartstub._
 import wolfendale.scalacheck.regexp.RegexpGen
@@ -78,7 +78,7 @@ object TestInstances {
       publicAuthority <- arbString.arbitrary
       traderReference <- Gen.option(arbTraderRef.arbitrary)
 //      nonHMRCSubsidyAmount <- Gen.choose(1L, 9999999999999L).map(x => PositiveSubsidyAmount(x / 100))
-      nonHMRCSubsidyAmount <- Gen.choose(1L, 9999999999999L).map(x => SubsidyAmount(x / 100))
+      nonHMRCSubsidyAmount <- Gen.choose(1F, 9999999999999F).map(x => SubsidyAmount(x / 100))
       businessEntityIdentifier <- genEORI
     } yield
       NonHmrcSubsidy(
@@ -135,9 +135,8 @@ object TestInstances {
     RegexpGen.from(CorrelationID.regex).map(CorrelationID.apply)
   }
 
-  implicit def arbTraderRef: Arbitrary[TraderRef] = Arbitrary {
-    RegexpGen.from(TraderRef.regex).map(TraderRef.apply)
-  }
+  implicit def arbTraderRef: Arbitrary[TraderRef] =
+    Arbitrary(genTraderRef)
 
   implicit val arbString: Arbitrary[String] = Arbitrary(
     Gen.alphaNumStr.map{_.take(255)}

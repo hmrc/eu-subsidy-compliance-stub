@@ -110,7 +110,7 @@ package object types extends SimpleJson {
 
   type SubsidyRef = String @@ SubsidyRef.Tag
   object SubsidyRef extends RegexValidatedString(
-    "^.{0,10}$"
+    "^.{1,10}$"
   )
 
   object EisStatus extends Enumeration {

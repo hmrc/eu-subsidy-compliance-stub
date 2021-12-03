@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
+import cats.implicits._
+
 import org.scalacheck.Gen
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, IndustrySectorLimit, PhoneNumber, Sector, UndertakingName, UndertakingRef}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, BusinessEntityUpdate, ContactDetails, Undertaking}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, DeclarationID, EORI, IndustrySectorLimit, PhoneNumber, Sector, SubsidyAmount, SubsidyRef, TaxType, TraderRef, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models._
 import uk.gov.hmrc.smartstub._
 import wolfendale.scalacheck.regexp.RegexpGen
-
 import java.time.LocalDate
 
 object DataGenerator {
@@ -73,7 +74,7 @@ object DataGenerator {
       ref <- variableLengthString(1, 17)
       name <- variableLengthString(1, 105)
       industrySector <- Gen.oneOf(List("0","1","2","3"))
-      industrySectorLimit <- Gen.choose(1L, 9999999999999L).map(x => IndustrySectorLimit(x / 100))
+      industrySectorLimit <- Gen.choose(1F, 9999999999999F).map(x => IndustrySectorLimit(x / 100))
       lastSubsidyUsageUpdt <- Gen.date(LocalDate.of(2020,1,1), LocalDate.now)
       nBusinessEntities <- Gen.choose(1,25)
       undertakingBusinessEntity <- Gen.listOfN(nBusinessEntities,genBusinessEntity)
@@ -86,4 +87,89 @@ object DataGenerator {
       undertakingBusinessEntity.head.copy(businessEntityIdentifier = EORI(eori), leadEORI = true) :: undertakingBusinessEntity.tail
     )
 
+  def genSubsidyAmount: Gen[SubsidyAmount] = // n.b. dividing by 25 as the schema constraint is the same for the total as the subsidies
+    Gen.choose(-9999999999999F, 9999999999999F).map(x => SubsidyAmount(x / 25 / 100))
+
+  def genSubsidyRef: Gen[SubsidyRef] =
+    RegexpGen.from(SubsidyRef.regex).map(SubsidyRef.apply)
+
+  def genTraderRef: Gen[TraderRef] =
+    RegexpGen.from(TraderRef.regex).map(TraderRef.apply)
+
+  private def start(r: SubsidyRetrieve): LocalDate =
+    r.inDateRange.fold(LocalDate.of(2020, 1, 1)) {
+      _._1
+    }
+
+  private def end(r: SubsidyRetrieve): LocalDate =
+    r.inDateRange.fold(LocalDate.now) {
+      _._2
+    }
+
+  def genNonHmrcSubsidy(r: SubsidyRetrieve): Gen[NonHmrcSubsidy] =
+    for {
+      subRef <- genSubsidyRef
+      allocationDate <- Gen.date(start(r), end(r))
+      submissionDate <- Gen.date(start(r), end(r))
+      publicAuthority <- variableLengthString(1, 255)
+      traderReference <- Gen.option(genTraderRef)
+      nonHMRCSubsidyAmtEUR <- genSubsidyAmount
+      businessEntityIdentifier <- Gen.option(genBusinessEntity.map(_.businessEntityIdentifier))
+    } yield NonHmrcSubsidy(
+      subRef.some,
+      allocationDate,
+      submissionDate,
+      publicAuthority.some,
+      traderReference,
+      nonHMRCSubsidyAmtEUR,
+      businessEntityIdentifier
+    )
+
+  def genDeclarationId: Gen[DeclarationID] =
+    RegexpGen.from(DeclarationID.regex).map(DeclarationID.apply)
+
+  def genTaxType: Gen[TaxType] =
+    RegexpGen.from(TaxType.regex).map(TaxType.apply)
+
+  def genHmrcSubsidies(r: SubsidyRetrieve): Gen[HmrcSubsidy] =
+    for {
+      declarationID <- genDeclarationId
+      issueDate <- Gen.option(Gen.date(start(r), end(r)))
+      acceptanceDate <- Gen.date(start(r), end(r))
+      declarantEORI <- genEORI
+      consigneeEORI <- genEORI
+      taxType <- Gen.option(genTaxType)
+      amount <- Gen.option(genSubsidyAmount)
+      tradersOwnRefUCR <- Gen.option(genTraderRef)
+    } yield HmrcSubsidy(
+      declarationID,
+      issueDate,
+      acceptanceDate,
+      declarantEORI,
+      consigneeEORI,
+      taxType,
+      amount,
+      tradersOwnRefUCR
+    )
+
+
+  def genSubsidies(r: SubsidyRetrieve): Gen[UndertakingSubsidies] =
+    for {
+      x <- Gen.choose(1,25)
+      y <- Gen.choose(1,25)
+      nonHmrcSubsidies <- Gen.listOfN(x, genNonHmrcSubsidy(r))
+      hmrcSubsidies <- Gen.listOfN(y, genHmrcSubsidies(r))
+    } yield {
+      val nonHMRCTotal = SubsidyAmount(nonHmrcSubsidies.map(x => x.nonHMRCSubsidyAmtEUR).sum[BigDecimal])
+      val hmrcTotal = SubsidyAmount(hmrcSubsidies.flatMap(x => x.amount).sum[BigDecimal])
+      UndertakingSubsidies(
+        r.undertakingIdentifier,
+        nonHMRCTotal,
+        nonHMRCTotal,
+        hmrcTotal,
+        hmrcTotal,
+        nonHmrcSubsidies,
+        hmrcSubsidies
+      )
+    }
 }

@@ -19,9 +19,10 @@ package uk.gov.hmrc.eusubsidycompliancestub.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.eusubsidycompliancestub.models.SubsidyUpdate
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.eisUpdateSubsidyUsageResponse
+import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyRetrieve, SubsidyUpdate}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{eisUpdateSubsidyUsageResponse, eisRetrieveUndertakingSubsidiesResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, SubsidyRef, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.services.EisService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.Future
@@ -29,6 +30,7 @@ import scala.concurrent.Future
 @Singleton
 class SubsidyController @Inject()(
   cc: ControllerComponents,
+  eis: EisService,
   authAndEnvAction: AuthAndEnvAction
 ) extends BackendController(cc) {
 
@@ -109,7 +111,45 @@ class SubsidyController @Inject()(
       processPayload(json, "retrieveUndertakingSubsidiesRequest") match {
         case Some(errorDetail) => // payload fails schema check
           Future.successful(Forbidden(Json.toJson(errorDetail)))
-        case _ => ???
+        case _ =>
+          val undertakingRef: UndertakingRef = (json \ "undertakingIdentifier").as[UndertakingRef]
+          undertakingRef match {
+            case a if a.endsWith("999") => // fake 500
+              Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
+            case b if b.endsWith("888") => // fake 004
+              val dupeAckRef: JsValue = Json.obj(
+                "getUndertakingTransactionResponse" -> Json.obj(
+                  "responseCommon" -> badResponseCommon(
+                    "004",
+                    "Duplicate submission acknowledgment reference"
+                  )
+                )
+              )
+              Future.successful(Ok(Json.toJson(dupeAckRef)))
+            case c if c.endsWith("777") =>
+              val dupeAckRef: JsValue = Json.obj(
+                "getUndertakingTransactionResponse" -> Json.obj(
+                  "responseCommon" -> badResponseCommon(
+                    "201",
+                    "Invalid Undertaking identifier"
+                  )
+                )
+              )
+              Future.successful(Ok(Json.toJson(dupeAckRef)))
+            case d if d.endsWith("666") =>
+              val dupeAckRef: JsValue = Json.obj(
+                "getUndertakingTransactionResponse" -> Json.obj(
+                  "responseCommon" -> badResponseCommon(
+                    "202",
+                    "Error while fetching the Currency conversion values"
+                  )
+                )
+              )
+              Future.successful(Ok(Json.toJson(dupeAckRef)))
+            case _ =>
+              val subsidies = eis.retrieveSubsidies(json.as[SubsidyRetrieve])
+              Future.successful(Ok(Json.toJson(subsidies)(eisRetrieveUndertakingSubsidiesResponse)))
+          }
       }
     }
   }

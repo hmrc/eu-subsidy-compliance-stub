@@ -139,4 +139,10 @@ trait SimpleJson {
   implicit val traderRefFormat: Format[@@[String, types.TraderRef.Tag]] =
     validatedStringFormat(TraderRef, "traderRef")
 
+  implicit val declarationIDFormat: Format[@@[String, types.DeclarationID.Tag]] =
+    validatedStringFormat(DeclarationID, "declarationId")
+
+  implicit val taxTypeFormat: Format[@@[String, types.TaxType.Tag]] =
+    validatedStringFormat(TaxType, "taxType")
+
 }

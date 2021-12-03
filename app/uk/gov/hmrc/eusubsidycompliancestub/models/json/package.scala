@@ -16,22 +16,13 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
-import java.time.LocalDate
+import play.api.libs.json.{JsString, Json}
 
-import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{DeclarationID, EORI, SubsidyAmount, TaxType, TraderRef}
+package object json {
 
-case class HmrcSubsidy(
-  declarationID: DeclarationID,
-  issueDate: Option[LocalDate],
-  acceptanceDate: LocalDate,
-  declarantEORI: EORI, // n.b. SCP09 uses looser validation but will stick with ours
-  consigneeEORI: EORI,
-  taxType: Option[TaxType],
-  amount: Option[SubsidyAmount],
-  tradersOwnRefUCR: Option[TraderRef]
-)
-
-object HmrcSubsidy {
-  implicit val format: Format[HmrcSubsidy] = Json.format[HmrcSubsidy]
+  // only writes the field if the value is defined, Play version relies on fields being in case class
+  def nullableOpt[A](name: String, value: Option[A]): List[(String, Json.JsValueWrapper)] =
+    value.fold(List.empty[(String, Json.JsValueWrapper)]) { v =>
+      List((name, JsString(v.toString)))
+    }
 }

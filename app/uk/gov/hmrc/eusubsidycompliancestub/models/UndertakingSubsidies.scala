@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
+import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{SubsidyAmount, UndertakingRef}
 
 case class UndertakingSubsidies(
@@ -27,3 +28,8 @@ case class UndertakingSubsidies(
   nonHMRCSubsidyUsage: List[NonHmrcSubsidy],
   hmrcSubsidyUsage: List[HmrcSubsidy]
 )
+
+// TODO reinstate (and remove one in json.eis if subsidyUsageTransactionID case can be aligned in SCP06 & 09
+//object UndertakingSubsidies {
+//  implicit val format: Format[UndertakingSubsidies] = Json.format[UndertakingSubsidies]
+//}

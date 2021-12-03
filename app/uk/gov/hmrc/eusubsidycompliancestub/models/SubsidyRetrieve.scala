@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
+import cats.implicits._
 import java.time.LocalDate
 
 import play.api.libs.json._
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef
+import uk.gov.hmrc.eusubsidycompliancestub.models.json._
 
 
 // assuming that we always want both subsidy types, and that any date range should apply to both
@@ -29,12 +31,6 @@ case class SubsidyRetrieve(
 )
 
 object SubsidyRetrieve {
-
-  // only writes the field if the value is defined, Play version relies on fields being in case class
-  def nullableOpt[A](name: String, value: Option[A]): List[(String, Json.JsValueWrapper)] =
-    value.fold(List.empty[(String, Json.JsValueWrapper)]) { v =>
-      List((name, JsString(v.toString)))
-    }
 
   implicit val writes: Writes[SubsidyRetrieve] = new Writes[SubsidyRetrieve] {
     override def writes(o: SubsidyRetrieve): JsValue = {
@@ -51,6 +47,16 @@ object SubsidyRetrieve {
           nullableOpt[LocalDate]("dateToHMRCSubsidyUsage", o.inDateRange.map(_._2))
 
       Json.obj(l ++ x: _*)
+    }
+  }
+
+  implicit val reads: Reads[SubsidyRetrieve] = new Reads[SubsidyRetrieve] {
+    override def reads(json: JsValue): JsResult[SubsidyRetrieve] = {
+      val undertakingIdentifier = (json \ "undertakingIdentifier").as[UndertakingRef]
+      val from = (json \ "dateFromNonHMRCSubsidyUsage").asOpt[LocalDate]
+      val to = (json \ "dateToNonHMRCSubsidyUsage").asOpt[LocalDate]
+      val range = (from, to).bisequence
+      JsSuccess(SubsidyRetrieve(undertakingIdentifier, range))
     }
   }
 }

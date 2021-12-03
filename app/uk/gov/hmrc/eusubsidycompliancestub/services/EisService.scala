@@ -17,7 +17,7 @@
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
 import javax.inject.Singleton
-import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
+import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyRetrieve, Undertaking, UndertakingSubsidies}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef
 import uk.gov.hmrc.smartstub._
 
@@ -37,6 +37,15 @@ class EisService {
       .genUndertakingRef
       .seeded(
         eori.substring(2).toLong
+      ).get
+
+  def retrieveSubsidies(r: SubsidyRetrieve): UndertakingSubsidies =
+    DataGenerator
+      .genSubsidies(
+        r
+      )
+      .seeded(
+        r.undertakingIdentifier.hashCode.toLong
       ).get
 
 }
