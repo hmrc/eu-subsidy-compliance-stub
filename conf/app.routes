@@ -14,3 +14,6 @@ POST       /scp/updateundertaking/v1            uk.gov.hmrc.eusubsidycompliances
 
 # amend subsidy usage
 POST       /scp/amendundertakingsubsidyusage/v1 uk.gov.hmrc.eusubsidycompliancestub.controllers.SubsidyController.updateUsage
+
+# retrieve subsidy usage
+POST       /scp/getundertakingtransactions/v1   uk.gov.hmrc.eusubsidycompliancestub.controllers.SubsidyController.retrieveUsage

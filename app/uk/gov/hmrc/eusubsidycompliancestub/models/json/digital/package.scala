@@ -119,7 +119,7 @@ package object digital {
     )
   }
 
-  // provides json for EIS Amend Undertaking Member Data
+  // provides json for EIS Amend Undertaking Member Data (business entities) call
   implicit val amendUndertakingMemberDataWrites: Writes[UndertakingBusinessEntityUpdate] = new Writes[UndertakingBusinessEntityUpdate] {
     override def writes(o: UndertakingBusinessEntityUpdate): JsValue = Json.obj(
       "undertakingIdentifier" -> JsString(o.undertakingIdentifier),

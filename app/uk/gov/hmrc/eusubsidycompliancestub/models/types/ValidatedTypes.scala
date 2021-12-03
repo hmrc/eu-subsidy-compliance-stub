@@ -80,41 +80,34 @@ trait SimpleJson {
   }
 
 
-  implicit val sectorLimitFormat: Format[IndustrySectorLimit] = new Format[IndustrySectorLimit] {
-    override def reads(json: JsValue): JsResult[IndustrySectorLimit] = {
+  def validatedBigDecimalFormat(
+    A: ValidatedType[BigDecimal],
+    name: String
+  ): Format[@@[BigDecimal, A.Tag]] = new Format[BigDecimal @@ A.Tag] {
+    override def reads(json: JsValue): JsResult[BigDecimal @@ A.Tag] = {
       json match {
         case JsNumber(value) =>
-          IndustrySectorLimit.validateAndTransform(value) match {
-            case Some(validCode) => JsSuccess(IndustrySectorLimit(validCode))
-            case None => JsError(s"Expected a valid IndustrySectorLimit, got $value instead.")
+          A.validateAndTransform(value) match {
+            case Some(v) => JsSuccess(A(v))
+            case None => JsError(s"Expected a valid $name, got $value instead.")
           }
-
         case xs: JsValue => JsError(
           JsPath -> JsonValidationError(Seq(s"""Expected a valid IndustrySectorLimit, got $xs instead"""))
         )
       }
     }
 
-    override def writes(o: IndustrySectorLimit): JsValue = JsNumber(BigDecimal(o.toString))
+    override def writes(o: BigDecimal @@ A.Tag): JsValue = JsNumber(BigDecimal(o.toString))
   }
 
-  implicit val subsidyAmountFormat: Format[SubsidyAmount] = new Format[SubsidyAmount] {
-    override def reads(json: JsValue): JsResult[SubsidyAmount] = {
-      json match {
-        case JsNumber(value) =>
-          SubsidyAmount.validateAndTransform(value) match {
-            case Some(validCode) => JsSuccess(SubsidyAmount(validCode))
-            case None => JsError(s"Expected a valid SubsidyAmount, got $value instead.")
-          }
+  implicit val sectorLimitFormat: Format[@@[BigDecimal, types.IndustrySectorLimit.Tag]] =
+    validatedBigDecimalFormat(IndustrySectorLimit, "IndustrySectorLimit")
 
-        case xs: JsValue => JsError(
-          JsPath -> JsonValidationError(Seq(s"""Expected a valid SubsidyAmount, got $xs instead"""))
-        )
-      }
-    }
+  implicit val positiveSubsidyAmountFormat: Format[@@[BigDecimal, types.PositiveSubsidyAmount.Tag]] =
+    validatedBigDecimalFormat(PositiveSubsidyAmount, "PositiveSubsidyAmount")
 
-    override def writes(o: SubsidyAmount): JsValue = JsNumber(BigDecimal(o.toString))
-  }
+  implicit val subsidyAmountFormat: Format[@@[BigDecimal, types.SubsidyAmount.Tag]] =
+    validatedBigDecimalFormat(SubsidyAmount, "SubsidyAmount")
 
   implicit val phonenumberFormat: Format[@@[String, types.PhoneNumber.Tag]] =
     validatedStringFormat(PhoneNumber, "phonenumber")
@@ -142,4 +135,14 @@ trait SimpleJson {
 
   implicit val amendmentTypeFormat: Format[@@[String, types.EisSubsidyAmendmentType.Tag]] =
     validatedStringFormat(EisSubsidyAmendmentType, "amendmentType")
+
+  implicit val traderRefFormat: Format[@@[String, types.TraderRef.Tag]] =
+    validatedStringFormat(TraderRef, "traderRef")
+
+  implicit val declarationIDFormat: Format[@@[String, types.DeclarationID.Tag]] =
+    validatedStringFormat(DeclarationID, "declarationId")
+
+  implicit val taxTypeFormat: Format[@@[String, types.TaxType.Tag]] =
+    validatedStringFormat(TaxType, "taxType")
+
 }

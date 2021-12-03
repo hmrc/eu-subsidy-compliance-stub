@@ -26,7 +26,7 @@ import scala.reflect.ClassTag
 
 sealed trait Update
 case class NilSubmissionDate(d: LocalDate) extends Update
-case class UndertakingSubsidyAmendment(updates: List[Subsidy]) extends Update
+case class UndertakingSubsidyAmendment(updates: List[NonHmrcSubsidy]) extends Update
 
 case class SubsidyUpdate(
   undertakingIdentifier: UndertakingRef,
@@ -67,7 +67,7 @@ object SubsidyUpdate {
         if ((json \ "nilSubmissionDate").isDefined) {
           NilSubmissionDate((json \ "nilSubmissionDate").as[LocalDate])
         } else
-          UndertakingSubsidyAmendment((json \ "undertakingSubsidyAmendment").as[List[Subsidy]])
+          UndertakingSubsidyAmendment((json \ "undertakingSubsidyAmendment").as[List[NonHmrcSubsidy]]) // TODO this can only be this if we can get the API aligned
       val id = (json \ "undertakingIdentifier").as[UndertakingRef]
       JsSuccess(SubsidyUpdate(id, update))
     }

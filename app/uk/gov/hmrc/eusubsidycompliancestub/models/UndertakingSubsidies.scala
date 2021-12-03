@@ -16,22 +16,20 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
-import java.time.LocalDate
-
 import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{DeclarationID, EORI, SubsidyAmount, TaxType, TraderRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{SubsidyAmount, UndertakingRef}
 
-case class HmrcSubsidy(
-  declarationID: DeclarationID,
-  issueDate: Option[LocalDate],
-  acceptanceDate: LocalDate,
-  declarantEORI: EORI, // n.b. SCP09 uses looser validation but will stick with ours
-  consigneeEORI: EORI,
-  taxType: Option[TaxType],
-  amount: Option[SubsidyAmount],
-  tradersOwnRefUCR: Option[TraderRef]
+case class UndertakingSubsidies(
+  undertakingIdentifier: UndertakingRef,
+  nonHMRCSubsidyTotalEUR: SubsidyAmount,
+  nonHMRCSubsidyTotalGBP: SubsidyAmount,
+  hmrcSubsidyTotalEUR: SubsidyAmount,
+  hmrcSubsidyTotalGBP: SubsidyAmount,
+  nonHMRCSubsidyUsage: List[NonHmrcSubsidy],
+  hmrcSubsidyUsage: List[HmrcSubsidy]
 )
 
-object HmrcSubsidy {
-  implicit val format: Format[HmrcSubsidy] = Json.format[HmrcSubsidy]
-}
+// TODO reinstate (and remove one in json.eis if subsidyUsageTransactionID case can be aligned in SCP06 & 09
+//object UndertakingSubsidies {
+//  implicit val format: Format[UndertakingSubsidies] = Json.format[UndertakingSubsidies]
+//}

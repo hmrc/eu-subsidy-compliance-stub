@@ -18,8 +18,8 @@ package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
 import org.scalatest.Assertion
 import play.api.libs.json.{Format, Json, Writes}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyUpdate, Undertaking, UndertakingBusinessEntityUpdate, json}
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{retrieveUndertakingEORIWrites, amendUndertakingMemberDataWrites}
+import uk.gov.hmrc.eusubsidycompliancestub.models._
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{amendUndertakingMemberDataWrites, retrieveUndertakingEORIWrites}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetail, eisRetrieveUndertakingResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType}
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances._
@@ -75,6 +75,12 @@ class JsonConversionSpec extends BaseControllerSpec {
     "match amendUndertakingMemberDataRequest.schema.json" in {
       forAll { undertakingBusinessEntityUpdate: UndertakingBusinessEntityUpdate =>
         checkWrites[UndertakingBusinessEntityUpdate](undertakingBusinessEntityUpdate, "amendUndertakingMemberDataRequest")
+      }
+    }
+
+    "match retrieveUndertakingSubsidiesRequest.schema.json" in {
+      forAll { subsidyRetrieve: SubsidyRetrieve =>
+        checkWrites[SubsidyRetrieve](subsidyRetrieve, "retrieveUndertakingSubsidiesRequest")
       }
     }
   }

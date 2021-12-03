@@ -16,15 +16,13 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
-import java.time.LocalDate
+import play.api.libs.json.{JsString, Json}
 
-import uk.gov.hmrc.eusubsidycompliancestub.models.types._
+package object json {
 
-case class Undertaking(
-  reference: Option[UndertakingRef],
-  name: UndertakingName,
-  industrySector: Sector,
-  industrySectorLimit: IndustrySectorLimit,
-  lastSubsidyUsageUpdt: LocalDate,
-  undertakingBusinessEntity: List[BusinessEntity]
-)
+  // only writes the field if the value is defined, Play version relies on fields being in case class
+  def nullableOpt[A](name: String, value: Option[A]): List[(String, Json.JsValueWrapper)] =
+    value.fold(List.empty[(String, Json.JsValueWrapper)]) { v =>
+      List((name, JsString(v.toString)))
+    }
+}
