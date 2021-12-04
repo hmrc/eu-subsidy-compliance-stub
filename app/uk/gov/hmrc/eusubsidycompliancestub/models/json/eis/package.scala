@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models.json
 
+import cats.implicits._
 import java.time.format.DateTimeFormatter
 import java.time._
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import uk.gov.hmrc.eusubsidycompliancestub.models.{NonHmrcSubsidy, SubsidyUpdate, Undertaking, UndertakingSubsidies}
+import uk.gov.hmrc.eusubsidycompliancestub.models._
 import uk.gov.hmrc.eusubsidycompliancestub.models.types._
 
 package object eis {
@@ -57,7 +58,7 @@ package object eis {
           "undertakingName" -> o.name,
           "industrySector" -> o.industrySector,
           "industrySectorLimit" -> o.industrySectorLimit,
-          "lastSubsidyUsageUpdt" -> o.lastSubsidyUsageUpdt.format(oddEisDateFormat),
+          "lastSubsidyUsageUpdt" -> o.lastSubsidyUsageUpdt.map(_.format(oddEisDateFormat)),
           "undertakingBusinessEntity" -> o.undertakingBusinessEntity
         )
       )
@@ -154,5 +155,30 @@ package object eis {
         )
       )
     )
+  }
+
+  // convenience reads so we can store a created undertaking
+  val undertakingRequestReads: Reads[Undertaking] = new Reads[Undertaking] {
+    override def reads(json: JsValue): JsResult[Undertaking] = {
+      val contacts: ContactDetails = ContactDetails(
+        (json \ "createUndertakingRequest" \ "requestDetail" \ "businessEntity" \ "contacts" \ "phone").asOpt[PhoneNumber],
+        (json \ "createUndertakingRequest" \ "requestDetail" \ "businessEntity" \ "contacts" \ "mobile").asOpt[PhoneNumber]
+      )
+      val businessEntity: BusinessEntity = BusinessEntity(
+        (json \ "createUndertakingRequest" \ "requestDetail" \ "businessEntity" \ "idValue").as[EORI],
+        true,
+        contacts.some
+      )
+      JsSuccess(
+        Undertaking(
+          None,
+          (json \ "createUndertakingRequest" \ "requestDetail" \ "undertakingName").as[UndertakingName],
+          (json \ "createUndertakingRequest" \ "requestDetail" \ "industrySector").as[Sector],
+          None,
+          None,
+          List(businessEntity)
+        )
+      )
+    }
   }
 }

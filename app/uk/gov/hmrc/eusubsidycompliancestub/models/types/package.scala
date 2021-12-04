@@ -184,5 +184,4 @@ package object types extends SimpleJson {
     def validateAndTransform(in: String): Option[String] =
       Some(in).filter(_.nonEmpty)
   }
-
 }

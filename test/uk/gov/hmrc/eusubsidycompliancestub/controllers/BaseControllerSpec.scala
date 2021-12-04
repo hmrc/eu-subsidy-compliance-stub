@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
+import org.scalactic.Equality
 import org.scalatest.Assertion
 import org.scalatestplus.mockito._
 import org.scalatestplus.play.PlaySpec
@@ -26,7 +27,9 @@ import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.mvc.{Action, Result, Results}
 import play.api.test.Helpers.{contentAsJson, status, _}
 import play.api.test.{FakeHeaders, FakeRequest}
-import uk.gov.hmrc.eusubsidycompliancestub.services.JsonSchemaChecker
+import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef
+import uk.gov.hmrc.eusubsidycompliancestub.services.{JsonSchemaChecker, Store}
 
 import scala.concurrent.Future
 
@@ -70,5 +73,16 @@ class BaseControllerSpec extends
     result
   }
 
-
+  def checkUndertakingStore(
+    k: UndertakingRef,
+    v: Undertaking
+  )(
+    implicit eq: Equality[Undertaking]
+  ): Unit = {
+    Store.undertakings.retrieve(k).get mustEqual v
+    Store.undertakings.retrieveByEori(
+      v.undertakingBusinessEntity.head.businessEntityIdentifier
+    ).get mustEqual v
+    Store.clear()
+  }
 }

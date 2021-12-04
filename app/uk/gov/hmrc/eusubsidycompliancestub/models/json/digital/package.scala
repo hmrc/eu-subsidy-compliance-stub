@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models.json
 
+import cats.implicits._
+
 import play.api.libs.json._
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{Params, RequestCommon}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
@@ -91,8 +93,8 @@ package object digital {
               undertakingRef,
               undertakingName,
               industrySector,
-              industrySectorLimit,
-              lastSubsidyUsageUpdt,
+              industrySectorLimit.some,
+              lastSubsidyUsageUpdt.some,
               undertakingBusinessEntity
             )
           )

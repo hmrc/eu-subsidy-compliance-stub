@@ -17,11 +17,11 @@
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json._
 import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{eisCreateUndertakingResponse, eisRetrieveUndertakingResponse, eisUpdateUndertakingResponse, receiptDate}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{eisCreateUndertakingResponse, eisRetrieveUndertakingResponse, eisUpdateUndertakingResponse, receiptDate, undertakingRequestReads}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, UndertakingRef}
-import uk.gov.hmrc.eusubsidycompliancestub.services.EisService
+import uk.gov.hmrc.eusubsidycompliancestub.services.{EisService, Store}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.Future
@@ -30,7 +30,6 @@ import scala.concurrent.Future
 class UndertakingController @Inject()(
   cc: ControllerComponents,
   authAndEnvAction: AuthAndEnvAction,
-  eis: EisService
 ) extends BackendController(cc) {
 
   def create: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
@@ -39,7 +38,7 @@ class UndertakingController @Inject()(
         case Some(errorDetail) => // payload schema check failed
           Future.successful(Forbidden(Json.toJson(errorDetail)))
         case _ =>
-          val eori: String = (json \ "createUndertakingRequest" \ "requestDetail" \ "businessEntity" \ "idValue").as[String]
+          val eori: EORI = (json \ "createUndertakingRequest" \ "requestDetail" \ "businessEntity" \ "idValue").as[EORI]
           eori match {
             case a if a.endsWith("999") => // fake 500
               Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
@@ -53,7 +52,7 @@ class UndertakingController @Inject()(
                 )
               )
               Future.successful(Ok(Json.toJson(dupeAckRef)))
-            case c if c.endsWith("777") =>
+            case c if c.endsWith("777") || Store.undertakings.retrieveByEori(c).nonEmpty =>
               val dupeEori: JsValue = Json.obj(
                 "createUndertakingResponse" -> Json.obj(
                   "responseCommon" -> badResponseCommon(
@@ -84,8 +83,10 @@ class UndertakingController @Inject()(
               )
               Future.successful(Ok(Json.toJson(missingPostcode)))
             case _ =>
-              val undertakingRef = eis.undertakingRef(eori)
-              Future.successful(Ok(Json.toJson(undertakingRef)(eisCreateUndertakingResponse)))
+              val JsSuccess(undertaking, _) = Json.fromJson(json)(undertakingRequestReads)
+              val madeUndertaking = EisService.makeUndertaking(undertaking, eori)
+              Store.undertakings.put(madeUndertaking)
+              Future.successful(Ok(Json.toJson(madeUndertaking.reference.get)(eisCreateUndertakingResponse)))
           }
       }
     }
@@ -97,7 +98,7 @@ class UndertakingController @Inject()(
         case Some(errorDetail) => // payload fails schema check
           Future.successful(Forbidden(Json.toJson(errorDetail)))
         case _ =>
-          val eori: String = (json \ "retrieveUndertakingRequest" \ "requestDetail" \ "idValue").as[String]
+          val eori: EORI = (json \ "retrieveUndertakingRequest" \ "requestDetail" \ "idValue").as[EORI]
           eori match {
             case a if a.endsWith("999") => // fake 500
               Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
@@ -112,7 +113,7 @@ class UndertakingController @Inject()(
               )
               Future.successful(Ok(Json.toJson(noUndertakingFoundResponse)))
             case _ => // successful retrieval
-              val undertaking = eis.retrieveUndertaking(eori)
+              val undertaking = EisService.retrieveUndertaking(eori)
               Future.successful(Ok(Json.toJson(undertaking)(eisRetrieveUndertakingResponse)))
           }
       }

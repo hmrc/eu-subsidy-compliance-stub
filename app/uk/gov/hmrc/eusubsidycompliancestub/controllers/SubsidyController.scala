@@ -30,7 +30,6 @@ import scala.concurrent.Future
 @Singleton
 class SubsidyController @Inject()(
   cc: ControllerComponents,
-  eis: EisService,
   authAndEnvAction: AuthAndEnvAction
 ) extends BackendController(cc) {
 
@@ -147,7 +146,7 @@ class SubsidyController @Inject()(
               )
               Future.successful(Ok(Json.toJson(dupeAckRef)))
             case _ =>
-              val subsidies = eis.retrieveSubsidies(json.as[SubsidyRetrieve])
+              val subsidies = EisService.retrieveSubsidies(json.as[SubsidyRetrieve])
               Future.successful(Ok(Json.toJson(subsidies)(eisRetrieveUndertakingSubsidiesResponse)))
           }
       }

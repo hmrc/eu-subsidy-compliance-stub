@@ -17,26 +17,40 @@
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
 import javax.inject.Singleton
+import uk.gov.hmrc.eusubsidycompliancestub.controllers._
 import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyRetrieve, Undertaking, UndertakingSubsidies}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, UndertakingRef}
 import uk.gov.hmrc.smartstub._
 
-@Singleton
-class EisService {
+object EisService {
 
-  def retrieveUndertaking(eori: String): Undertaking =
+  implicit class RichEORI(in: EORI) {
+    def toLong: Long = in.substring(2).toLong
+  }
+
+  def makeUndertaking(undertaking: Undertaking, eori: EORI): Undertaking = {
+    val madeUndertaking = retrieveUndertaking(eori)
+    val merged = undertaking.copy(
+      reference = madeUndertaking.reference,
+      industrySectorLimit = madeUndertaking.industrySectorLimit,
+      lastSubsidyUsageUpdt = madeUndertaking.lastSubsidyUsageUpdt
+    )
+    merged
+  }
+
+  def retrieveUndertaking(eori: EORI): Undertaking =
     DataGenerator
       .genRetrievedUndertaking(eori)
       .seeded(
-        eori.substring(2).toLong
+        eori.toLong
       ).get
 
 
-  def undertakingRef(eori: String): UndertakingRef =
+  def undertakingRef(eori: EORI): UndertakingRef =
     DataGenerator
       .genUndertakingRef
       .seeded(
-        eori.substring(2).toLong
+        eori.toLong
       ).get
 
   def retrieveSubsidies(r: SubsidyRetrieve): UndertakingSubsidies =

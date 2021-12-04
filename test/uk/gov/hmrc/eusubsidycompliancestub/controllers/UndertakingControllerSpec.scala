@@ -28,10 +28,13 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType,
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking, UndertakingBusinessEntityUpdate}
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances.arbContactDetails
+import org.scalactic.Equality
+import uk.gov.hmrc.eusubsidycompliancestub.services.Store
 
 import scala.concurrent.Future
 
 class UndertakingControllerSpec extends BaseControllerSpec {
+
 
   private val controller: UndertakingController =
     app.injector.instanceOf[UndertakingController]
@@ -49,7 +52,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
     def fakeCreateUndertakingPost(body: JsValue): FakeRequest[JsValue] =
       FakeRequest("POST", "/scp/createundertaking/v1", fakeHeaders, body)
 
-    def undertakingWithEori(eori: EORI) =
+    def undertakingWithEori(eori: EORI): Undertaking =
       undertaking.copy(undertakingBusinessEntity =
         List(
           BusinessEntity(
@@ -60,12 +63,36 @@ class UndertakingControllerSpec extends BaseControllerSpec {
         )
       )
 
+    // the created/stored undertaking is not entirely equal to the one sent by digital
+    implicit val eq = new Equality[Undertaking] {
+      override def areEqual(a: Undertaking, b: Any): Boolean = b match {
+        case u: Undertaking =>
+          u.name == a.name &&
+            u.industrySector == a.industrySector &&
+            u.undertakingBusinessEntity == a.undertakingBusinessEntity
+        case _ =>
+          false
+      }
+    }
+
     "return 200 and an undertakingRef for a valid createUndertaking request" in {
        val result: Future[Result] = controller.create.apply(
           fakeCreateUndertakingPost(validCreateUndertakingBody(undertaking))
         )
       checkJson(contentAsJson(result), "createUndertakingResponse")
+      val json: JsValue = contentAsJson(result)
+      val undertakingRef: UndertakingRef =
+        (json \ "createUndertakingResponse" \ "responseDetail" \ "undertakingReference").as[UndertakingRef]
+      checkUndertakingStore(undertakingRef, undertaking)
       status(result) mustEqual  play.api.http.Status.OK
+    }
+
+    "return 200 but with NOT_OK responseCommon.status and ERRORCODE 101 " +
+      "if EORI associated with another Undertaking in the Store" in {
+      val eoriAssocUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012000"))
+      Store.undertakings.put(eoriAssocUndertaking)
+      notOkCreateUndertakingResponseCheck(eoriAssocUndertaking, "101")
+      Store.clear()
     }
 
     "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
