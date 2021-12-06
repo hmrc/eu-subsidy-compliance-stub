@@ -179,6 +179,11 @@ package object types extends SimpleJson {
     """.{1,36}"""
   )
 
+  type AcknowledgementRef = String @@ AcknowledgementRef.Tag
+  object AcknowledgementRef extends RegexValidatedString(
+    """.{32}"""
+  )
+
   type NonEmptyString = String @@ NonEmptyString.Tag
   object NonEmptyString extends ValidatedType[String]{
     def validateAndTransform(in: String): Option[String] =

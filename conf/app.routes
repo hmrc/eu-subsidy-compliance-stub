@@ -17,3 +17,6 @@ POST       /scp/amendundertakingsubsidyusage/v1 uk.gov.hmrc.eusubsidycompliances
 
 # retrieve subsidy usage
 POST       /scp/getundertakingtransactions/v1   uk.gov.hmrc.eusubsidycompliancestub.controllers.SubsidyController.retrieveUsage
+
+# clear the store
+GET        /clear                               uk.gov.hmrc.eusubsidycompliancestub.controllers.StoreController.clearStore

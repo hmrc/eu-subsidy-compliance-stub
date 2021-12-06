@@ -16,11 +16,14 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models.json.eis
 
+import java.util.UUID
+
 import play.api.libs.json.{JsValue, Json, Writes}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.AcknowledgementRef
 
 case class RequestCommon(
-  acknowledgementReference: String,
-  messageType: String
+  messageType: String,
+  acknowledgementReference: AcknowledgementRef = AcknowledgementRef(UUID.randomUUID().toString.replace("-",""))
 )
 
 case object RequestCommon {

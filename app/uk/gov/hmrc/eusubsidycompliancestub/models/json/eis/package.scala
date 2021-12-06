@@ -181,4 +181,15 @@ package object eis {
       )
     }
   }
+
+  // convenience reads so we can store business entity updates
+  val businessEntityReads: Reads[BusinessEntity] = new Reads[BusinessEntity] {
+    override def reads(json: JsValue): JsResult[BusinessEntity] = JsSuccess(
+      BusinessEntity(
+        (json  \ "businessEntityIdentifier").as[EORI],
+        (json \ "leadEORIIndicator").as[Boolean],
+        (json \ "contacts").asOpt[ContactDetails]
+      )
+    )
+  }
 }

@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, UndertakingRef}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{Undertaking, UndertakingSubsidies}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, EisAmendmentType, Sector, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, BusinessEntityUpdate, Undertaking, UndertakingSubsidies}
 
 object Store {
 
@@ -27,7 +28,12 @@ object Store {
   def clear() = {
     undertakings.undertakingStore.clear()
     subsidies.subsidyStore.clear()
+    isEmpty
   }
+
+  def isEmpty: Boolean =
+    undertakings.undertakingStore.keys.toList.isEmpty &&
+    subsidies.subsidyStore.toList.isEmpty
 
   object undertakings {
 
@@ -35,8 +41,62 @@ object Store {
       undertakingStore.put(undertaking.reference.get, undertaking)
     }
 
-    def update(undertaking: Undertaking): Unit =
-      undertakingStore.put(undertaking.reference.get, undertaking)
+    def updateUndertaking(
+      undertakingRef: UndertakingRef,
+      amendmentType: EisAmendmentType,
+      undertakingName: Option[UndertakingName],
+      sector: Option[Sector]
+    ): Unit = {
+      amendmentType match {
+        case EisAmendmentType.D =>
+          undertakingStore.remove(undertakingRef)
+        case _ =>
+          retrieve(undertakingRef).foreach { u =>
+            val ed = u.copy(
+              name = undertakingName.getOrElse(u.name),
+              industrySector = sector.getOrElse(u.industrySector)
+            )
+            undertakingStore.update(u.reference.get, ed)
+          }
+      }
+    }
+
+
+    def updateUndertakingBusinessEntities(
+      undertakingRef: UndertakingRef,
+      updates: List[BusinessEntityUpdate]
+    ): Unit = {
+      val businessEntities: List[BusinessEntity] = retrieve(undertakingRef).get.undertakingBusinessEntity
+      val remove: List[BusinessEntity] = updates.filter(_.amendmentType == AmendmentType.delete).map(_.businessEntity)
+      val add: List[BusinessEntity] = updates.filter(_.amendmentType == AmendmentType.add).map(_.businessEntity)
+      val amend: List[BusinessEntity] = updates.filter(_.amendmentType == AmendmentType.amend).map(_.businessEntity)
+      val updated: List[BusinessEntity] = businessEntities.diff(remove ++ amend) ++ add
+      if (updated.forall(_.leadEORI == false)) {
+        throw new IllegalStateException("there must be a lead BusinessEntity") // TODO - no EIS err for this!
+      }
+      overwriteBusinessEntities(undertakingRef, updated)
+    }
+
+    private def overwriteBusinessEntities(
+      undertakingRef: UndertakingRef,
+      businessEntities: List[BusinessEntity]
+    ): Unit = retrieve(undertakingRef).foreach { u =>
+
+      if (businessEntities.forall( be =>
+        retrieveByEori(be.businessEntityIdentifier).isEmpty ||
+          retrieveByEori(be.businessEntityIdentifier).fold(true){undertaking =>
+            undertaking.reference.get == undertakingRef
+          }
+      )) {
+        val ed = u.copy(
+          undertakingBusinessEntity = businessEntities.toList
+        )
+        undertakingStore.update(u.reference.get, ed)
+      } else {
+        throw new IllegalStateException("trying assign eori to multiple undertakings")
+      }
+
+    }
 
     def retrieve(ref: UndertakingRef): Option[Undertaking] =
       undertakingStore.get(ref)

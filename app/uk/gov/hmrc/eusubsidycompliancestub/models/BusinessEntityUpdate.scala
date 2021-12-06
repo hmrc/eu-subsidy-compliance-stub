@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json._
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.AmendmentType.AmendmentType
 import java.time.LocalDate
 
-import play.api.libs.functional.syntax.unlift
+import play.api.libs.functional.syntax.{unlift, _}
+import play.api.libs.json._
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.businessEntityReads
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.AmendmentType.AmendmentType
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EORI
 
 case class BusinessEntityUpdate(
@@ -44,4 +44,19 @@ object BusinessEntityUpdate {
 			"businessEntity" -> o.businessEntity
 		)
 	}
+
+  implicit val reads: Reads[BusinessEntityUpdate] = new Reads[BusinessEntityUpdate] {
+    implicit val beReads = businessEntityReads
+
+    override def reads(json: JsValue): JsResult[BusinessEntityUpdate] = {
+			JsSuccess(
+				BusinessEntityUpdate(
+					(json \ "amendmentType").as[AmendmentType],
+					(json \ "amendmentEffectiveDate").as[LocalDate],
+					(json \ "businessEntity").as[BusinessEntity]
+				)
+			)
+		}
+  }
+
 }

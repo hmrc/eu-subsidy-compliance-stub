@@ -16,10 +16,8 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
-import javax.inject.Singleton
-import uk.gov.hmrc.eusubsidycompliancestub.controllers._
-import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyRetrieve, Undertaking, UndertakingSubsidies}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyRetrieve, Undertaking, UndertakingSubsidies}
 import uk.gov.hmrc.smartstub._
 
 object EisService {
