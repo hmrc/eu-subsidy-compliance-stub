@@ -83,7 +83,6 @@ class BaseControllerSpec extends
     Store.undertakings.retrieveByEori(
       v.undertakingBusinessEntity.head.businessEntityIdentifier
     ).get mustEqual v
-    println(Store.undertakings.undertakingStore)
     Store.clear()
   }
 }
