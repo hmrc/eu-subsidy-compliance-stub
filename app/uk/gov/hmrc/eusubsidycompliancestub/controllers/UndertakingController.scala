@@ -115,8 +115,7 @@ class UndertakingController @Inject()(
               )
               Future.successful(Ok(Json.toJson(noUndertakingFoundResponse)))
             case _ => // successful retrieval
-              // TODO consider removal of Gen'd failover
-              val undertaking = Store.undertakings.retrieveByEori(eori).getOrElse(EisService.retrieveUndertaking(eori))
+              val undertaking = Store.undertakings.retrieveByEori(eori).get
               Future.successful(Ok(Json.toJson(undertaking)(eisRetrieveUndertakingResponse)))
           }
       }

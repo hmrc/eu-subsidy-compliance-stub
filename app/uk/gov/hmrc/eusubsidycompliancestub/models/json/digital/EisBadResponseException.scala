@@ -19,10 +19,20 @@ package uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
 import java.time.ZonedDateTime
 
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisParamName.EisParamName
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EisParamName, EisParamValue}
 
 class EisBadResponseException(
   status: String,
   processingDate: ZonedDateTime,
   statusText: Option[String],
   returnParameters: Option[List[Params]]
-) extends RuntimeException(s"$processingDate $status $statusText $returnParameters")
+) extends RuntimeException(
+  s"$processingDate $status ${statusText.getOrElse("")} ${returnParameters.getOrElse(List.empty[Params])}"
+) {
+
+  val params: Map[EisParamName, EisParamValue] = returnParameters.getOrElse(List.empty[Params]).map(x => (x.paramName, x.paramValue)).toMap
+  val code: EisParamValue =  params.getOrElse(EisParamName.ERRORCODE, EisParamValue("UNKNOWN"))
+  val message: EisParamValue = params.getOrElse(EisParamName.ERRORTEXT, EisParamValue("UNKNOWN"))
+
+}
