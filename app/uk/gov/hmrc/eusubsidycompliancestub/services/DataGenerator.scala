@@ -95,7 +95,9 @@ object DataGenerator {
     )
 
   def genSubsidyAmount: Gen[SubsidyAmount] = // n.b. dividing by 25 as the schema constraint is the same for the total as the subsidies
-    Gen.choose(-9999999999999F, 9999999999999F).map(x => SubsidyAmount(x / 25 / 100))
+    Gen.choose(-9999999999999F, 9999999999999F).map{x =>
+      SubsidyAmount((x / 25).round / 100)
+    }
 
   def genSubsidyRef: Gen[SubsidyRef] =
     RegexpGen.from(SubsidyRef.regex).map(SubsidyRef.apply)

@@ -20,3 +20,4 @@ POST       /scp/getundertakingtransactions/v1   uk.gov.hmrc.eusubsidycompliances
 
 # clear the store
 GET        /clear                               uk.gov.hmrc.eusubsidycompliancestub.controllers.StoreController.clearStore
+GET        /show                                uk.gov.hmrc.eusubsidycompliancestub.controllers.StoreController.show

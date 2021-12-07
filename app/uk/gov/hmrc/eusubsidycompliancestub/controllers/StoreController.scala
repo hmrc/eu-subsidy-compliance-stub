@@ -36,4 +36,9 @@ class StoreController @Inject()(
     Future.successful(Ok(Json.toJson(s"cleared: $isClear")))
   }
 
+  def show: Action[AnyContent] = Action.async { _ =>
+    val store = Store.undertakings.undertakingStore
+    Future.successful(Ok(store.toString))
+  }
+
 }
