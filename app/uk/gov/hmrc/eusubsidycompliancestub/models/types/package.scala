@@ -60,7 +60,7 @@ package object types extends SimpleJson {
 
   type TraderRef = String @@ TraderRef.Tag
   object TraderRef extends RegexValidatedString(
-    regex = """.{0,35}"""
+    regex = """[A-Za-z0-9]{0,35}""" // n.b. no longer exact match for spec which accepts n of any char
   )
 
   type UndertakingName = String @@ UndertakingName.Tag
@@ -75,7 +75,7 @@ package object types extends SimpleJson {
 
   type UndertakingRef = String @@ UndertakingRef.Tag
   object UndertakingRef extends RegexValidatedString(
-    regex = """.{1,17}"""
+    regex = """[A-Za-z0-9]{1,17}""" // n.b. no longer exact match for spec which accepts n of any char
   )
 
   type Sector = String @@ Sector.Tag // TODO if using enumeratum do enumeratum otherwise sealed trait
@@ -110,7 +110,7 @@ package object types extends SimpleJson {
 
   type SubsidyRef = String @@ SubsidyRef.Tag
   object SubsidyRef extends RegexValidatedString(
-    "^[A-Za-z0-9]{1,10}$"
+    "^[A-Za-z0-9]{1,10}$" // n.b. no longer exact match for spec which accepts n of any char
   )
 
   object EisStatus extends Enumeration {
