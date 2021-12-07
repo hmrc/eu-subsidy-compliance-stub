@@ -77,7 +77,7 @@ package object digital {
           throw new EisBadResponseException("NOT_OK", processingDate, statusText, returnParameters)
         case "OK" =>
           val responseDetail: JsLookupResult = retrieveUndertakingResponse \ "retrieveUndertakingResponse" \ "responseDetail"
-          val undertakingRef: Option[UndertakingRef] = (responseDetail \ "undertakingReference").asOpt[UndertakingRef]
+          val undertakingRef: Option[String] = (responseDetail \ "undertakingReference").asOpt[String]
           val undertakingName: UndertakingName = (responseDetail \ "undertakingName").as[UndertakingName]
           val industrySector: Sector = (responseDetail \ "industrySector").as[Sector]
           val industrySectorLimit: IndustrySectorLimit = (responseDetail \ "industrySectorLimit").as[IndustrySectorLimit]
@@ -89,7 +89,7 @@ package object digital {
           val undertakingBusinessEntity: List[BusinessEntity] = (responseDetail \ "undertakingBusinessEntity").as[List[BusinessEntity]]
           JsSuccess(
             Undertaking(
-              undertakingRef,
+              undertakingRef.map(UndertakingRef(_)),
               undertakingName,
               industrySector,
               industrySectorLimit.some,
@@ -154,4 +154,22 @@ package object digital {
     amendUndertakingWrites
   }
 
+  // provides reads for eis response for undertaking create call
+  implicit val undertakingCreateResponseReads: Reads[UndertakingRef] = new Reads[UndertakingRef] {
+    override def reads(json: JsValue): JsResult[UndertakingRef] = {
+      val responseCommon: JsLookupResult = json \ "createUndertakingResponse" \ "responseCommon"
+      (responseCommon \ "status").as[String] match {
+        case "NOT_OK" =>
+          val processingDate = (responseCommon \ "processingDate").as[ZonedDateTime]
+          val statusText = (responseCommon \ "statusText").asOpt[String]
+          val returnParameters = (responseCommon \ "returnParameters").asOpt[List[Params]]
+          // TODO consider moving exception to connector
+          throw new EisBadResponseException("NOT_OK", processingDate, statusText, returnParameters)
+        case "OK" =>
+          val ref = (json \ "createUndertakingResponse" \ "responseDetail" \ "undertakingReference").as[String]
+          JsSuccess(UndertakingRef(ref))
+        case _ => JsError("unable to derive Error or Success from SCP02 response")
+      }
+    }
+  }
 }
