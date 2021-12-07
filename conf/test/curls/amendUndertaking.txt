@@ -1,0 +1,25 @@
+# n.b. use undertakingRef returned by create
+curl -i -X POST  -H "Authorization: Bearer EvYRlYH8AS_hZGw32ffqJ25Mz04a" -H "Environment: ist0" -H 'content-type: application/json' -d '
+{
+  "updateUndertakingRequest" : {
+    "requestCommon" : {
+      "originatingSystem" : "MDTP",
+      "receiptDate" : "2021-12-06T12:40:38Z",
+      "acknowledgementReference" : "abaab0b6dd5d43b69e44e19cbde8504f",
+      "messageTypes" : {
+        "messageType" : "UpdateUndertaking"
+      },
+      "requestParameters" : [ {
+        "paramName" : "REGIME",
+        "paramValue" : "ES"
+      } ]
+    },
+    "requestDetail" : {
+      "amendmentType" : "A",
+      "undertakingId" : "<UNDERTAKING_REF_FROM_CREATE>",
+      "undertakingName" : "bar",
+      "industrySector" : "1",
+      "disablementStartDate" : "2021-12-06"
+    }
+  }
+}' "http://localhost:9095/eu-subsidy-compliance-stub/scp/updateundertaking/v1"

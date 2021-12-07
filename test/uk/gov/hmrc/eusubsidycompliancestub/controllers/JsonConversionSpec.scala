@@ -72,6 +72,12 @@ class JsonConversionSpec extends BaseControllerSpec {
       }(implicitly, arbSubsidyUpdateWithSomeNilReturns, implicitly, implicitly, implicitly, implicitly)
     }
 
+    "match updateSubsidyUsageRequest.schema.json with just nil returns" in {
+      forAll { subsidyUpdate: SubsidyUpdate =>
+        checkWrites[SubsidyUpdate](subsidyUpdate, "updateSubsidyUsageRequest")
+      }(implicitly, arbSubsidyUpdateNilReturn, implicitly, implicitly, implicitly, implicitly)
+    }
+
     "match amendUndertakingMemberDataRequest.schema.json" in {
       forAll { undertakingBusinessEntityUpdate: UndertakingBusinessEntityUpdate =>
         checkWrites[UndertakingBusinessEntityUpdate](undertakingBusinessEntityUpdate, "amendUndertakingMemberDataRequest")

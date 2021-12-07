@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models.json
 
+import cats.implicits._
+
 import play.api.libs.json._
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{Params, RequestCommon}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
@@ -33,7 +35,6 @@ package object digital {
   implicit val undertakingFormat: Format[Undertaking] = new Format[Undertaking] {
 
     val requestCommon = RequestCommon(
-      "acknowledgementReferenceTODOxxxx", // TODO
       "CreateNewUndertaking"
     )
 
@@ -91,8 +92,8 @@ package object digital {
               undertakingRef,
               undertakingName,
               industrySector,
-              industrySectorLimit,
-              lastSubsidyUsageUpdt,
+              industrySectorLimit.some,
+              lastSubsidyUsageUpdt.some,
               undertakingBusinessEntity
             )
           )
@@ -104,7 +105,6 @@ package object digital {
   // provides json for EIS retrieveUndertaking call
   implicit val retrieveUndertakingEORIWrites: Writes[EORI] = new Writes[EORI] {
     val requestCommon = RequestCommon(
-      "acknowledgementReference".padTo(32,'X'), // TODO find out what this ref is supposed to look like
       "RetrieveUndertaking"
     )
 
@@ -134,7 +134,6 @@ package object digital {
   ): Writes[Undertaking] = {
     val amendUndertakingWrites: Writes[Undertaking] = new Writes[Undertaking] {
       val requestCommon = RequestCommon(
-        "acknowledgementReferenceTODOxxxx", // TODO
         "UpdateUndertaking"
       )
       override def writes(o: Undertaking): JsValue = {

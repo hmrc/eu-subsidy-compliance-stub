@@ -1,0 +1,28 @@
+{
+  "createUndertakingRequest" : {
+    "requestCommon" : {
+      "originatingSystem" : "MDTP",
+      "receiptDate" : "2021-12-06T12:00:56Z",
+      "acknowledgementReference" : "abaab0b6dd5d43b69e44e19cbde8504f",
+      "messageTypes" : {
+        "messageType" : "CreateNewUndertaking"
+      },
+      "requestParameters" : [ {
+        "paramName" : "REGIME",
+        "paramValue" : "ES"
+      } ]
+    },
+    "requestDetail" : {
+      "undertakingName" : "foo",
+      "industrySector" : "1",
+      "businessEntity" : {
+        "idType" : "EORI",
+        "idValue" : "GB123456789012",
+        "contacts" : {
+          "phone" : "01233 123123"
+        }
+      },
+      "undertakingStartDate" : "2021-12-06"
+    }
+  }
+}

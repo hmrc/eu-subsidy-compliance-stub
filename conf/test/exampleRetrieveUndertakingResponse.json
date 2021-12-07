@@ -2,7 +2,7 @@
   "retrieveUndertakingResponse": {
     "responseCommon": {
       "status": "OK",
-      "processingDate": "3446-92-08T17:31:33Z", // TODO look at this date... generated from EIS schema
+      "processingDate": "3446-92-08T17:31:33Z",
       "statusText": "ABCDEFGHIJKLMNOPQRSTUVWXY",
       "returnParameters": []
     },

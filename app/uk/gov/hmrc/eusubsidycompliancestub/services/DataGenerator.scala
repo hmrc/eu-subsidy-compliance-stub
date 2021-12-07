@@ -17,13 +17,14 @@
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
 import cats.implicits._
-
 import org.scalacheck.Gen
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, DeclarationID, EORI, IndustrySectorLimit, PhoneNumber, Sector, SubsidyAmount, SubsidyRef, TaxType, TraderRef, UndertakingName, UndertakingRef}
-import uk.gov.hmrc.eusubsidycompliancestub.models._
+import uk.gov.hmrc.eusubsidycompliancestub.models.{types, _}
 import uk.gov.hmrc.smartstub._
 import wolfendale.scalacheck.regexp.RegexpGen
 import java.time.LocalDate
+
+import shapeless.tag.@@
 
 object DataGenerator {
 
@@ -69,26 +70,34 @@ object DataGenerator {
      businessEntity <- genBusinessEntity
    } yield BusinessEntityUpdate(amendmentType, amendmentEffectiveDate, businessEntity)
 
-  def genRetrievedUndertaking(eori: String): Gen[Undertaking] =
+  def genIndustrySectorLimit: Gen[@@[BigDecimal, types.IndustrySectorLimit.Tag]] =
+    Gen.choose(1F, 9999999999999F).map(x => IndustrySectorLimit(x / 100))
+
+  def genLastSubsidyUsageUpdt: Gen[LocalDate] =
+    Gen.date(LocalDate.of(2020,1,1), LocalDate.now)
+
+  def genRetrievedUndertaking(eori: EORI): Gen[Undertaking] =
     for {
       ref <- variableLengthString(1, 17)
       name <- variableLengthString(1, 105)
       industrySector <- Gen.oneOf(List("0","1","2","3"))
-      industrySectorLimit <- Gen.choose(1F, 9999999999999F).map(x => IndustrySectorLimit(x / 100))
-      lastSubsidyUsageUpdt <- Gen.date(LocalDate.of(2020,1,1), LocalDate.now)
+      industrySectorLimit <- genIndustrySectorLimit
+      lastSubsidyUsageUpdt <- genLastSubsidyUsageUpdt
       nBusinessEntities <- Gen.choose(1,25)
       undertakingBusinessEntity <- Gen.listOfN(nBusinessEntities,genBusinessEntity)
     } yield Undertaking(
       Some(UndertakingRef(ref)),
       UndertakingName(name),
       Sector(industrySector),
-      industrySectorLimit,
-      lastSubsidyUsageUpdt,
+      industrySectorLimit.some,
+      lastSubsidyUsageUpdt.some,
       undertakingBusinessEntity.head.copy(businessEntityIdentifier = EORI(eori), leadEORI = true) :: undertakingBusinessEntity.tail
     )
 
   def genSubsidyAmount: Gen[SubsidyAmount] = // n.b. dividing by 25 as the schema constraint is the same for the total as the subsidies
-    Gen.choose(-9999999999999F, 9999999999999F).map(x => SubsidyAmount(x / 25 / 100))
+    Gen.choose(-9999999999999F, 9999999999999F).map{x =>
+      SubsidyAmount((x / 25).round / 100)
+    }
 
   def genSubsidyRef: Gen[SubsidyRef] =
     RegexpGen.from(SubsidyRef.regex).map(SubsidyRef.apply)
