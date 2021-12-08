@@ -228,7 +228,7 @@ class UndertakingController @Inject()(
                 )
               )
               Future.successful(Ok(Json.toJson(dupeAckRef)))
-            case c if c.endsWith("777") => // fake 116
+            case c if c.endsWith("777") || Store.undertakings.retrieve(c).isEmpty => // fake 116
               val dupeAckRefTwo: JsValue = Json.obj(
                 "updateUndertakingResponse" -> Json.obj(
                   "responseCommon" -> badResponseCommon(
