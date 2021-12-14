@@ -17,8 +17,8 @@
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, EisAmendmentType, Sector, UndertakingName, UndertakingRef}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, BusinessEntityUpdate, Undertaking, UndertakingSubsidies}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, EisAmendmentType, EisSubsidyAmendmentType, Sector, SubsidyAmount, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, BusinessEntityUpdate, NilSubmissionDate, NonHmrcSubsidy, Undertaking, UndertakingSubsidies, UndertakingSubsidyAmendment, Update}
 
 object Store {
 
@@ -89,7 +89,7 @@ object Store {
           }
       )) {
         val ed = u.copy(
-          undertakingBusinessEntity = businessEntities.toList
+          undertakingBusinessEntity = businessEntities
         )
         undertakingStore.update(u.reference.get, ed)
       } else {
@@ -109,6 +109,56 @@ object Store {
   }
 
   object subsidies {
+
+    def put(undertakingSubsidies: UndertakingSubsidies): Unit = {
+      subsidyStore.put(undertakingSubsidies.undertakingIdentifier, undertakingSubsidies)
+    }
+
+    def retrieveSubsidies(ref: UndertakingRef): Option[UndertakingSubsidies] = subsidyStore.get(ref)
+
+    def updateSubsidies(undertakingRef: UndertakingRef, update: Update) = {
+        
+      update match {
+        case _: NilSubmissionDate => ()
+        case UndertakingSubsidyAmendment(updates) => {
+          val addList = updates.filter(_.amendmentType.contains(EisSubsidyAmendmentType("1")))
+          val amendList: List[NonHmrcSubsidy] = updates.filter(_.amendmentType.contains(EisSubsidyAmendmentType("2")))
+          val removeList = updates.filter(_.amendmentType.contains(EisSubsidyAmendmentType("3")))
+
+          val undertakingSubsidies = retrieveSubsidies(undertakingRef).getOrElse(UndertakingSubsidies(undertakingRef,
+            SubsidyAmount.apply(0),
+            SubsidyAmount.apply(0),
+            SubsidyAmount.apply(0),
+            SubsidyAmount.apply(0),
+            List(), List()))
+
+          val currentNonHMRCSubsidyList: List[NonHmrcSubsidy] = undertakingSubsidies.nonHMRCSubsidyUsage
+          val updatedList = getUpdatedList(amendList, currentNonHMRCSubsidyList).diff(removeList)
+          val updatedSubsidyList = if(updatedList.isEmpty) currentNonHMRCSubsidyList ++ addList else updatedList
+          val updatedSubsidies  = undertakingSubsidies.copy(nonHMRCSubsidyUsage = updatedSubsidyList)
+          put(updatedSubsidies)
+
+        }
+      }
+    }
+
+    private def getUpdatedList(amendList: List[NonHmrcSubsidy], currentList: List[NonHmrcSubsidy]): List[NonHmrcSubsidy] = {
+      for {
+        amendData <- amendList
+        currentData <- currentList
+        bool = amendData.subsidyUsageTransactionId.get == currentData.subsidyUsageTransactionId.get
+      } yield {
+        if(bool){
+          currentData
+            .copy(publicAuthority = amendData.publicAuthority,
+              traderReference = amendData.traderReference,
+              nonHMRCSubsidyAmtEUR = amendData.nonHMRCSubsidyAmtEUR,
+              businessEntityIdentifier = amendData.businessEntityIdentifier)
+        }
+         else {
+          currentData
+        }}
+    }
 
     val subsidyStore = mutable[UndertakingRef, UndertakingSubsidies]
   }

@@ -140,7 +140,7 @@ package object eis {
         "responseCommon" ->
           ResponseCommon(
             EisStatus.OK,
-            EisStatusString("String"),
+            EisStatusString("Success"),
             LocalDateTime.now,
             None
           ),

@@ -34,6 +34,7 @@ class SubsidyControllerSpec extends BaseControllerSpec {
 
   "retrieve subsidy usage" must {
     implicit val path: String = "/scp/getundertakingtransactions/v1"
+
     implicit val action: Action[JsValue] = controller.retrieveUsage
 
     "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
