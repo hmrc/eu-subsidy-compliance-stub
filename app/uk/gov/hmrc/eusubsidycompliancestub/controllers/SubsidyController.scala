@@ -196,7 +196,7 @@ object SubsidyController {
       dateFrom <- subsidyUndertakingTransactionRequest.dateFromHMRCSubsidyUsage
       dateTo <- subsidyUndertakingTransactionRequest.dateToHMRCSubsidyUsage
     } yield subsidies.hmrcSubsidyUsage.filter(x => (x.acceptanceDate.isAfter(dateFrom) || x.acceptanceDate.isEqual(dateFrom)) && (x.acceptanceDate.isBefore(dateTo) || x.acceptanceDate.isEqual(dateTo)))
-  } else subsidies.hmrcSubsidyUsage.some
+  } else List().some
 
   def geFilteredNonHMRCSubsidyList(subsidyUndertakingTransactionRequest: SubsidyUndertakingTransactionRequest,
                                    subsidies: UndertakingSubsidies) =
@@ -207,5 +207,5 @@ object SubsidyController {
     } yield {
       subsidies.nonHMRCSubsidyUsage.filter(x => (x.allocationDate.isAfter(dateFrom) || x.allocationDate.isEqual(dateFrom)) && (x.allocationDate.isBefore(dateTo) || x.allocationDate.isEqual(dateTo))).map(_.copy(amendmentType = None))
     }
-  } else subsidies.nonHMRCSubsidyUsage.map(_.copy(amendmentType = None)).some
+  } else List().some
 }
