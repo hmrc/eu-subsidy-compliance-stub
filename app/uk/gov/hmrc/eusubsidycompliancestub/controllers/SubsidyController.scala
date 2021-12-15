@@ -175,8 +175,11 @@ class SubsidyController @Inject()(
         val filteredNonHMRCSubsidyListOpt = geFilteredNonHMRCSubsidyList(subsidyUndertakingTransactionRequest, subsidies)
         subsidies.copy(nonHMRCSubsidyUsage = filteredNonHMRCSubsidyListOpt.getOrElse(List.empty), hmrcSubsidyUsage = filteredHMRCSubsidyListOpt.getOrElse(List.empty))
       } match {
-        case Success(retrieveResponse) =>  Future.successful(Ok(Json.toJson(retrieveResponse)(eisRetrieveUndertakingSubsidiesResponse)))
-        case Failure(_) => val updateSubsidyFailed = notOkCommonResponse(
+        case Success(retrieveResponse) =>  println(" inside success")
+          Future.successful(Ok(Json.toJson(retrieveResponse)(eisRetrieveUndertakingSubsidiesResponse)))
+        case Failure(e) =>
+          println(" e is ::"+e)
+          val updateSubsidyFailed = notOkCommonResponse(
           "getUndertakingTransactionResponse",
           "003",
           s"Request couldn't be processed"
@@ -203,7 +206,7 @@ object SubsidyController {
       dateFrom <- subsidyUndertakingTransactionRequest.dateFromNonHMRCSubsidyUsage
       dateTo <- subsidyUndertakingTransactionRequest.dateToNonHMRCSubsidyUsage
     } yield {
-      subsidies.nonHMRCSubsidyUsage.filter(x => x.allocationDate.isAfter(dateFrom) && x.allocationDate.isBefore(dateTo))
+      subsidies.nonHMRCSubsidyUsage.filter(x => (x.allocationDate.isAfter(dateFrom) || x.allocationDate.isEqual(dateFrom)) && (x.allocationDate.isBefore(dateTo) || x.allocationDate.isEqual(dateTo))).map(_.copy(amendmentType = None))
     }
-  } else subsidies.nonHMRCSubsidyUsage.some
+  } else subsidies.nonHMRCSubsidyUsage.map(_.copy(amendmentType = None)).some
 }
