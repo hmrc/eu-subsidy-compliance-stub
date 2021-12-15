@@ -175,10 +175,9 @@ class SubsidyController @Inject()(
         val filteredNonHMRCSubsidyListOpt = geFilteredNonHMRCSubsidyList(subsidyUndertakingTransactionRequest, subsidies)
         subsidies.copy(nonHMRCSubsidyUsage = filteredNonHMRCSubsidyListOpt.getOrElse(List.empty), hmrcSubsidyUsage = filteredHMRCSubsidyListOpt.getOrElse(List.empty))
       } match {
-        case Success(retrieveResponse) =>  println(" inside success")
+        case Success(retrieveResponse) =>
           Future.successful(Ok(Json.toJson(retrieveResponse)(eisRetrieveUndertakingSubsidiesResponse)))
-        case Failure(e) =>
-          println(" e is ::"+e)
+        case Failure(_) =>
           val updateSubsidyFailed = notOkCommonResponse(
           "getUndertakingTransactionResponse",
           "003",
