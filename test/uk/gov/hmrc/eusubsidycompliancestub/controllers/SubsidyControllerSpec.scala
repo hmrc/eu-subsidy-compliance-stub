@@ -16,12 +16,15 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
+import cats.kernel.Comparison.EqualTo
 import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.mvc.Action
 import play.api.test.Helpers._
-import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyRetrieve, SubsidyUpdate}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef
+import uk.gov.hmrc.eusubsidycompliancestub.models.{NilSubmissionDate, SubsidyRetrieve, SubsidyUpdate, UndertakingSubsidies, UndertakingSubsidyAmendment}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EisSubsidyAmendmentType, SubsidyAmount, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.services.Store
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
+
 
 class SubsidyControllerSpec extends BaseControllerSpec {
 
@@ -34,7 +37,27 @@ class SubsidyControllerSpec extends BaseControllerSpec {
 
   "retrieve subsidy usage" must {
     implicit val path: String = "/scp/getundertakingtransactions/v1"
+
     implicit val action: Action[JsValue] = controller.retrieveUsage
+
+    def createUndertakingSubsidies(subsidyUpdate: SubsidyUpdate, ref: UndertakingRef) =  {
+      subsidyUpdate.update match {
+        case NilSubmissionDate(_) => UndertakingSubsidies(
+          ref,
+          SubsidyAmount(0),
+          SubsidyAmount(0),
+          SubsidyAmount(0),
+          SubsidyAmount(0), List(), List()
+        )
+        case UndertakingSubsidyAmendment(updates)  => UndertakingSubsidies(
+          ref,
+          SubsidyAmount(0),
+          SubsidyAmount(0),
+          SubsidyAmount(0),
+          SubsidyAmount(0), updates, List()
+        )
+      }
+    }
 
     "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
       testResponse[JsValue](
@@ -53,11 +76,13 @@ class SubsidyControllerSpec extends BaseControllerSpec {
     }
 
     "return 200  and a valid response for a successful retrieve" in {
+    Store.subsidies.put(createUndertakingSubsidies(subsidyUpdate, subsidiesRetrieve.undertakingIdentifier))
       testResponse[SubsidyRetrieve](
         subsidiesRetrieve,
         "retrieveUndertakingSubsidiesResponse",
         play.api.http.Status.OK
       )
+      Store.clear()
     }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 004 " +
@@ -111,6 +136,25 @@ class SubsidyControllerSpec extends BaseControllerSpec {
     implicit val path: String = "/scp/amendundertakingsubsidyusage/v1"
     implicit val action: Action[JsValue] = controller.updateUsage
 
+    def createUndertakingSubsidies(subsidyUpdate: SubsidyUpdate, ref: UndertakingRef) =  {
+      subsidyUpdate.update match {
+        case NilSubmissionDate(_) => UndertakingSubsidies(
+          ref,
+          SubsidyAmount(0),
+          SubsidyAmount(0),
+          SubsidyAmount(0),
+          SubsidyAmount(0), List(), List()
+        )
+        case UndertakingSubsidyAmendment(updates)  => UndertakingSubsidies(
+          ref,
+          SubsidyAmount(0),
+          SubsidyAmount(0),
+          SubsidyAmount(0),
+          SubsidyAmount(0), updates, List()
+        )
+      }
+    }
+
     "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
       testResponse[JsValue](
         Json.obj("foo" -> "bar"),
@@ -120,11 +164,13 @@ class SubsidyControllerSpec extends BaseControllerSpec {
     }
 
     "return 200  and a valid response for a successful amend" in {
+      Store.subsidies.put(createUndertakingSubsidies(subsidyUpdate, subsidyUpdate.undertakingIdentifier))
       testResponse[SubsidyUpdate](
         subsidyUpdate,
         "updateSubsidyUsageResponse",
         play.api.http.Status.OK
       )
+      Store.clear()
     }
 
     "return 200  and a valid response for a nil return" in {

@@ -1,0 +1,36 @@
+curl -i -X POST  -H "Authorization: Bearer EvYRlYH8AS_hZGw32ffqJ25Mz04a" -H "Environment: ist0" -H 'content-type: application/json' -d '
+{
+    "undertakingIdentifier": "XG92727171717",
+    "undertakingSubsidyAmendment": [
+        {
+            "subsidyUsageTransactionId": "ah2gPyR",
+            "allocationDate": "2021-07-03",
+            "submissionDate": "2021-02-11",
+            "publicAuthority": "aUWMJLxaNyAzRAelvgbfn1fTDlcl7Xdouoyb8IaNwN3PNo0NLOI1HWqYOc5tNkI9EQ8U1g5PODLKIQBxjUMSiYBlnopVKpCt",
+            "traderReference": "o85hqwL",
+            "nonHMRCSubsidyAmtEUR": 54378631168,
+            "businessEntityIdentifier": "XI360259082657",
+            "amendmentType": "3"
+        },
+        {
+            "subsidyUsageTransactionId": "xIx3",
+            "allocationDate": "2021-04-14",
+            "submissionDate": "2020-12-24",
+            "publicAuthority": "e2WNlgPFN7Ryo8REMGFCWYzitRckBjdadZNzxdzwJwKgaXoWTfV3SA5CR",
+            "traderReference": "6M",
+            "nonHMRCSubsidyAmtEUR": 37080547328,
+            "businessEntityIdentifier": "XI938993317490",
+            "amendmentType": "2"
+        },
+        {
+            "subsidyUsageTransactionId": "0HUsviXC5I",
+            "allocationDate": "2021-10-01",
+            "submissionDate": "2020-05-31",
+            "publicAuthority": "9oJOdDgikv9JAuihqFA0amDwClaEMJirNjnXxuN5fH1Q0Hh50NRTovTOYZGj090EdVdesOh9rP3D7MV9a7wSPZdcOhil",
+            "traderReference": "7Jraxn6ra2tV789dynDOz",
+            "nonHMRCSubsidyAmtEUR": 9249091584,
+            "businessEntityIdentifier": "XI550265294903853",
+            "amendmentType": "1"
+        }
+    ]
+}' "http://localhost:9095/eu-subsidy-compliance-stub/scp/amendundertakingsubsidyusage/v1"
