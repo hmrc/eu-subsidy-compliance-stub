@@ -189,6 +189,14 @@ class SubsidyController @Inject()(
 }
 
 object SubsidyController {
+
+  /**
+   * This function will  (if getHMRCUsageTransaction is true), filter the HMRC subsidy list from the retrieved UndertakingSubsidies by the date range given in the request body
+   * else fetch empty list.
+   * @param subsidyUndertakingTransactionRequest
+   * @param subsidies
+   * @return optional list of HMRCSubsidy
+   */
   def getFilteredHMRCSubsidyList(subsidyUndertakingTransactionRequest: SubsidyUndertakingTransactionRequest,
                                  subsidies: UndertakingSubsidies) =
     if(subsidyUndertakingTransactionRequest.getHMRCUsageTransaction) {
@@ -196,8 +204,19 @@ object SubsidyController {
       dateFrom <- subsidyUndertakingTransactionRequest.dateFromHMRCSubsidyUsage
       dateTo <- subsidyUndertakingTransactionRequest.dateToHMRCSubsidyUsage
     } yield subsidies.hmrcSubsidyUsage.filter(x => (x.acceptanceDate.isAfter(dateFrom) || x.acceptanceDate.isEqual(dateFrom)) && (x.acceptanceDate.isBefore(dateTo) || x.acceptanceDate.isEqual(dateTo)))
-  } else List().some
+  } else {
+      //In this scenario I am assuming that if getHMRCUsageTransaction is false , then we don't have to fetch anything. Please do confirm on this assumption
+      List().some
+    }
 
+
+  /**
+   * This function will  (if getNonHMRCUsageTransaction is true), filter the non HMRC subsidy list from the retrieved UndertakingSubsidies by the date range given in the request body
+   * else fetch empty list.
+   * @param subsidyUndertakingTransactionRequest
+   * @param subsidies
+   * @return optional list of nonHMRCSubsidy
+   */
   def geFilteredNonHMRCSubsidyList(subsidyUndertakingTransactionRequest: SubsidyUndertakingTransactionRequest,
                                    subsidies: UndertakingSubsidies) =
     if(subsidyUndertakingTransactionRequest.getNonHMRCUsageTransaction) {
@@ -207,5 +226,7 @@ object SubsidyController {
     } yield {
       subsidies.nonHMRCSubsidyUsage.filter(x => (x.allocationDate.isAfter(dateFrom) || x.allocationDate.isEqual(dateFrom)) && (x.allocationDate.isBefore(dateTo) || x.allocationDate.isEqual(dateTo))).map(_.copy(amendmentType = None))
     }
-  } else List().some
+  } else
+    //In this scenario I am assuming that if getNonHMRCUsageTransaction is false , then we don't have to fetch anything. Please do confirm on this assumption
+      List().some
 }

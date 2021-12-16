@@ -121,10 +121,16 @@ object Store {
       update match {
         case _: NilSubmissionDate => ()
         case UndertakingSubsidyAmendment(updates) => {
+
+          //setting amendmentType to None as it will not matter once that are stored in UndertakingSubsidies,
+          //plus while retrieving, the amendmentType is not a part of the response
           val addList = updates.filter(_.amendmentType.contains(EisSubsidyAmendmentType("1"))).map(_.copy(amendmentType = None))
           val amendList: List[NonHmrcSubsidy] = updates.filter(_.amendmentType.contains(EisSubsidyAmendmentType("2"))).map(_.copy(amendmentType = None))
           val removeList: List[NonHmrcSubsidy] = updates.filter(_.amendmentType.contains(EisSubsidyAmendmentType("3"))).map(_.copy(amendmentType = None))
 
+
+          //if there is no undertakingSubsidies for the given undertakingRef, it's creating a dummy placeholder
+          //Will be helpful in testing when undertakingSubsidies are not created. Can be removed later on
           val undertakingSubsidies = retrieveSubsidies(undertakingRef).getOrElse(UndertakingSubsidies(undertakingRef,
             SubsidyAmount.apply(0),
             SubsidyAmount.apply(0),
@@ -133,6 +139,8 @@ object Store {
             List(), List()))
 
           val currentNonHMRCSubsidyList: List[NonHmrcSubsidy] = undertakingSubsidies.nonHMRCSubsidyUsage
+
+          //Updating and removing the currentNonHMRCSubsidyList by subsidyUsageTransactionId
           val updatedList = getUpdatedList(amendList, currentNonHMRCSubsidyList).diff(removeList)
           val updatedSubsidyList = if(updatedList.isEmpty) (currentNonHMRCSubsidyList ++ addList).toSet.toList else updatedList
           val updatedSubsidies  = undertakingSubsidies.copy(nonHMRCSubsidyUsage = updatedSubsidyList)
@@ -142,6 +150,15 @@ object Store {
       }
     }
 
+
+    /**
+     * This function compare the amend list from the request with the current NonHmrcSubsidy list.
+     * Look for the subsidyUsageTransactionId, if a match is found , then it's updated else kept the original list.
+     * Duplicates are removed later when it's converted toSet.
+     * @param amendList
+     * @param currentList
+     * @return List of updated NonHmrcSubsidy
+     */
     private def getUpdatedList(amendList: List[NonHmrcSubsidy], currentList: List[NonHmrcSubsidy]): List[NonHmrcSubsidy] = {
 
       if(amendList.isEmpty) currentList else {
