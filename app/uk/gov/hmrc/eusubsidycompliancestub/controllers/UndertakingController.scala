@@ -22,7 +22,8 @@ import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.eusubsidycompliancestub.models.BusinessEntityUpdate
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{eisCreateUndertakingResponse, eisRetrieveUndertakingResponse, eisUpdateUndertakingResponse, receiptDate, undertakingRequestReads}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, Sector, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.eusubsidycompliancestub.services.{EisService, Store}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 

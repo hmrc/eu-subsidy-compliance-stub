@@ -19,6 +19,7 @@ package uk.gov.hmrc.eusubsidycompliancestub.models
 import java.time.LocalDate
 
 import uk.gov.hmrc.eusubsidycompliancestub.models.types._
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 
 case class Undertaking(
   reference: Option[UndertakingRef],
