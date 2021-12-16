@@ -61,7 +61,7 @@ class BaseControllerSpec extends
     responseSchemaName: String,
     expectedStatus: Int,
     extraChecks: List[Future[Result] => Assertion] = List.empty,
-    debug: Boolean = true
+    debug: Boolean = false
   )(implicit action: Action[JsValue], writes: Writes[A], path: String): Future[Result] = {
     val json = Json.toJson(model)
     if(debug) println(Json.prettyPrint(json))
