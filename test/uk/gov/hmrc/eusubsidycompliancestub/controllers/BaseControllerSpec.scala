@@ -66,7 +66,7 @@ class BaseControllerSpec extends
     val json = Json.toJson(model)
     if(debug) println(Json.prettyPrint(json))
     val result = action.apply(fakePost(json))
-    if(debug) println("json is ::" +Json.prettyPrint(contentAsJson(result)))
+    if(debug) println(Json.prettyPrint(contentAsJson(result)))
     checkJson(contentAsJson(result), responseSchemaName)
     status(result) mustEqual expectedStatus
     extraChecks.map(f => f(result))
