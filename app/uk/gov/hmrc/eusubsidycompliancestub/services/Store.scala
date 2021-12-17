@@ -17,7 +17,8 @@
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, EisAmendmentType, EisSubsidyAmendmentType, Sector, SubsidyAmount, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, EisAmendmentType, EisSubsidyAmendmentType, SubsidyAmount, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, BusinessEntityUpdate, NilSubmissionDate, NonHmrcSubsidy, Undertaking, UndertakingSubsidies, UndertakingSubsidyAmendment, Update}
 
 object Store {

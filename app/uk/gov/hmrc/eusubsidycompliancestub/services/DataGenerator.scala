@@ -80,7 +80,7 @@ object DataGenerator {
     for {
       ref <- variableLengthString(1, 17)
       name <- variableLengthString(1, 105)
-      industrySector <- Gen.oneOf(List("0","1","2","3"))
+      industrySector <- Gen.oneOf(List(0,1,2,3))
       industrySectorLimit <- genIndustrySectorLimit
       lastSubsidyUsageUpdt <- genLastSubsidyUsageUpdt
       nBusinessEntities <- Gen.choose(1,25)
