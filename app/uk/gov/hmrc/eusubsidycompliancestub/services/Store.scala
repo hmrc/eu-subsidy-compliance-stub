@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,10 +68,15 @@ object Store {
       updates: List[BusinessEntityUpdate]
     ): Unit = {
       val businessEntities: List[BusinessEntity] = retrieve(undertakingRef).get.undertakingBusinessEntity
+
+
       val remove: List[BusinessEntity] = updates.filter(_.amendmentType == AmendmentType.delete).map(_.businessEntity)
       val add: List[BusinessEntity] = updates.filter(_.amendmentType == AmendmentType.add).map(_.businessEntity)
       val amend: List[BusinessEntity] = updates.filter(_.amendmentType == AmendmentType.amend).map(_.businessEntity)
-      val updated: List[BusinessEntity] = businessEntities.diff(remove ++ amend) ++ add
+
+      val amendEoris = amend.map(_.businessEntityIdentifier)
+
+      val updated: List[BusinessEntity] = businessEntities.diff(remove).filterNot(p => amendEoris.contains(p.businessEntityIdentifier)) ++ add ++ amend
       if (updated.forall(_.leadEORI == false)) {
         throw new IllegalStateException("there must be a lead BusinessEntity") // TODO - no EIS err for this!
       }
