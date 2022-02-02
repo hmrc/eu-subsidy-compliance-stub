@@ -17,9 +17,11 @@
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, EisAmendmentType, EisSubsidyAmendmentType, SubsidyAmount, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, EisAmendmentType, EisSubsidyAmendmentType, SubsidyAmount, SubsidyRef, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, BusinessEntityUpdate, NilSubmissionDate, NonHmrcSubsidy, Undertaking, UndertakingSubsidies, UndertakingSubsidyAmendment, Update}
+
+import scala.util.Random
 
 object Store {
 
@@ -130,9 +132,10 @@ object Store {
 
           //setting amendmentType to None as it will not matter once that are stored in UndertakingSubsidies,
           //plus while retrieving, the amendmentType is not a part of the response
-          val addList = updates.filter(_.amendmentType.contains(EisSubsidyAmendmentType("1"))).map(_.copy(amendmentType = None))
+          val addList = updates.filter(_.amendmentType.contains(EisSubsidyAmendmentType("1"))).map(_.copy(amendmentType = None, subsidyUsageTransactionID = Some(SubsidyRef(s"Z${Random.alphanumeric.take(9).mkString}"))))
           val amendList: List[NonHmrcSubsidy] = updates.filter(_.amendmentType.contains(EisSubsidyAmendmentType("2"))).map(_.copy(amendmentType = None))
           val removeList: List[NonHmrcSubsidy] = updates.filter(_.amendmentType.contains(EisSubsidyAmendmentType("3"))).map(_.copy(amendmentType = None))
+          val removeSubsidyTransactionIds = removeList.map(_.subsidyUsageTransactionID)
 
 
           //if there is no undertakingSubsidies for the given undertakingRef, it's creating a dummy placeholder
@@ -147,9 +150,8 @@ object Store {
           val currentNonHMRCSubsidyList: List[NonHmrcSubsidy] = undertakingSubsidies.nonHMRCSubsidyUsage
 
           //Updating and removing the currentNonHMRCSubsidyList by subsidyUsageTransactionId
-          val updatedList = getUpdatedList(amendList, currentNonHMRCSubsidyList).diff(removeList)
-          val updatedSubsidyList = if(updatedList.isEmpty) (currentNonHMRCSubsidyList ++ addList).toSet.toList else updatedList
-          val updatedSubsidies  = undertakingSubsidies.copy(nonHMRCSubsidyUsage = updatedSubsidyList)
+          val updatedList = getUpdatedList(amendList, currentNonHMRCSubsidyList).filterNot(sub => removeSubsidyTransactionIds.contains(sub.subsidyUsageTransactionID)) ++ addList
+          val updatedSubsidies  = undertakingSubsidies.copy(nonHMRCSubsidyUsage = updatedList)
           put(updatedSubsidies)
 
         }
@@ -171,9 +173,9 @@ object Store {
         for {
           amendData <- amendList
           currentData <- currentList
-          bool = amendData.subsidyUsageTransactionId.get == currentData.subsidyUsageTransactionId.get
+          hasChanges = amendData.subsidyUsageTransactionID == currentData.subsidyUsageTransactionID
         } yield {
-          if(bool){
+          if(hasChanges){
             currentData
               .copy(publicAuthority = amendData.publicAuthority,
                 traderReference = amendData.traderReference,
