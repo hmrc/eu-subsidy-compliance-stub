@@ -253,7 +253,7 @@ class SubsidyControllerSpec extends BaseControllerSpec {
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 111 " +
       "if SubsidyUpdate.undertakingIdentifier ends in 444" in {
-      val sutId = subsidyUpdate.undertakingSubsidyAmendment.get.updates.head.subsidyUsageTransactionId.get
+      val sutId = subsidyUpdate.undertakingSubsidyAmendment.get.updates.head.subsidyUsageTransactionID.get
       testResponse[SubsidyUpdate](
         subsidyUpdate.copy(undertakingIdentifier = UndertakingRef("444")),
         "updateSubsidyUsageResponse",
