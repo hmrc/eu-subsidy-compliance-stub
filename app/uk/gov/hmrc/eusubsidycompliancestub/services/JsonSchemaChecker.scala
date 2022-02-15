@@ -22,7 +22,6 @@ import com.github.fge.jsonschema.core.report.ProcessingReport
 import com.github.fge.jsonschema.main.JsonSchemaFactory
 import play.api.Logger
 import play.api.libs.json.{Format, Json}
-import scala.collection.JavaConverters._
 
 
 object JsonSchemaChecker {

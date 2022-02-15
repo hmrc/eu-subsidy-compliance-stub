@@ -31,5 +31,17 @@ case class UndertakingSubsidies(
 
 // TODO reinstate (and remove one in json.eis if subsidyUsageTransactionID case can be aligned in SCP06 & 09
 object UndertakingSubsidies {
+
   implicit val format: Format[UndertakingSubsidies] = Json.format[UndertakingSubsidies]
+
+  def emptyInstance(identifier: UndertakingRef) = UndertakingSubsidies(
+    undertakingIdentifier = identifier,
+    nonHMRCSubsidyTotalEUR = SubsidyAmount(0),
+    nonHMRCSubsidyTotalGBP = SubsidyAmount(0),
+    hmrcSubsidyTotalEUR = SubsidyAmount(0),
+    hmrcSubsidyTotalGBP = SubsidyAmount(0),
+    nonHMRCSubsidyUsage = List.empty,
+    hmrcSubsidyUsage = List.empty,
+  )
+
 }

@@ -124,39 +124,51 @@ object Store {
 
     def retrieveSubsidies(ref: UndertakingRef): Option[UndertakingSubsidies] = subsidyStore.get(ref)
 
-    def updateSubsidies(undertakingRef: UndertakingRef, update: Update) = {
-        
+    def updateSubsidies(undertakingRef: UndertakingRef, update: Update) =
       update match {
         case _: NilSubmissionDate => ()
-        case UndertakingSubsidyAmendment(updates) => {
+        case UndertakingSubsidyAmendment(updates) =>
+          // Setting amendmentType to None as it will not matter once that are stored in UndertakingSubsidies,
+          // plus while retrieving, the amendmentType is not a part of the response
+          val addList =
+            updates
+              .filter(_.amendmentType.contains(EisSubsidyAmendmentType("1")))
+              .map(_.copy(
+                amendmentType = None,
+                subsidyUsageTransactionID = Some(SubsidyRef(s"Z${Random.alphanumeric.take(9).mkString}"))
+              ))
 
-          //setting amendmentType to None as it will not matter once that are stored in UndertakingSubsidies,
-          //plus while retrieving, the amendmentType is not a part of the response
-          val addList = updates.filter(_.amendmentType.contains(EisSubsidyAmendmentType("1"))).map(_.copy(amendmentType = None, subsidyUsageTransactionID = Some(SubsidyRef(s"Z${Random.alphanumeric.take(9).mkString}"))))
-          val amendList: List[NonHmrcSubsidy] = updates.filter(_.amendmentType.contains(EisSubsidyAmendmentType("2"))).map(_.copy(amendmentType = None))
-          val removeList: List[NonHmrcSubsidy] = updates.filter(_.amendmentType.contains(EisSubsidyAmendmentType("3"))).map(_.copy(amendmentType = None))
+          val amendList: List[NonHmrcSubsidy] =
+            updates
+              .filter(_.amendmentType.contains(EisSubsidyAmendmentType("2")))
+              .map(_.copy(amendmentType = None))
+
+          val removeList: List[NonHmrcSubsidy] =
+            updates
+              .filter(_.amendmentType.contains(EisSubsidyAmendmentType("3")))
+              .map(_.copy(amendmentType = None))
+
           val removeSubsidyTransactionIds = removeList.map(_.subsidyUsageTransactionID)
 
-
-          //if there is no undertakingSubsidies for the given undertakingRef, it's creating a dummy placeholder
-          //Will be helpful in testing when undertakingSubsidies are not created. Can be removed later on
-          val undertakingSubsidies = retrieveSubsidies(undertakingRef).getOrElse(UndertakingSubsidies(undertakingRef,
-            SubsidyAmount.apply(0),
-            SubsidyAmount.apply(0),
-            SubsidyAmount.apply(0),
-            SubsidyAmount.apply(0),
-            List(), List()))
+          // If there is no undertakingSubsidies for the given undertakingRef, it's creating a dummy placeholder
+          // Will be helpful in testing when undertakingSubsidies are not created. Can be removed later on
+          val undertakingSubsidies =
+            retrieveSubsidies(undertakingRef)
+              .getOrElse(UndertakingSubsidies.emptyInstance(undertakingRef))
 
           val currentNonHMRCSubsidyList: List[NonHmrcSubsidy] = undertakingSubsidies.nonHMRCSubsidyUsage
 
-          //Updating and removing the currentNonHMRCSubsidyList by subsidyUsageTransactionId
-          val updatedList = getUpdatedList(amendList, currentNonHMRCSubsidyList).filterNot(sub => removeSubsidyTransactionIds.contains(sub.subsidyUsageTransactionID)) ++ addList
-          val updatedSubsidies  = undertakingSubsidies.copy(nonHMRCSubsidyUsage = updatedList)
-          put(updatedSubsidies)
+          // Updating and removing the currentNonHMRCSubsidyList by subsidyUsageTransactionId
+          val updatedList = getUpdatedList(amendList, currentNonHMRCSubsidyList)
+            .filterNot(sub => removeSubsidyTransactionIds.contains(sub.subsidyUsageTransactionID)) ++ addList
 
-        }
+          val updatedSubsidies  = undertakingSubsidies.copy(
+            nonHMRCSubsidyUsage = updatedList,
+            nonHMRCSubsidyTotalEUR = SubsidyAmount(updatedList.map(_.nonHMRCSubsidyAmtEUR.toDouble).sum),
+          )
+
+          put(updatedSubsidies)
       }
-    }
 
 
     /**

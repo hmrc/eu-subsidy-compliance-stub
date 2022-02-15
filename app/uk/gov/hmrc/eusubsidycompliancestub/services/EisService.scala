@@ -16,11 +16,19 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit, Sector, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyRetrieve, Undertaking, UndertakingSubsidies}
 import uk.gov.hmrc.smartstub._
 
 object EisService {
+
+  private val SectorLimits = Map[Sector, IndustrySectorLimit](
+    Sector.agriculture -> IndustrySectorLimit(30000),
+    Sector.aquaculture -> IndustrySectorLimit(20000),
+    Sector.other -> IndustrySectorLimit(200000),
+    Sector.transport -> IndustrySectorLimit(100000),
+  )
 
   implicit class RichEORI(in: EORI) {
     def toLong: Long = in.substring(2).toLong
@@ -30,7 +38,7 @@ object EisService {
     val madeUndertaking = retrieveUndertaking(eori)
     val merged = undertaking.copy(
       reference = madeUndertaking.reference,
-      industrySectorLimit = madeUndertaking.industrySectorLimit,
+      industrySectorLimit = SectorLimits.get(undertaking.industrySector),
       lastSubsidyUsageUpdt = madeUndertaking.lastSubsidyUsageUpdt
     )
     merged
