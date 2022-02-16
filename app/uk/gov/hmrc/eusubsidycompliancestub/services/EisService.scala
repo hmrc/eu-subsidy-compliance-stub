@@ -21,6 +21,8 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLim
 import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyRetrieve, Undertaking, UndertakingSubsidies}
 import uk.gov.hmrc.smartstub._
 
+import java.time.LocalDate
+
 object EisService {
 
   private val SectorLimits = Map[Sector, IndustrySectorLimit](
@@ -34,12 +36,12 @@ object EisService {
     def toLong: Long = in.substring(2).toLong
   }
 
-  def makeUndertaking(undertaking: Undertaking, eori: EORI): Undertaking = {
+  def makeUndertaking(undertaking: Undertaking, eori: EORI, lastSubsidyUsageUpdt: Option[LocalDate] = None): Undertaking = {
     val madeUndertaking = retrieveUndertaking(eori)
     val merged = undertaking.copy(
       reference = madeUndertaking.reference,
       industrySectorLimit = SectorLimits.get(undertaking.industrySector),
-      lastSubsidyUsageUpdt = madeUndertaking.lastSubsidyUsageUpdt
+      lastSubsidyUsageUpdt = if(lastSubsidyUsageUpdt.isDefined) lastSubsidyUsageUpdt else madeUndertaking.lastSubsidyUsageUpdt
     )
     merged
   }
