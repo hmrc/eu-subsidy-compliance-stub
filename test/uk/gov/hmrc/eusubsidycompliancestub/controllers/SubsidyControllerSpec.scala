@@ -16,12 +16,11 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
-import cats.kernel.Comparison.EqualTo
 import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.mvc.Action
 import play.api.test.Helpers._
-import uk.gov.hmrc.eusubsidycompliancestub.models.{NilSubmissionDate, SubsidyRetrieve, SubsidyUpdate, UndertakingSubsidies, UndertakingSubsidyAmendment}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EisSubsidyAmendmentType, SubsidyAmount, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{SubsidyAmount, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models._
 import uk.gov.hmrc.eusubsidycompliancestub.services.Store
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
 

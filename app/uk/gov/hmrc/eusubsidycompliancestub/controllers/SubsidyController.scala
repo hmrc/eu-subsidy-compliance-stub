@@ -134,7 +134,7 @@ class SubsidyController @Inject()(
   }
 
   private def getRetrieveResponse(undertakingRef: UndertakingRef,
-                                  subsidyUndertakingTransactionRequest: SubsidyUndertakingTransactionRequest) =
+                                  subsidyUndertakingTransactionRequest: SubsidyUndertakingTransactionRequest) = {
     undertakingRef match {
     case a if a.endsWith("999") => // fake 500
       Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
@@ -170,10 +170,14 @@ class SubsidyController @Inject()(
       Future.successful(Ok(Json.toJson(dupeAckRef)))
     case _ =>
       Try {
-        val subsidies: UndertakingSubsidies = Store.subsidies.retrieveSubsidies(undertakingRef).get
+        val subsidies = Store.subsidies.retrieveSubsidies(undertakingRef)
+          .getOrElse(UndertakingSubsidies.emptyInstance(undertakingRef))
         val filteredHMRCSubsidyListOpt = getFilteredHMRCSubsidyList(subsidyUndertakingTransactionRequest, subsidies)
         val filteredNonHMRCSubsidyListOpt = geFilteredNonHMRCSubsidyList(subsidyUndertakingTransactionRequest, subsidies)
-        subsidies.copy(nonHMRCSubsidyUsage = filteredNonHMRCSubsidyListOpt.getOrElse(List.empty), hmrcSubsidyUsage = filteredHMRCSubsidyListOpt.getOrElse(List.empty))
+        subsidies.copy(
+          nonHMRCSubsidyUsage = filteredNonHMRCSubsidyListOpt
+            .getOrElse(List.empty), hmrcSubsidyUsage = filteredHMRCSubsidyListOpt.getOrElse(List.empty)
+        )
       } match {
         case Success(retrieveResponse) =>
           Future.successful(Ok(Json.toJson(retrieveResponse)(eisRetrieveUndertakingSubsidiesResponse)))
@@ -185,6 +189,7 @@ class SubsidyController @Inject()(
         )
           Future.successful(Ok(Json.toJson(updateSubsidyFailed)))
       }
+  }
   }
 }
 
