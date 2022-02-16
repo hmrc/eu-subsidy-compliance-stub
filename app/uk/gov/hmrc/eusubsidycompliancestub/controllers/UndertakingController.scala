@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
+import cats.implicits.catsSyntaxOptionId
+
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json._
 import play.api.mvc.{Action, ControllerComponents}
@@ -27,6 +29,7 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.eusubsidycompliancestub.services.{EisService, Store}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 @Singleton
@@ -117,6 +120,7 @@ class UndertakingController @Inject()(
           )
         )
         Future.successful(Ok(Json.toJson(invalidEori)))
+
       case e if e.endsWith("555") =>
         val missingPostcode: JsValue = Json.obj(
           "createUndertakingResponse" -> Json.obj(
@@ -127,6 +131,13 @@ class UndertakingController @Inject()(
           )
         )
         Future.successful(Ok(Json.toJson(missingPostcode)))
+      //create an Undertaking with lastSubsidyUsageUpdt which is 77 days older than today i.e between the range of 76-90 days
+      case f if f.endsWith("444") =>
+        val JsSuccess(undertaking, _) = Json.fromJson(json)(undertakingRequestReads)
+        val madeUndertaking = EisService.makeUndertaking(undertaking, eori, LocalDate.now.minusDays(77).some)
+        Store.undertakings.put(madeUndertaking)
+        Future.successful(Ok(Json.toJson(madeUndertaking.reference.get)(eisCreateUndertakingResponse)))
+
       case _ =>
         val JsSuccess(undertaking, _) = Json.fromJson(json)(undertakingRequestReads)
         val madeUndertaking = EisService.makeUndertaking(undertaking, eori)
