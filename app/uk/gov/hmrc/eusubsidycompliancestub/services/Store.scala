@@ -21,6 +21,7 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, Ei
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, BusinessEntityUpdate, NilSubmissionDate, NonHmrcSubsidy, Undertaking, UndertakingSubsidies, UndertakingSubsidyAmendment, Update}
 
+import java.time.LocalDate
 import scala.util.Random
 
 object Store {
@@ -62,6 +63,18 @@ object Store {
             undertakingStore.update(u.reference.get, ed)
           }
       }
+    }
+
+    def updateLastSubsidyUsage(
+                           undertakingRef: UndertakingRef,
+                           lastSubsidyUsageUpdt: LocalDate
+                         ): Unit = {
+        retrieve(undertakingRef).foreach { u =>
+          val updatedUndertaking = u.copy(
+            lastSubsidyUsageUpdt = Some(lastSubsidyUsageUpdt)
+          )
+          undertakingStore.update(u.reference.get, updatedUndertaking)
+        }
     }
 
 

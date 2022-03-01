@@ -28,6 +28,7 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, SubsidyRef, Under
 import uk.gov.hmrc.eusubsidycompliancestub.services.Store
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
+import java.time.LocalDate
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
@@ -45,7 +46,7 @@ class SubsidyController @Inject()(
         case _ =>
           val subsidyUpdate: SubsidyUpdate = json.as[SubsidyUpdate]
           val undertakingRef: UndertakingRef = (json \ "undertakingIdentifier").as[UndertakingRef]
-
+          Store.undertakings.updateLastSubsidyUsage(undertakingRef, LocalDate.now())
           getUpdateResponse(undertakingRef, json, subsidyUpdate)
       }
     }
