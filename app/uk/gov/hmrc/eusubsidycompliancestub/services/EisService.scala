@@ -41,7 +41,7 @@ object EisService {
     val merged = undertaking.copy(
       reference = madeUndertaking.reference,
       industrySectorLimit = SectorLimits.get(undertaking.industrySector),
-      lastSubsidyUsageUpdt = if(lastSubsidyUsageUpdt.isDefined) lastSubsidyUsageUpdt else madeUndertaking.lastSubsidyUsageUpdt
+      lastSubsidyUsageUpdt = lastSubsidyUsageUpdt
     )
     merged
   }
