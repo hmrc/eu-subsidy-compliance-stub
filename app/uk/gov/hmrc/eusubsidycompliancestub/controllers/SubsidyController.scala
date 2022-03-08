@@ -111,7 +111,7 @@ class SubsidyController @Inject()(
       )
       Future.successful(Ok(Json.toJson(invalidEori)))
     case f if f.endsWith("444") =>
-      val sutID = (json \ "undertakingSubsidyAmendment" \ 0 \ "subsidyUsageTransactionID").as[SubsidyRef]
+      val sutID = (json \ "undertakingSubsidyAmendment" \ 0 \ "subsidyUsageTransactionId").as[SubsidyRef]
       val invalidEori: JsValue = Json.obj(
         "amendUndertakingSubsidyUsageResponse" -> Json.obj(
           "responseCommon" -> badResponseCommon(

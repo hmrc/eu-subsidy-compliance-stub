@@ -29,7 +29,7 @@ case class UndertakingSubsidies(
   hmrcSubsidyUsage: List[HmrcSubsidy]
 )
 
-// TODO reinstate (and remove one in json.eis if subsidyUsageTransactionID case can be aligned in SCP06 & 09
+// TODO reinstate (and remove one in json.eis if subsidyUsageTransactionId case can be aligned in SCP06 & 09
 object UndertakingSubsidies {
 
   implicit val format: Format[UndertakingSubsidies] = Json.format[UndertakingSubsidies]

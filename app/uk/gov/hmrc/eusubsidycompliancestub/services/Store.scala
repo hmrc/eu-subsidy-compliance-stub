@@ -148,7 +148,7 @@ object Store {
               .filter(_.amendmentType.contains(EisSubsidyAmendmentType("1")))
               .map(_.copy(
                 amendmentType = None,
-                subsidyUsageTransactionID = Some(SubsidyRef(s"Z${Random.alphanumeric.take(9).mkString}"))
+                subsidyUsageTransactionId = Some(SubsidyRef(s"Z${Random.alphanumeric.take(9).mkString}"))
               ))
 
           val amendList: List[NonHmrcSubsidy] =
@@ -161,7 +161,7 @@ object Store {
               .filter(_.amendmentType.contains(EisSubsidyAmendmentType("3")))
               .map(_.copy(amendmentType = None))
 
-          val removeSubsidyTransactionIds = removeList.map(_.subsidyUsageTransactionID)
+          val removeSubsidyTransactionIds = removeList.map(_.subsidyUsageTransactionId)
 
           // If there is no undertakingSubsidies for the given undertakingRef, it's creating a dummy placeholder
           // Will be helpful in testing when undertakingSubsidies are not created. Can be removed later on
@@ -173,7 +173,7 @@ object Store {
 
           // Updating and removing the currentNonHMRCSubsidyList by subsidyUsageTransactionId
           val updatedList = getUpdatedList(amendList, currentNonHMRCSubsidyList)
-            .filterNot(sub => removeSubsidyTransactionIds.contains(sub.subsidyUsageTransactionID)) ++ addList
+            .filterNot(sub => removeSubsidyTransactionIds.contains(sub.subsidyUsageTransactionId)) ++ addList
 
           val updatedSubsidies  = undertakingSubsidies.copy(
             nonHMRCSubsidyUsage = updatedList,
@@ -198,7 +198,7 @@ object Store {
         for {
           amendData <- amendList
           currentData <- currentList
-          hasChanges = amendData.subsidyUsageTransactionID == currentData.subsidyUsageTransactionID
+          hasChanges = amendData.subsidyUsageTransactionId == currentData.subsidyUsageTransactionId
         } yield {
           if(hasChanges){
             currentData

@@ -147,7 +147,7 @@
           "type": "string",
           "maxLength": 17
         },
-        "subsidyUsageTransactionID": {
+        "subsidyUsageTransactionId": {
           "description": "Identifier for the subsidy allocation given to the data by ETMP on initial creation",
           "type": "string",
           "minLength": 1 ,
@@ -172,7 +172,7 @@
       },
       "required": [
         "nonHMRCSubsidyAmtEUR",
-        "subsidyUsageTransactionID",
+        "subsidyUsageTransactionId",
         "allocationDate",
         "submissionDate"
       ],
