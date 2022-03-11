@@ -41,7 +41,7 @@ object UndertakingSubsidies {
     hmrcSubsidyTotalEUR = SubsidyAmount(0),
     hmrcSubsidyTotalGBP = SubsidyAmount(0),
     nonHMRCSubsidyUsage = List.empty,
-    hmrcSubsidyUsage = List.empty,
+    hmrcSubsidyUsage = List.empty
   )
 
 }

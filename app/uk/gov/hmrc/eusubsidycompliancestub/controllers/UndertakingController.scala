@@ -33,9 +33,9 @@ import java.time.LocalDate
 import scala.concurrent.Future
 
 @Singleton
-class UndertakingController @Inject()(
+class UndertakingController @Inject() (
   cc: ControllerComponents,
-  authAndEnvAction: AuthAndEnvAction,
+  authAndEnvAction: AuthAndEnvAction
 ) extends BackendController(cc) {
 
   def create: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
@@ -80,13 +80,14 @@ class UndertakingController @Inject()(
         case Some(errorDetail) => // payload fails schema check
           Future.successful(Forbidden(Json.toJson(errorDetail)))
         case _ =>
-          val undertakingRef: UndertakingRef = (json \ "updateUndertakingRequest" \ "requestDetail" \ "undertakingId").as[UndertakingRef]
+          val undertakingRef: UndertakingRef =
+            (json \ "updateUndertakingRequest" \ "requestDetail" \ "undertakingId").as[UndertakingRef]
           updateResponse(undertakingRef, json)
       }
     }
   }
 
-  private def getCreateResponse(eori: EORI, json: JsValue) = {
+  private def getCreateResponse(eori: EORI, json: JsValue) =
     eori match {
       case a if a.endsWith("999") => // fake 500
         Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
@@ -144,14 +145,13 @@ class UndertakingController @Inject()(
         Store.undertakings.put(madeUndertaking)
         Future.successful(Ok(Json.toJson(madeUndertaking.reference.get)(eisCreateUndertakingResponse)))
     }
-  }
 
-  private def getRetrieveResponse(eori:EORI) = {
+  private def getRetrieveResponse(eori: EORI) =
     eori match {
       case a if a.endsWith("999") => // fake 500
         Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
 
-      case b if b.endsWith("777")  => // ID invalid
+      case b if b.endsWith("777") => // ID invalid
         val noUndertakingFoundResponse: JsValue = Json.obj(
           "retrieveUndertakingResponse" -> Json.obj(
             "responseCommon" -> badResponseCommon(
@@ -161,7 +161,10 @@ class UndertakingController @Inject()(
           )
         )
         Future.successful(Ok(Json.toJson(noUndertakingFoundResponse)))
-      case c if c.endsWith("888") || Store.undertakings.retrieveByEori(eori).isEmpty => // fake not found (ideally should have been 404)
+      case c
+          if c.endsWith("888") || Store.undertakings
+            .retrieveByEori(eori)
+            .isEmpty => // fake not found (ideally should have been 404)
         val noUndertakingFoundResponse: JsValue = Json.obj(
           "retrieveUndertakingResponse" -> Json.obj(
             "responseCommon" -> badResponseCommon(
@@ -175,9 +178,8 @@ class UndertakingController @Inject()(
         val undertaking = Store.undertakings.retrieveByEori(eori).get
         Future.successful(Ok(Json.toJson(undertaking)(eisRetrieveUndertakingResponse)))
     }
-  }
 
-  private def getAmendUndertakingResponse(undertakingRef: UndertakingRef, json: JsValue) ={
+  private def getAmendUndertakingResponse(undertakingRef: UndertakingRef, json: JsValue) =
     undertakingRef match {
       case a if a.endsWith("999") => // fake 500
         Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
@@ -253,9 +255,8 @@ class UndertakingController @Inject()(
             Future.successful(Ok(Json.toJson(incorrectEORIForUnd)))
         }
     }
-  }
 
-  private def updateResponse(undertakingRef: UndertakingRef, json: JsValue) = {
+  private def updateResponse(undertakingRef: UndertakingRef, json: JsValue) =
     undertakingRef match {
       case a if a.endsWith("999") => // fake 500
         Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
@@ -280,13 +281,16 @@ class UndertakingController @Inject()(
         )
         Future.successful(Ok(Json.toJson(dupeAckRefTwo)))
       case _ => // successful ammend
-        val amendmentType: EisAmendmentType = (json \ "updateUndertakingRequest" \ "requestDetail" \ "amendmentType").as[EisAmendmentType]
-        val undertakingRef: UndertakingRef = (json \ "updateUndertakingRequest" \ "requestDetail" \ "undertakingId").as[UndertakingRef]
-        val name: Option[UndertakingName] = (json \ "updateUndertakingRequest" \ "requestDetail" \ "undertakingName").asOpt[UndertakingName]
-        val sector: Option[Sector] = (json \ "updateUndertakingRequest" \ "requestDetail" \ "industrySector").asOpt[Sector]
+        val amendmentType: EisAmendmentType =
+          (json \ "updateUndertakingRequest" \ "requestDetail" \ "amendmentType").as[EisAmendmentType]
+        val undertakingRef: UndertakingRef =
+          (json \ "updateUndertakingRequest" \ "requestDetail" \ "undertakingId").as[UndertakingRef]
+        val name: Option[UndertakingName] =
+          (json \ "updateUndertakingRequest" \ "requestDetail" \ "undertakingName").asOpt[UndertakingName]
+        val sector: Option[Sector] =
+          (json \ "updateUndertakingRequest" \ "requestDetail" \ "industrySector").asOpt[Sector]
         Store.undertakings.updateUndertaking(undertakingRef, amendmentType, name, sector)
         Future.successful(Ok(Json.toJson(UndertakingRef(undertakingRef))(eisUpdateUndertakingResponse)))
     }
-  }
 
 }

@@ -28,9 +28,8 @@ import shapeless.tag.@@
 
 object DataGenerator {
 
-  private def variableLengthString(min: Int, max: Int) = {
+  private def variableLengthString(min: Int, max: Int) =
     Gen.choose(min, max).flatMap(len => Gen.listOfN(len, Gen.alphaLowerChar)).map(_.mkString)
-  }
 
   def genEORIPrefix: Gen[String] =
     Gen.oneOf(List("GB", "XI"))
@@ -41,20 +40,19 @@ object DataGenerator {
     Gen.oneOf(long, short)
   }
 
-  def genEORI: Gen[EORI] = {
+  def genEORI: Gen[EORI] =
     for {
       prefix <- genEORIPrefix
       rest <- genEORIDigits
     } yield EORI(s"$prefix$rest")
-  }
 
   def genUndertakingRef: Gen[UndertakingRef] =
     RegexpGen.from(UndertakingRef.regex).map(UndertakingRef.apply)
 
   def genContactDetails: Gen[ContactDetails] =
     for {
-      phone <- Gen.option(variableLengthString(1,24).map(PhoneNumber(_)))
-      mobile <- Gen.option(variableLengthString(1,24).map(PhoneNumber(_)))
+      phone <- Gen.option(variableLengthString(1, 24).map(PhoneNumber(_)))
+      mobile <- Gen.option(variableLengthString(1, 24).map(PhoneNumber(_)))
     } yield ContactDetails(phone, mobile)
 
   def genBusinessEntity: Gen[BusinessEntity] =
@@ -63,39 +61,41 @@ object DataGenerator {
       contactDetails <- Gen.option(genContactDetails)
     } yield BusinessEntity(e, false, contactDetails)
 
- def genBusinessEntityUpdate : Gen[BusinessEntityUpdate] =
-   for {
-     amendmentType <- Gen.oneOf(List(AmendmentType.add, AmendmentType.amend, AmendmentType.delete))
-     amendmentEffectiveDate <- Gen.date(LocalDate.of(2020,1,1), LocalDate.now)
-     businessEntity <- genBusinessEntity
-   } yield BusinessEntityUpdate(amendmentType, amendmentEffectiveDate, businessEntity)
+  def genBusinessEntityUpdate: Gen[BusinessEntityUpdate] =
+    for {
+      amendmentType <- Gen.oneOf(List(AmendmentType.add, AmendmentType.amend, AmendmentType.delete))
+      amendmentEffectiveDate <- Gen.date(LocalDate.of(2020, 1, 1), LocalDate.now)
+      businessEntity <- genBusinessEntity
+    } yield BusinessEntityUpdate(amendmentType, amendmentEffectiveDate, businessEntity)
 
   def genIndustrySectorLimit: Gen[@@[BigDecimal, types.IndustrySectorLimit.Tag]] =
-    Gen.choose(1F, 9999999999999F).map(x => IndustrySectorLimit(x / 100))
+    Gen.choose(1f, 9999999999999f).map(x => IndustrySectorLimit(x / 100))
 
   def genLastSubsidyUsageUpdt: Gen[LocalDate] =
-    Gen.date(LocalDate.of(2020,1,1), LocalDate.now)
+    Gen.date(LocalDate.of(2020, 1, 1), LocalDate.now)
 
   def genRetrievedUndertaking(eori: EORI): Gen[Undertaking] =
     for {
       ref <- variableLengthString(1, 17)
       name <- variableLengthString(1, 105)
-      industrySector <- Gen.oneOf(List(0,1,2,3))
+      industrySector <- Gen.oneOf(List(0, 1, 2, 3))
       industrySectorLimit <- genIndustrySectorLimit
       lastSubsidyUsageUpdt <- genLastSubsidyUsageUpdt
-      nBusinessEntities <- Gen.choose(1,25)
-      undertakingBusinessEntity <- Gen.listOfN(nBusinessEntities,genBusinessEntity)
+      nBusinessEntities <- Gen.choose(1, 25)
+      undertakingBusinessEntity <- Gen.listOfN(nBusinessEntities, genBusinessEntity)
     } yield Undertaking(
       Some(UndertakingRef(ref)),
       UndertakingName(name),
       Sector(industrySector),
       industrySectorLimit.some,
       lastSubsidyUsageUpdt.some,
-      undertakingBusinessEntity.head.copy(businessEntityIdentifier = EORI(eori), leadEORI = true) :: undertakingBusinessEntity.tail
+      undertakingBusinessEntity.head
+        .copy(businessEntityIdentifier = EORI(eori), leadEORI = true) :: undertakingBusinessEntity.tail
     )
 
-  def genSubsidyAmount: Gen[SubsidyAmount] = // n.b. dividing by 25 as the schema constraint is the same for the total as the subsidies
-    Gen.choose(-9999999999999F, 9999999999999F).map{x =>
+  def genSubsidyAmount
+    : Gen[SubsidyAmount] = // n.b. dividing by 25 as the schema constraint is the same for the total as the subsidies
+    Gen.choose(-9999999999999f, 9999999999999f).map { x =>
       SubsidyAmount((x / 25).round / 100)
     }
 
@@ -161,11 +161,10 @@ object DataGenerator {
       tradersOwnRefUCR
     )
 
-
   def genSubsidies(r: SubsidyRetrieve): Gen[UndertakingSubsidies] =
     for {
-      x <- Gen.choose(1,25)
-      y <- Gen.choose(1,25)
+      x <- Gen.choose(1, 25)
+      y <- Gen.choose(1, 25)
       nonHmrcSubsidies <- Gen.listOfN(x, genNonHmrcSubsidy(r))
       hmrcSubsidies <- Gen.listOfN(y, genHmrcSubsidies(r))
     } yield {

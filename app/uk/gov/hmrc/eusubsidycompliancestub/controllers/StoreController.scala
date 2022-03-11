@@ -24,11 +24,10 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.Future
 
-
 @Singleton
-class StoreController @Inject()(
+class StoreController @Inject() (
   cc: ControllerComponents,
-  authAndEnvAction: AuthAndEnvAction,
+  authAndEnvAction: AuthAndEnvAction
 ) extends BackendController(cc) {
 
   def clearStore: Action[AnyContent] = Action.async { _ =>

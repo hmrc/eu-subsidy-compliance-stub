@@ -29,14 +29,18 @@ object EisService {
     Sector.agriculture -> IndustrySectorLimit(30000),
     Sector.aquaculture -> IndustrySectorLimit(20000),
     Sector.other -> IndustrySectorLimit(200000),
-    Sector.transport -> IndustrySectorLimit(100000),
+    Sector.transport -> IndustrySectorLimit(100000)
   )
 
   implicit class RichEORI(in: EORI) {
     def toLong: Long = in.substring(2).toLong
   }
 
-  def makeUndertaking(undertaking: Undertaking, eori: EORI, lastSubsidyUsageUpdt: Option[LocalDate] = None): Undertaking = {
+  def makeUndertaking(
+    undertaking: Undertaking,
+    eori: EORI,
+    lastSubsidyUsageUpdt: Option[LocalDate] = None
+  ): Undertaking = {
     val madeUndertaking = retrieveUndertaking(eori)
     val merged = undertaking.copy(
       reference = madeUndertaking.reference,
@@ -51,15 +55,15 @@ object EisService {
       .genRetrievedUndertaking(eori)
       .seeded(
         eori.toLong
-      ).get
-
+      )
+      .get
 
   def undertakingRef(eori: EORI): UndertakingRef =
-    DataGenerator
-      .genUndertakingRef
+    DataGenerator.genUndertakingRef
       .seeded(
         eori.toLong
-      ).get
+      )
+      .get
 
   def retrieveSubsidies(r: SubsidyRetrieve): UndertakingSubsidies =
     DataGenerator
@@ -68,6 +72,7 @@ object EisService {
       )
       .seeded(
         r.undertakingIdentifier.hashCode.toLong
-      ).get
+      )
+      .get
 
 }
