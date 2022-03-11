@@ -174,6 +174,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
     implicit val action: Action[JsValue] = controller.retrieve
     val okEori = EORI("GB123456789012345")
     val notFoundEori = EORI("GB123456789012888")
+    val invalidEORI = EORI("GB123456789012777")
 
     "return 200 and an Undertaking for a valid request" in {
       Store.undertakings.put(undertakingWithEori(okEori))
@@ -233,6 +234,24 @@ class UndertakingControllerSpec extends BaseControllerSpec {
           contentAsJson(_)\\"status" mustEqual List(JsString("NOT_OK")),
           contentAsJson(_)\\"paramValue" mustEqual
             List(JsString("107"), JsString("Undertaking reference in the API not Subscribed in ETMP"))
+        )
+      )
+
+      // TODO this next test should live on the BE
+      intercept[EisBadResponseException] {
+        Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
+      }
+    }
+
+    "return 200 but with NOT_OK responseCommon.status and ERRORCODE 055 if EORI is invalid" in {
+      val result: Future[Result] = testResponse[EORI](
+        invalidEORI,
+        "retrieveUndertakingResponse",
+        play.api.http.Status.OK,
+        List(
+          contentAsJson(_)\\"status" mustEqual List(JsString("NOT_OK")),
+          contentAsJson(_)\\"paramValue" mustEqual
+            List(JsString("055"), JsString("ID number missing or invalid"))
         )
       )
 

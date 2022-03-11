@@ -150,7 +150,18 @@ class UndertakingController @Inject()(
     eori match {
       case a if a.endsWith("999") => // fake 500
         Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
-      case b if b.endsWith("888") || Store.undertakings.retrieveByEori(eori).isEmpty => // fake not found (ideally should have been 404)
+
+      case b if b.endsWith("777")  => // ID invalid
+        val noUndertakingFoundResponse: JsValue = Json.obj(
+          "retrieveUndertakingResponse" -> Json.obj(
+            "responseCommon" -> badResponseCommon(
+              "055",
+              "ID number missing or invalid"
+            )
+          )
+        )
+        Future.successful(Ok(Json.toJson(noUndertakingFoundResponse)))
+      case c if c.endsWith("888") || Store.undertakings.retrieveByEori(eori).isEmpty => // fake not found (ideally should have been 404)
         val noUndertakingFoundResponse: JsValue = Json.obj(
           "retrieveUndertakingResponse" -> Json.obj(
             "responseCommon" -> badResponseCommon(
