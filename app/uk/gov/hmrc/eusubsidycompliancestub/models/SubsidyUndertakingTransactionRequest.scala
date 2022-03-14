@@ -22,14 +22,14 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef
 import java.time.LocalDate
 
 final case class SubsidyUndertakingTransactionRequest(
-                                                       undertakingIdentifier: UndertakingRef,
-                                                       getNonHMRCUsageTransaction: Boolean,
-                                                       getHMRCUsageTransaction: Boolean,
-                                                       dateFromNonHMRCSubsidyUsage: Option[LocalDate],
-                                                       dateToNonHMRCSubsidyUsage: Option[LocalDate],
-                                                       dateFromHMRCSubsidyUsage: Option[LocalDate],
-                                                       dateToHMRCSubsidyUsage: Option[LocalDate]
-                                                     )
+  undertakingIdentifier: UndertakingRef,
+  getNonHMRCUsageTransaction: Boolean,
+  getHMRCUsageTransaction: Boolean,
+  dateFromNonHMRCSubsidyUsage: Option[LocalDate],
+  dateToNonHMRCSubsidyUsage: Option[LocalDate],
+  dateFromHMRCSubsidyUsage: Option[LocalDate],
+  dateToHMRCSubsidyUsage: Option[LocalDate]
+)
 object SubsidyUndertakingTransactionRequest {
   implicit val format: OFormat[SubsidyUndertakingTransactionRequest] = Json.format[SubsidyUndertakingTransactionRequest]
 }

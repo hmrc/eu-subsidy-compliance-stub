@@ -33,7 +33,7 @@ package object controllers {
       List("112233 - Send timeout")
     )
 
-  def notOkCommonResponse(api :String, errorCode: String, errorText: String): JsObject = {
+  def notOkCommonResponse(api: String, errorCode: String, errorText: String): JsObject =
     Json.obj(
       api -> Json.obj(
         "responseCommon" -> badResponseCommon(
@@ -42,12 +42,11 @@ package object controllers {
         )
       )
     )
-  }
 
   def badResponseCommon(
     errorCode: String,
     errorText: String
-  ): ResponseCommon = {
+  ): ResponseCommon =
     ResponseCommon(
       EisStatus.NOT_OK,
       EisStatusString("String"), // taken verbatim from spec
@@ -63,7 +62,6 @@ package object controllers {
         )
       ).some
     )
-  }
 
   def processPayload(
     json: JsValue,

@@ -24,7 +24,6 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisParamName.EisParamNam
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisStatus.EisStatus
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EisParamValue, EisStatusString}
 
-
 case class Params(
   paramName: EisParamName,
   paramValue: EisParamValue
@@ -55,4 +54,3 @@ object ResponseCommon {
   )(unlift(ResponseCommon.unapply))
 
 }
-

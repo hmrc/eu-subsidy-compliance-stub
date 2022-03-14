@@ -33,7 +33,7 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 @Singleton
-class SubsidyController @Inject()(
+class SubsidyController @Inject() (
   cc: ControllerComponents,
   authAndEnvAction: AuthAndEnvAction
 ) extends BackendController(cc) {
@@ -65,174 +65,190 @@ class SubsidyController @Inject()(
     }
   }
 
-  private def getUpdateResponse(undertakingRef: UndertakingRef, json: JsValue, subsidyUpdate: SubsidyUpdate ) =  undertakingRef match {
-    case a if a.endsWith("999") => // fake 500
-      Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
-    case b if b.endsWith("888") => // fake 004
-      val dupeAckRef: JsValue = Json.obj(
-        "amendUndertakingSubsidyUsageResponse" -> Json.obj(
-          "responseCommon" -> badResponseCommon(
-            "004",
-            "Duplicate submission acknowledgment reference"
-          )
-        )
-      )
-      Future.successful(Ok(Json.toJson(dupeAckRef)))
-    case c if c.endsWith("777") =>
-      val dupeEori: JsValue = Json.obj(
-        "amendUndertakingSubsidyUsageResponse" -> Json.obj(
-          "responseCommon" -> badResponseCommon(
-            "107",
-            s"Undertaking reference in the API not Subscribed in ETMP"
-          )
-        )
-      )
-      Future.successful(Ok(Json.toJson(dupeEori)))
-    case d if d.endsWith("666") =>
-      val eori = (json \ "undertakingSubsidyAmendment" \ 0 \ "businessEntityIdentifier").as[EORI]
-      val invalidEori: JsValue = Json.obj(
-        "amendUndertakingSubsidyUsageResponse" -> Json.obj(
-          "responseCommon" -> badResponseCommon(
-            "106",
-            s"EORI not Subscribed in ETMP $eori"
-          )
-        )
-      )
-      Future.successful(Ok(Json.toJson(invalidEori)))
-    case e if e.endsWith("555") =>
-      val eori = (json \ "undertakingSubsidyAmendment" \ 0 \ "businessEntityIdentifier").as[EORI]
-      val invalidEori: JsValue = Json.obj(
-        "amendUndertakingSubsidyUsageResponse" -> Json.obj(
-          "responseCommon" -> badResponseCommon(
-            "112",
-            s"EORI $eori not linked with undertaking." // TODO check full stop
-          )
-        )
-      )
-      Future.successful(Ok(Json.toJson(invalidEori)))
-    case f if f.endsWith("444") =>
-      val sutID = (json \ "undertakingSubsidyAmendment" \ 0 \ "subsidyUsageTransactionId").as[SubsidyRef]
-      val invalidEori: JsValue = Json.obj(
-        "amendUndertakingSubsidyUsageResponse" -> Json.obj(
-          "responseCommon" -> badResponseCommon(
-            "111",
-            s"Subsidy allocation ID number $sutID or date is invalid is invalid" // TODO this string looks wrong
-          )
-        )
-      )
-      Future.successful(Ok(Json.toJson(invalidEori)))
-
-    case _ =>
-      Try(Store.subsidies.updateSubsidies(undertakingRef, subsidyUpdate.update)) match {
-        case Success(_) => Future.successful(Ok(Json.toJson(subsidyUpdate)(eisUpdateSubsidyUsageResponse)))
-        case Failure(_) => val updateSubsidyFailed = notOkCommonResponse(
-          "amendUndertakingSubsidyUsageResponse",
-          "003",
-          s"Request couldn't be processed"
-        )
-          Future.successful(Ok(Json.toJson(updateSubsidyFailed)))
-      }
-  }
-
-  private def getRetrieveResponse(undertakingRef: UndertakingRef,
-                                  subsidyUndertakingTransactionRequest: SubsidyUndertakingTransactionRequest) = {
+  private def getUpdateResponse(undertakingRef: UndertakingRef, json: JsValue, subsidyUpdate: SubsidyUpdate) =
     undertakingRef match {
-    case a if a.endsWith("999") => // fake 500
-      Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
-    case b if b.endsWith("888") => // fake 004
-      val dupeAckRef: JsValue = Json.obj(
-        "getUndertakingTransactionResponse" -> Json.obj(
-          "responseCommon" -> badResponseCommon(
-            "004",
-            "Duplicate submission acknowledgment reference"
+      case a if a.endsWith("999") => // fake 500
+        Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
+      case b if b.endsWith("888") => // fake 004
+        val dupeAckRef: JsValue = Json.obj(
+          "amendUndertakingSubsidyUsageResponse" -> Json.obj(
+            "responseCommon" -> badResponseCommon(
+              "004",
+              "Duplicate submission acknowledgment reference"
+            )
           )
         )
-      )
-      Future.successful(Ok(Json.toJson(dupeAckRef)))
-    case c if c.endsWith("777") =>
-      val dupeAckRef: JsValue = Json.obj(
-        "getUndertakingTransactionResponse" -> Json.obj(
-          "responseCommon" -> badResponseCommon(
-            "201",
-            "Invalid Undertaking identifier"
+        Future.successful(Ok(Json.toJson(dupeAckRef)))
+      case c if c.endsWith("777") =>
+        val dupeEori: JsValue = Json.obj(
+          "amendUndertakingSubsidyUsageResponse" -> Json.obj(
+            "responseCommon" -> badResponseCommon(
+              "107",
+              s"Undertaking reference in the API not Subscribed in ETMP"
+            )
           )
         )
-      )
-      Future.successful(Ok(Json.toJson(dupeAckRef)))
-    case d if d.endsWith("666") =>
-      val dupeAckRef: JsValue = Json.obj(
-        "getUndertakingTransactionResponse" -> Json.obj(
-          "responseCommon" -> badResponseCommon(
-            "202",
-            "Error while fetching the Currency conversion values"
+        Future.successful(Ok(Json.toJson(dupeEori)))
+      case d if d.endsWith("666") =>
+        val eori = (json \ "undertakingSubsidyAmendment" \ 0 \ "businessEntityIdentifier").as[EORI]
+        val invalidEori: JsValue = Json.obj(
+          "amendUndertakingSubsidyUsageResponse" -> Json.obj(
+            "responseCommon" -> badResponseCommon(
+              "106",
+              s"EORI not Subscribed in ETMP $eori"
+            )
           )
         )
-      )
-      Future.successful(Ok(Json.toJson(dupeAckRef)))
-    case _ =>
-      Try {
-        val subsidies = Store.subsidies.retrieveSubsidies(undertakingRef)
-          .getOrElse(UndertakingSubsidies.emptyInstance(undertakingRef))
-        val filteredHMRCSubsidyListOpt = getFilteredHMRCSubsidyList(subsidyUndertakingTransactionRequest, subsidies)
-        val filteredNonHMRCSubsidyListOpt = geFilteredNonHMRCSubsidyList(subsidyUndertakingTransactionRequest, subsidies)
-        subsidies.copy(
-          nonHMRCSubsidyUsage = filteredNonHMRCSubsidyListOpt
-            .getOrElse(List.empty), hmrcSubsidyUsage = filteredHMRCSubsidyListOpt.getOrElse(List.empty)
+        Future.successful(Ok(Json.toJson(invalidEori)))
+      case e if e.endsWith("555") =>
+        val eori = (json \ "undertakingSubsidyAmendment" \ 0 \ "businessEntityIdentifier").as[EORI]
+        val invalidEori: JsValue = Json.obj(
+          "amendUndertakingSubsidyUsageResponse" -> Json.obj(
+            "responseCommon" -> badResponseCommon(
+              "112",
+              s"EORI $eori not linked with undertaking." // TODO check full stop
+            )
+          )
         )
-      } match {
-        case Success(retrieveResponse) =>
-          Future.successful(Ok(Json.toJson(retrieveResponse)(eisRetrieveUndertakingSubsidiesResponse)))
-        case Failure(_) =>
-          val updateSubsidyFailed = notOkCommonResponse(
-          "getUndertakingTransactionResponse",
-          "003",
-          s"Request couldn't be processed"
+        Future.successful(Ok(Json.toJson(invalidEori)))
+      case f if f.endsWith("444") =>
+        val sutID = (json \ "undertakingSubsidyAmendment" \ 0 \ "subsidyUsageTransactionId").as[SubsidyRef]
+        val invalidEori: JsValue = Json.obj(
+          "amendUndertakingSubsidyUsageResponse" -> Json.obj(
+            "responseCommon" -> badResponseCommon(
+              "111",
+              s"Subsidy allocation ID number $sutID or date is invalid is invalid" // TODO this string looks wrong
+            )
+          )
         )
-          Future.successful(Ok(Json.toJson(updateSubsidyFailed)))
-      }
-  }
-  }
+        Future.successful(Ok(Json.toJson(invalidEori)))
+
+      case _ =>
+        Try(Store.subsidies.updateSubsidies(undertakingRef, subsidyUpdate.update)) match {
+          case Success(_) => Future.successful(Ok(Json.toJson(subsidyUpdate)(eisUpdateSubsidyUsageResponse)))
+          case Failure(_) =>
+            val updateSubsidyFailed = notOkCommonResponse(
+              "amendUndertakingSubsidyUsageResponse",
+              "003",
+              s"Request couldn't be processed"
+            )
+            Future.successful(Ok(Json.toJson(updateSubsidyFailed)))
+        }
+    }
+
+  private def getRetrieveResponse(
+    undertakingRef: UndertakingRef,
+    subsidyUndertakingTransactionRequest: SubsidyUndertakingTransactionRequest
+  ) =
+    undertakingRef match {
+      case a if a.endsWith("999") => // fake 500
+        Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
+      case b if b.endsWith("888") => // fake 004
+        val dupeAckRef: JsValue = Json.obj(
+          "getUndertakingTransactionResponse" -> Json.obj(
+            "responseCommon" -> badResponseCommon(
+              "004",
+              "Duplicate submission acknowledgment reference"
+            )
+          )
+        )
+        Future.successful(Ok(Json.toJson(dupeAckRef)))
+      case c if c.endsWith("777") =>
+        val dupeAckRef: JsValue = Json.obj(
+          "getUndertakingTransactionResponse" -> Json.obj(
+            "responseCommon" -> badResponseCommon(
+              "201",
+              "Invalid Undertaking identifier"
+            )
+          )
+        )
+        Future.successful(Ok(Json.toJson(dupeAckRef)))
+      case d if d.endsWith("666") =>
+        val dupeAckRef: JsValue = Json.obj(
+          "getUndertakingTransactionResponse" -> Json.obj(
+            "responseCommon" -> badResponseCommon(
+              "202",
+              "Error while fetching the Currency conversion values"
+            )
+          )
+        )
+        Future.successful(Ok(Json.toJson(dupeAckRef)))
+      case _ =>
+        Try {
+          val subsidies = Store.subsidies
+            .retrieveSubsidies(undertakingRef)
+            .getOrElse(UndertakingSubsidies.emptyInstance(undertakingRef))
+          val filteredHMRCSubsidyListOpt = getFilteredHMRCSubsidyList(subsidyUndertakingTransactionRequest, subsidies)
+          val filteredNonHMRCSubsidyListOpt =
+            geFilteredNonHMRCSubsidyList(subsidyUndertakingTransactionRequest, subsidies)
+          subsidies.copy(
+            nonHMRCSubsidyUsage = filteredNonHMRCSubsidyListOpt
+              .getOrElse(List.empty),
+            hmrcSubsidyUsage = filteredHMRCSubsidyListOpt.getOrElse(List.empty)
+          )
+        } match {
+          case Success(retrieveResponse) =>
+            Future.successful(Ok(Json.toJson(retrieveResponse)(eisRetrieveUndertakingSubsidiesResponse)))
+          case Failure(_) =>
+            val updateSubsidyFailed = notOkCommonResponse(
+              "getUndertakingTransactionResponse",
+              "003",
+              s"Request couldn't be processed"
+            )
+            Future.successful(Ok(Json.toJson(updateSubsidyFailed)))
+        }
+    }
 }
 
 object SubsidyController {
 
   /**
-   * This function will  (if getHMRCUsageTransaction is true), filter the HMRC subsidy list from the retrieved UndertakingSubsidies by the date range given in the request body
-   * else fetch empty list.
-   * @param subsidyUndertakingTransactionRequest
-   * @param subsidies
-   * @return optional list of HMRCSubsidy
-   */
-  def getFilteredHMRCSubsidyList(subsidyUndertakingTransactionRequest: SubsidyUndertakingTransactionRequest,
-                                 subsidies: UndertakingSubsidies) =
-    if(subsidyUndertakingTransactionRequest.getHMRCUsageTransaction) {
-    for {
-      dateFrom <- subsidyUndertakingTransactionRequest.dateFromHMRCSubsidyUsage
-      dateTo <- subsidyUndertakingTransactionRequest.dateToHMRCSubsidyUsage
-    } yield subsidies.hmrcSubsidyUsage.filter(x => (x.acceptanceDate.isAfter(dateFrom) || x.acceptanceDate.isEqual(dateFrom)) && (x.acceptanceDate.isBefore(dateTo) || x.acceptanceDate.isEqual(dateTo)))
-  } else {
+    * This function will  (if getHMRCUsageTransaction is true), filter the HMRC subsidy list from the retrieved UndertakingSubsidies by the date range given in the request body
+    * else fetch empty list.
+    * @param subsidyUndertakingTransactionRequest
+    * @param subsidies
+    * @return optional list of HMRCSubsidy
+    */
+  def getFilteredHMRCSubsidyList(
+    subsidyUndertakingTransactionRequest: SubsidyUndertakingTransactionRequest,
+    subsidies: UndertakingSubsidies
+  ) =
+    if (subsidyUndertakingTransactionRequest.getHMRCUsageTransaction) {
+      for {
+        dateFrom <- subsidyUndertakingTransactionRequest.dateFromHMRCSubsidyUsage
+        dateTo <- subsidyUndertakingTransactionRequest.dateToHMRCSubsidyUsage
+      } yield subsidies.hmrcSubsidyUsage.filter(x =>
+        (x.acceptanceDate.isAfter(dateFrom) || x.acceptanceDate.isEqual(dateFrom)) && (x.acceptanceDate.isBefore(
+          dateTo
+        ) || x.acceptanceDate.isEqual(dateTo))
+      )
+    } else {
       //In this scenario I am assuming that if getHMRCUsageTransaction is false , then we don't have to fetch anything. Please do confirm on this assumption
       List().some
     }
 
-
   /**
-   * This function will  (if getNonHMRCUsageTransaction is true), filter the non HMRC subsidy list from the retrieved UndertakingSubsidies by the date range given in the request body
-   * else fetch empty list.
-   * @param subsidyUndertakingTransactionRequest
-   * @param subsidies
-   * @return optional list of nonHMRCSubsidy
-   */
-  def geFilteredNonHMRCSubsidyList(subsidyUndertakingTransactionRequest: SubsidyUndertakingTransactionRequest,
-                                   subsidies: UndertakingSubsidies) =
-    if(subsidyUndertakingTransactionRequest.getNonHMRCUsageTransaction) {
-    for {
-      dateFrom <- subsidyUndertakingTransactionRequest.dateFromNonHMRCSubsidyUsage
-      dateTo <- subsidyUndertakingTransactionRequest.dateToNonHMRCSubsidyUsage
-    } yield {
-      subsidies.nonHMRCSubsidyUsage.filter(x => (x.allocationDate.isAfter(dateFrom) || x.allocationDate.isEqual(dateFrom)) && (x.allocationDate.isBefore(dateTo) || x.allocationDate.isEqual(dateTo))).map(_.copy(amendmentType = None))
-    }
-  } else
-    //In this scenario I am assuming that if getNonHMRCUsageTransaction is false , then we don't have to fetch anything. Please do confirm on this assumption
+    * This function will  (if getNonHMRCUsageTransaction is true), filter the non HMRC subsidy list from the retrieved UndertakingSubsidies by the date range given in the request body
+    * else fetch empty list.
+    * @param subsidyUndertakingTransactionRequest
+    * @param subsidies
+    * @return optional list of nonHMRCSubsidy
+    */
+  def geFilteredNonHMRCSubsidyList(
+    subsidyUndertakingTransactionRequest: SubsidyUndertakingTransactionRequest,
+    subsidies: UndertakingSubsidies
+  ) =
+    if (subsidyUndertakingTransactionRequest.getNonHMRCUsageTransaction) {
+      for {
+        dateFrom <- subsidyUndertakingTransactionRequest.dateFromNonHMRCSubsidyUsage
+        dateTo <- subsidyUndertakingTransactionRequest.dateToNonHMRCSubsidyUsage
+      } yield subsidies.nonHMRCSubsidyUsage
+        .filter(x =>
+          (x.allocationDate.isAfter(dateFrom) || x.allocationDate.isEqual(dateFrom)) && (x.allocationDate
+            .isBefore(dateTo) || x.allocationDate.isEqual(dateTo))
+        )
+        .map(_.copy(amendmentType = None))
+    } else
+      //In this scenario I am assuming that if getNonHMRCUsageTransaction is false , then we don't have to fetch anything. Please do confirm on this assumption
       List().some
 }
