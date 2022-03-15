@@ -17,7 +17,7 @@
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, EisAmendmentType, EisSubsidyAmendmentType, SubsidyAmount, SubsidyRef, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, EisAmendmentType, EisSubsidyAmendmentType, IndustrySectorLimit, Sector, SubsidyAmount, SubsidyRef, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, BusinessEntityUpdate, NilSubmissionDate, NonHmrcSubsidy, Undertaking, UndertakingSubsidies, UndertakingSubsidyAmendment, Update}
 
@@ -41,6 +41,13 @@ object Store {
 
   object undertakings {
 
+    private val SectorLimits = Map(
+      Sector.agriculture -> IndustrySectorLimit(30000.00),
+      Sector.aquaculture -> IndustrySectorLimit(20000.00),
+      Sector.other -> IndustrySectorLimit(200000.00),
+      Sector.transport -> IndustrySectorLimit(100000.00)
+    )
+
     def put(undertaking: Undertaking): Unit =
       undertakingStore.put(undertaking.reference.get, undertaking)
 
@@ -55,11 +62,14 @@ object Store {
           undertakingStore.remove(undertakingRef)
         case _ =>
           retrieve(undertakingRef).foreach { u =>
-            val ed = u.copy(
-              name = undertakingName.getOrElse(u.name),
-              industrySector = sector.getOrElse(u.industrySector)
-            )
-            undertakingStore.update(u.reference.get, ed)
+            val updatedSector = sector.getOrElse(u.industrySector)
+            undertakingStore.update(
+              u.reference.get,
+              u.copy(
+                name = undertakingName.getOrElse(u.name),
+                industrySector = updatedSector,
+                industrySectorLimit = SectorLimits.get(updatedSector)
+            ))
           }
       }
 
