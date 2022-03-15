@@ -36,6 +36,14 @@ The details for the test EORI data is as shown below:
 |                         |     `...888`       |    004              | Duplicate submission acknowledgment reference    |  
 |                         |     `...777`       |    201              | Invalid Undertaking identifier  |  
 |                         |     `...666`       |    202              | Error while fetching the Currency conversion values |
+
+### Launching the service locally
+
+To bring up the service on the configured port `9095`, use
+
+```
+sbt run
+```
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
