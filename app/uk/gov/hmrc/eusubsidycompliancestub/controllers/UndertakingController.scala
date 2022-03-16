@@ -280,7 +280,7 @@ class UndertakingController @Inject() (
           )
         )
         Future.successful(Ok(Json.toJson(dupeAckRefTwo)))
-      case _ => // successful ammend
+      case _ => // successful amend
         val amendmentType: EisAmendmentType =
           (json \ "updateUndertakingRequest" \ "requestDetail" \ "amendmentType").as[EisAmendmentType]
         val undertakingRef: UndertakingRef =

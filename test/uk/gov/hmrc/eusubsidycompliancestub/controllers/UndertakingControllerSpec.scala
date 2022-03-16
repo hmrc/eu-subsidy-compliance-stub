@@ -24,7 +24,7 @@ import play.api.test.Helpers.{status, _}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, amendUndertakingMemberDataWrites, retrieveUndertakingEORIWrites, undertakingFormat, updateUndertakingWrites}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType, EisParamName, EisParamValue, EisStatus, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType, EisParamName, EisParamValue, EisStatus, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking, UndertakingBusinessEntityUpdate}
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances.arbContactDetails
@@ -317,14 +317,24 @@ class UndertakingControllerSpec extends BaseControllerSpec {
     }
 
     "return 200 and a valid response for a successful amend" in {
-      Store.undertakings.put(undertaking)
-      val editedUndertaking = undertaking.copy(name = UndertakingName("EDITED NAME"))
+      Store.undertakings.put(undertaking.copy(
+        industrySector = Sector.agriculture,
+        industrySectorLimit = IndustrySectorLimit(30000.00).some
+      ))
+
+      // Changing the sector should also change the sector limit.
+      val editedUndertaking = undertaking.copy(
+        name = UndertakingName("EDITED NAME"),
+        industrySector = Sector.other,
+        industrySectorLimit = IndustrySectorLimit(200000.00).some
+      )
+
       testResponse[Undertaking](
         editedUndertaking,
         "updateUndertakingResponse",
         play.api.http.Status.OK,
       )(implicitly, writes, implicitly)
-      Store.undertakings.retrieve(editedUndertaking.reference.get).get mustEqual editedUndertaking
+      Store.undertakings.retrieve(editedUndertaking.reference.get) must contain(editedUndertaking)
       Store.clear()
     }
 
