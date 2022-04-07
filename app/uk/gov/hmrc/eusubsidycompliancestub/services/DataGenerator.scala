@@ -148,7 +148,8 @@ object DataGenerator {
       declarantEORI <- genEORI
       consigneeEORI <- genEORI
       taxType <- Gen.option(genTaxType)
-      amount <- Gen.option(genSubsidyAmount)
+      amountGBP <- Gen.option(genSubsidyAmount)
+      amountEUR <- Gen.option(genSubsidyAmount)
       tradersOwnRefUCR <- Gen.option(genTraderRef)
     } yield HmrcSubsidy(
       declarationID,
@@ -157,7 +158,8 @@ object DataGenerator {
       declarantEORI,
       consigneeEORI,
       taxType,
-      amount,
+      amountGBP,
+      amountEUR,
       tradersOwnRefUCR
     )
 
@@ -169,7 +171,7 @@ object DataGenerator {
       hmrcSubsidies <- Gen.listOfN(y, genHmrcSubsidies(r))
     } yield {
       val nonHMRCTotal = SubsidyAmount(nonHmrcSubsidies.map(x => x.nonHMRCSubsidyAmtEUR).sum[BigDecimal])
-      val hmrcTotal = SubsidyAmount(hmrcSubsidies.flatMap(x => x.amount).sum[BigDecimal])
+      val hmrcTotal = SubsidyAmount(hmrcSubsidies.flatMap(x => x.hmrcSubsidyAmtEUR).sum[BigDecimal])
       UndertakingSubsidies(
         r.undertakingIdentifier,
         nonHMRCTotal,
