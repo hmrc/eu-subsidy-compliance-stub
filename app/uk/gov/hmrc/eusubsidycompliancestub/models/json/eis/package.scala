@@ -21,7 +21,6 @@ import java.time.format.DateTimeFormatter
 import java.time._
 
 import play.api.libs.json._
-import play.api.libs.functional.syntax._
 import uk.gov.hmrc.eusubsidycompliancestub.models._
 import uk.gov.hmrc.eusubsidycompliancestub.models.types._
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
@@ -42,120 +41,6 @@ package object eis {
     def eisFormat: String =
       formatter.format(in.toInstant(ZoneOffset.UTC).minusNanos(in.getNano))
   }
-
-  // provides response for EIS retrieveUndertaking call
-  implicit val eisRetrieveUndertakingResponse: Writes[Undertaking] = new Writes[Undertaking] {
-    override def writes(o: Undertaking): JsValue = Json.obj(
-      "retrieveUndertakingResponse" -> Json.obj(
-        "responseCommon" ->
-          ResponseCommon(
-            EisStatus.OK,
-            EisStatusString("ok"),
-            LocalDateTime.now,
-            None
-          ),
-        "responseDetail" -> Json.obj(
-          "undertakingReference" -> o.reference,
-          "undertakingName" -> o.name,
-          "industrySector" -> o.industrySector,
-          "industrySectorLimit" -> o.industrySectorLimit,
-          "lastSubsidyUsageUpdt" -> o.lastSubsidyUsageUpdt.map(_.format(oddEisDateFormat)),
-          "undertakingBusinessEntity" -> o.undertakingBusinessEntity
-        )
-      )
-    )
-  }
-
-  // provides response for EIS updateUndertaking call
-  implicit val eisUpdateUndertakingResponse: Writes[UndertakingRef] = new Writes[UndertakingRef] {
-    override def writes(o: UndertakingRef): JsValue = Json.obj(
-      "updateUndertakingResponse" -> Json.obj(
-        "responseCommon" ->
-          ResponseCommon(
-            EisStatus.OK,
-            EisStatusString("ok"),
-            LocalDateTime.now,
-            None
-          ),
-        "responseDetail" -> Json.obj(
-          "undertakingReference" -> o
-        )
-      )
-    )
-  }
-
-  // provides response for EIS updateSubsidyUsage call
-  implicit val eisUpdateSubsidyUsageResponse: Writes[SubsidyUpdate] = new Writes[SubsidyUpdate] {
-    override def writes(o: SubsidyUpdate): JsValue = Json.obj(
-      "amendUndertakingSubsidyUsageResponse" -> Json.obj(
-        "responseCommon" ->
-          ResponseCommon(
-            EisStatus.OK,
-            EisStatusString("Success"),
-            LocalDateTime.now,
-            None
-          ),
-        "responseDetail" -> Json.obj(
-          "undertakingIdentifier" -> o.undertakingIdentifier
-        )
-      )
-    )
-  }
-
-  // formatter for the response from EIS when creating the Undertaking
-  implicit val eisCreateUndertakingResponse: Writes[UndertakingRef] = new Writes[UndertakingRef] {
-    override def writes(undertakingRef: UndertakingRef): JsValue =
-      Json.obj(
-        "createUndertakingResponse" -> Json.obj(
-          "responseCommon" ->
-            ResponseCommon(
-              EisStatus.OK,
-              EisStatusString("String"),
-              LocalDateTime.now,
-              None
-            ),
-          "responseDetail" -> Json.obj(
-            "undertakingReference" -> undertakingRef
-          )
-        )
-      )
-  }
-
-  // provides response from EIS retrieve subsidies call
-  implicit val eisRetrieveUndertakingSubsidiesResponse: Writes[UndertakingSubsidies] =
-    new Writes[UndertakingSubsidies] {
-      implicit val nonHmrcSubsidyWrites: Writes[NonHmrcSubsidy] = (
-        (JsPath \ "subsidyUsageTransactionId").writeNullable[SubsidyRef] and
-          (JsPath \ "allocationDate").write[LocalDate] and
-          (JsPath \ "submissionDate").write[LocalDate] and
-          (JsPath \ "publicAuthority").writeNullable[String] and
-          (JsPath \ "traderReference").writeNullable[TraderRef] and
-          (JsPath \ "nonHMRCSubsidyAmtEUR").write[SubsidyAmount] and
-          (JsPath \ "businessEntityIdentifier").writeNullable[EORI] and
-          (JsPath \ "amendmentType").writeNullable[EisSubsidyAmendmentType]
-      )(unlift(NonHmrcSubsidy.unapply))
-
-      override def writes(o: UndertakingSubsidies): JsValue = Json.obj(
-        "getUndertakingTransactionResponse" -> Json.obj(
-          "responseCommon" ->
-            ResponseCommon(
-              EisStatus.OK,
-              EisStatusString("Success"),
-              LocalDateTime.now,
-              None
-            ),
-          "responseDetail" -> Json.obj(
-            "undertakingIdentifier" -> o.undertakingIdentifier,
-            "nonHMRCSubsidyTotalEUR" -> o.nonHMRCSubsidyTotalEUR,
-            "nonHMRCSubsidyTotalGBP" -> o.nonHMRCSubsidyTotalGBP,
-            "hmrcSubsidyTotalEUR" -> o.hmrcSubsidyTotalEUR,
-            "hmrcSubsidyTotalGBP" -> o.hmrcSubsidyTotalGBP,
-            "nonHMRCSubsidyUsage" -> o.nonHMRCSubsidyUsage,
-            "hmrcSubsidyUsage" -> o.hmrcSubsidyUsage
-          )
-        )
-      )
-    }
 
   // convenience reads so we can store a created undertaking
   val undertakingRequestReads: Reads[Undertaking] = new Reads[Undertaking] {

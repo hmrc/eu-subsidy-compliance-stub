@@ -26,6 +26,7 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyUndertakingTransaction
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, SubsidyRef, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingSubsidyResponses.{AmendUndertakingSubsidyUsageApiResponse, GetUndertakingTransactionApiResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.services.Store
+import uk.gov.hmrc.eusubsidycompliancestub.syntax.FutureSyntax.FutureOps
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import java.time.LocalDate
@@ -42,7 +43,7 @@ class SubsidyController @Inject() (
     withJsonBody[JsValue] { json =>
       processPayload(json, "updateSubsidyUsageRequest") match {
         case Some(errorDetail) => // payload fails schema check
-          Future.successful(Forbidden(Json.toJson(errorDetail)))
+          Forbidden(Json.toJson(errorDetail)).toFuture
         case _ =>
           val subsidyUpdate: SubsidyUpdate = json.as[SubsidyUpdate]
           val undertakingRef: UndertakingRef = (json \ "undertakingIdentifier").as[UndertakingRef]
@@ -56,7 +57,7 @@ class SubsidyController @Inject() (
     withJsonBody[JsValue] { json =>
       processPayload(json, "retrieveUndertakingSubsidiesRequest") match {
         case Some(errorDetail) => // payload fails schema check
-          Future.successful(Forbidden(Json.toJson(errorDetail)))
+          Forbidden(Json.toJson(errorDetail)).toFuture
         case _ =>
           val undertakingRef: UndertakingRef = (json \ "undertakingIdentifier").as[UndertakingRef]
           val subsidyUndertakingTransactionRequest = json.as[SubsidyUndertakingTransactionRequest]
@@ -68,54 +69,49 @@ class SubsidyController @Inject() (
   private def getUpdateResponse(undertakingRef: UndertakingRef, json: JsValue, subsidyUpdate: SubsidyUpdate) =
     undertakingRef match {
       case a if a.endsWith("999") => // fake 500
-        Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
+        InternalServerError(Json.toJson(errorDetailFor500)).toFuture
+
       case b if b.endsWith("888") => // fake 004
-        Future.successful(
-          Ok(
-            Json.toJson(AmendUndertakingSubsidyUsageApiResponse("004", "Duplicate submission acknowledgment reference"))
-          )
-        )
+        Ok(
+          Json.toJson(AmendUndertakingSubsidyUsageApiResponse("004", "Duplicate submission acknowledgment reference"))
+        ).toFuture
+
       case c if c.endsWith("777") =>
-        Future.successful(
-          Ok(
-            Json.toJson(
-              AmendUndertakingSubsidyUsageApiResponse("107", s"Undertaking reference in the API not Subscribed in ETMP")
-            )
+        Ok(
+          Json.toJson(
+            AmendUndertakingSubsidyUsageApiResponse("107", s"Undertaking reference in the API not Subscribed in ETMP")
           )
-        )
+        ).toFuture
+
       case d if d.endsWith("666") =>
         val eori = (json \ "undertakingSubsidyAmendment" \ 0 \ "businessEntityIdentifier").as[EORI]
-        Future.successful(
-          Ok(Json.toJson(AmendUndertakingSubsidyUsageApiResponse("106", s"EORI not Subscribed in ETMP $eori")))
-        )
+        Ok(Json.toJson(AmendUndertakingSubsidyUsageApiResponse("106", s"EORI not Subscribed in ETMP $eori"))).toFuture
+
       case e if e.endsWith("555") =>
         val eori = (json \ "undertakingSubsidyAmendment" \ 0 \ "businessEntityIdentifier").as[EORI]
-        Future.successful(
-          Ok(Json.toJson(AmendUndertakingSubsidyUsageApiResponse("112", s"EORI $eori not linked with undertaking.")))
-        )
+        Ok(
+          Json.toJson(AmendUndertakingSubsidyUsageApiResponse("112", s"EORI $eori not linked with undertaking."))
+        ).toFuture
+
       case f if f.endsWith("444") =>
         val sutID = (json \ "undertakingSubsidyAmendment" \ 0 \ "subsidyUsageTransactionId").as[SubsidyRef]
-        Future.successful(
-          Ok(
-            Json.toJson(
-              AmendUndertakingSubsidyUsageApiResponse(
-                "111",
-                s"Subsidy allocation ID number $sutID or date is invalid is invalid"
-              )
+        Ok(
+          Json.toJson(
+            AmendUndertakingSubsidyUsageApiResponse(
+              "111",
+              s"Subsidy allocation ID number $sutID or date is invalid is invalid"
             )
           )
-        )
+        ).toFuture
 
       case _ =>
         Try(Store.subsidies.updateSubsidies(undertakingRef, subsidyUpdate.update)) match {
           case Success(_) =>
-            Future.successful(
-              Ok(Json.toJson(AmendUndertakingSubsidyUsageApiResponse(subsidyUpdate.undertakingIdentifier)))
-            )
+            Ok(Json.toJson(AmendUndertakingSubsidyUsageApiResponse(subsidyUpdate.undertakingIdentifier))).toFuture
+
           case Failure(_) =>
-            Future.successful(
-              Ok(Json.toJson(AmendUndertakingSubsidyUsageApiResponse("003", s"Request couldn't be processed")))
-            )
+            Ok(Json.toJson(AmendUndertakingSubsidyUsageApiResponse("003", s"Request couldn't be processed"))).toFuture
+
         }
     }
 
@@ -125,23 +121,23 @@ class SubsidyController @Inject() (
   ) =
     undertakingRef match {
       case a if a.endsWith("999") => // fake 500
-        Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
+        InternalServerError(Json.toJson(errorDetailFor500)).toFuture
+
       case b if b.endsWith("888") => // fake 004
-        Future.successful(
-          Ok(Json.toJson(GetUndertakingTransactionApiResponse("004", "Duplicate submission acknowledgment reference")))
-        )
+        Ok(
+          Json.toJson(GetUndertakingTransactionApiResponse("004", "Duplicate submission acknowledgment reference"))
+        ).toFuture
+
       case c if c.endsWith("777") =>
-        Future.successful(
-          Ok(Json.toJson(GetUndertakingTransactionApiResponse("201", "Invalid Undertaking identifier")))
-        )
+        Ok(Json.toJson(GetUndertakingTransactionApiResponse("201", "Invalid Undertaking identifier"))).toFuture
+
       case d if d.endsWith("666") =>
-        Future.successful(
-          Ok(
-            Json.toJson(
-              GetUndertakingTransactionApiResponse("202", "Error while fetching the Currency conversion values")
-            )
+        Ok(
+          Json.toJson(
+            GetUndertakingTransactionApiResponse("202", "Error while fetching the Currency conversion values")
           )
-        )
+        ).toFuture
+
       case _ =>
         Try {
           val subsidies = Store.subsidies
@@ -157,11 +153,11 @@ class SubsidyController @Inject() (
           )
         } match {
           case Success(retrieveResponse) =>
-            Future.successful(Ok(Json.toJson(GetUndertakingTransactionApiResponse(retrieveResponse))))
+            Ok(Json.toJson(GetUndertakingTransactionApiResponse(retrieveResponse))).toFuture
+
           case Failure(_) =>
-            Future.successful(
-              Ok(Json.toJson(GetUndertakingTransactionApiResponse("003", s"Request couldn't be processed")))
-            )
+            Ok(Json.toJson(GetUndertakingTransactionApiResponse("003", s"Request couldn't be processed"))).toFuture
+
         }
     }
 }

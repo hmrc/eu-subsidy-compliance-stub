@@ -17,12 +17,10 @@
 package uk.gov.hmrc.eusubsidycompliancestub
 
 import cats.implicits._
-import play.api.libs.json.{JsObject, JsValue, Json}
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetail, ErrorDetails, Params, ResponseCommon, SourceFaultDetail}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EisParamName, EisParamValue, EisStatus, EisStatusString, ErrorCode, ErrorMessage}
+import play.api.libs.json.JsValue
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.ErrorDetails
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{ErrorCode, ErrorMessage}
 import uk.gov.hmrc.eusubsidycompliancestub.services.JsonSchemaChecker
-
-import java.time.LocalDateTime
 
 package object controllers {
 
@@ -31,16 +29,6 @@ package object controllers {
       ErrorCode("500"),
       ErrorMessage("Error connecting to the server"),
       "112233 - Send timeout"
-    )
-
-  def notOkCommonResponse(api: String, errorCode: String, errorText: String): JsObject =
-    Json.obj(
-      api -> Json.obj(
-        "responseCommon" -> ResponseCommon(
-          errorCode,
-          errorText
-        )
-      )
     )
 
   def processPayload(

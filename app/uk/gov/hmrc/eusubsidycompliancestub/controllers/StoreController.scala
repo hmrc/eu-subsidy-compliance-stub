@@ -20,6 +20,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.eusubsidycompliancestub.services.Store
+import uk.gov.hmrc.eusubsidycompliancestub.syntax.FutureSyntax.FutureOps
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.Future
@@ -31,12 +32,12 @@ class StoreController @Inject() (
 
   def clearStore: Action[AnyContent] = Action.async { _ =>
     val isClear = Store.clear()
-    Future.successful(Ok(Json.toJson(s"cleared: $isClear")))
+    Ok(Json.toJson(s"cleared: $isClear")).toFuture
   }
 
   def show: Action[AnyContent] = Action.async { _ =>
     val store = Store.undertakings.undertakingStore
-    Future.successful(Ok(store.toString))
+    Ok(store.toString).toFuture
   }
 
 }
