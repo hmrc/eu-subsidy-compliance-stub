@@ -20,7 +20,6 @@ import cats.implicits.catsSyntaxOptionId
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.ResponseCommon
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EisStatus, EisStatusString, UndertakingRef}
-import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingSubsidyResponses.ResponseDetail
 
 import java.time.LocalDateTime
 

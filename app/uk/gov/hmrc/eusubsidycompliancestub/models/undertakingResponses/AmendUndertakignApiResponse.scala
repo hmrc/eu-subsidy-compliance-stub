@@ -19,8 +19,6 @@ package uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.ResponseCommon
 
-import java.time.format.DateTimeFormatter
-
 case class AmendUndertakingApiResponse(amendUndertakingMemberDataResponse: AmendUndertakingMemberDataResponse)
 
 object AmendUndertakingApiResponse {
