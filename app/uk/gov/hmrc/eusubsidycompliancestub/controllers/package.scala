@@ -16,51 +16,31 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub
 
-import java.time.LocalDateTime
-
 import cats.implicits._
 import play.api.libs.json.{JsObject, JsValue, Json}
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetail, Params, ResponseCommon}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetail, ErrorDetails, Params, ResponseCommon, SourceFaultDetail}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EisParamName, EisParamValue, EisStatus, EisStatusString, ErrorCode, ErrorMessage}
 import uk.gov.hmrc.eusubsidycompliancestub.services.JsonSchemaChecker
+
+import java.time.LocalDateTime
 
 package object controllers {
 
   val errorDetailFor500 =
-    ErrorDetail(
+    ErrorDetails(
       ErrorCode("500"),
       ErrorMessage("Error connecting to the server"),
-      List("112233 - Send timeout")
+      "112233 - Send timeout"
     )
 
   def notOkCommonResponse(api: String, errorCode: String, errorText: String): JsObject =
     Json.obj(
       api -> Json.obj(
-        "responseCommon" -> badResponseCommon(
+        "responseCommon" -> ResponseCommon(
           errorCode,
           errorText
         )
       )
-    )
-
-  def badResponseCommon(
-    errorCode: String,
-    errorText: String
-  ): ResponseCommon =
-    ResponseCommon(
-      EisStatus.NOT_OK,
-      EisStatusString("String"), // taken verbatim from spec
-      LocalDateTime.now,
-      List(
-        Params(
-          EisParamName.ERRORCODE,
-          EisParamValue(errorCode)
-        ),
-        Params(
-          EisParamName.ERRORTEXT,
-          EisParamValue(errorText)
-        )
-      ).some
     )
 
   def processPayload(
@@ -68,16 +48,16 @@ package object controllers {
     schemaName: String,
     errorCode: ErrorCode = ErrorCode("403"),
     errorMessage: ErrorMessage = ErrorMessage("Invalid message : BEFORE TRANSFORMATION")
-  ): Option[ErrorDetail] = {
+  ): Option[ErrorDetails] = {
     val processingReport = JsonSchemaChecker[JsValue](json, schemaName)
     if (processingReport.isSuccess) {
-      none[ErrorDetail]
+      none[ErrorDetails]
     } else {
       val sourceFaultDetailHead: String = processingReport.iterator().next().getMessage
-      ErrorDetail(
-        ErrorCode(errorCode),
-        ErrorMessage(errorMessage),
-        List(sourceFaultDetailHead)
+      ErrorDetails(
+        errorCode = ErrorCode(errorCode),
+        errorMessage = ErrorMessage(errorMessage),
+        sourceFaultDetail = sourceFaultDetailHead
       ).some
     }
   }

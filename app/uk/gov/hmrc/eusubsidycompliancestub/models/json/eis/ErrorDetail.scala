@@ -23,30 +23,35 @@ import java.util.UUID
 import play.api.libs.json._
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{CorrelationID, ErrorCode, ErrorMessage, Source}
 
+case class ErrorDetails(errorDetail: ErrorDetail)
+object ErrorDetails {
+  implicit val write: Writes[ErrorDetails] = Json.writes
+
+  def apply(errorCode: ErrorCode, errorMessage: ErrorMessage, sourceFaultDetail: String): ErrorDetails =
+    ErrorDetails(
+      ErrorDetail(
+        errorCode = ErrorCode(errorCode),
+        errorMessage = ErrorMessage(errorMessage),
+        sourceFaultDetail = SourceFaultDetail(List(sourceFaultDetail))
+      )
+    )
+}
+
 case class ErrorDetail(
+  timestamp: LocalDateTime = LocalDateTime.now,
+  correlationId: CorrelationID = CorrelationID(UUID.randomUUID().toString),
   errorCode: ErrorCode,
   errorMessage: ErrorMessage,
-  sourceFaultDetail: List[String],
   source: Source = Source("EIS"),
-  timestamp: LocalDateTime = LocalDateTime.now,
-  correlationId: CorrelationID = CorrelationID(UUID.randomUUID().toString)
+  sourceFaultDetail: SourceFaultDetail
 )
 
 object ErrorDetail {
-  val oddEisFormat = DateTimeFormatter.ofPattern("YYYY-MM-dd'T'HH:mm:ss'Z'")
-  implicit val errorDetailWrites: Writes[ErrorDetail] = new Writes[ErrorDetail] {
+  implicit val oddEisFormat = DateTimeFormatter.ofPattern("YYYY-MM-dd'T'HH:mm:ss'Z'")
+  implicit val write: Writes[ErrorDetail] = Json.writes
+}
 
-    override def writes(o: ErrorDetail): JsValue = Json.obj(
-      "errorDetail" -> Json.obj(
-        "timestamp" -> o.timestamp.format(oddEisFormat),
-        "correlationId" -> o.correlationId,
-        "errorCode" -> o.errorCode,
-        "errorMessage" -> o.errorMessage,
-        "source" -> o.source,
-        "sourceFaultDetail" -> Json.obj(
-          "detail" -> o.sourceFaultDetail
-        )
-      )
-    )
-  }
+case class SourceFaultDetail(detail: List[String])
+object SourceFaultDetail {
+  implicit val write: Writes[SourceFaultDetail] = Json.writes
 }

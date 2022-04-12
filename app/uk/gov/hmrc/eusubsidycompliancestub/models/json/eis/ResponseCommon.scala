@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models.json.eis
 
-import java.time.LocalDateTime
+import cats.implicits.catsSyntaxOptionId
 
+import java.time.LocalDateTime
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisParamName.EisParamName
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisStatus.EisStatus
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EisParamValue, EisStatusString}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EisParamName, EisParamValue, EisStatus, EisStatusString}
 
 case class Params(
   paramName: EisParamName,
@@ -52,5 +53,30 @@ object ResponseCommon {
       (JsPath \ "processingDate").write[LocalDateTime] and
       (JsPath \ "returnParameters").writeNullable[List[Params]]
   )(unlift(ResponseCommon.unapply))
+
+  def apply(errorCode: String, errorText: String): ResponseCommon =
+    ResponseCommon(
+      EisStatus.NOT_OK,
+      EisStatusString("String"), // taken verbatim from spec
+      LocalDateTime.now,
+      List(
+        Params(
+          EisParamName.ERRORCODE,
+          EisParamValue(errorCode)
+        ),
+        Params(
+          EisParamName.ERRORTEXT,
+          EisParamValue(errorText)
+        )
+      ).some
+    )
+
+  def apply(receiptDate: String): ResponseCommon =
+    ResponseCommon(
+      EisStatus.OK,
+      EisStatusString("String"), // taken verbatim from spec
+      LocalDateTime.parse(receiptDate),
+      None
+    )
 
 }

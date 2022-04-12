@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
+import play.api.libs.json.{JsBoolean, JsString, JsValue, Json, Writes}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef
 
 case class UndertakingBusinessEntityUpdate(
@@ -23,3 +24,14 @@ case class UndertakingBusinessEntityUpdate(
   undertakingComplete: Boolean = true,
   businessEntityUpdates: List[BusinessEntityUpdate]
 )
+
+object UndertakingBusinessEntityUpdate {
+  implicit val amendUndertakingMemberDataWrites: Writes[UndertakingBusinessEntityUpdate] =
+    new Writes[UndertakingBusinessEntityUpdate] {
+      override def writes(o: UndertakingBusinessEntityUpdate): JsValue = Json.obj(
+        "undertakingIdentifier" -> JsString(o.undertakingIdentifier),
+        "undertakingComplete" -> JsBoolean(true),
+        "memberAmendments" -> o.businessEntityUpdates
+      )
+    }
+}

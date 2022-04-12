@@ -26,8 +26,7 @@ import scala.concurrent.Future
 
 @Singleton
 class StoreController @Inject() (
-  cc: ControllerComponents,
-  authAndEnvAction: AuthAndEnvAction
+  cc: ControllerComponents
 ) extends BackendController(cc) {
 
   def clearStore: Action[AnyContent] = Action.async { _ =>

@@ -22,7 +22,7 @@ import play.api.mvc.{Action, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, _}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, amendUndertakingMemberDataWrites, retrieveUndertakingEORIWrites, undertakingFormat, updateUndertakingWrites}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, retrieveUndertakingEORIWrites, undertakingFormat, updateUndertakingWrites}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType, EisParamName, EisParamValue, EisStatus, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking, UndertakingBusinessEntityUpdate}
@@ -34,7 +34,6 @@ import uk.gov.hmrc.eusubsidycompliancestub.services.Store
 import scala.concurrent.Future
 
 class UndertakingControllerSpec extends BaseControllerSpec {
-
 
   private val controller: UndertakingController =
     app.injector.instanceOf[UndertakingController]
@@ -56,9 +55,8 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
   "Create Undertaking" must {
 
-    def validCreateUndertakingBody(undertaking: Undertaking): JsValue = {
+    def validCreateUndertakingBody(undertaking: Undertaking): JsValue =
       Json.toJson(undertaking)(undertakingFormat.writes)
-    }
 
     def fakeCreateUndertakingPost(body: JsValue): FakeRequest[JsValue] =
       FakeRequest("POST", "/scp/createundertaking/v1", fakeHeaders, body)
@@ -76,24 +74,24 @@ class UndertakingControllerSpec extends BaseControllerSpec {
     }
 
     "return 200 and an undertakingRef for a valid createUndertaking request" in {
-       val result: Future[Result] = controller.create.apply(
-          fakeCreateUndertakingPost(validCreateUndertakingBody(undertaking))
-        )
+      val result: Future[Result] = controller.create.apply(
+        fakeCreateUndertakingPost(validCreateUndertakingBody(undertaking))
+      )
       checkJson(contentAsJson(result), "createUndertakingResponse")
       val json: JsValue = contentAsJson(result)
       val undertakingRef: UndertakingRef =
         (json \ "createUndertakingResponse" \ "responseDetail" \ "undertakingReference").as[UndertakingRef]
       checkUndertakingStore(undertakingRef, undertaking)
-      status(result) mustEqual  play.api.http.Status.OK
+      status(result) mustEqual play.api.http.Status.OK
     }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 101 " +
       "if EORI associated with another Undertaking in the Store" in {
-      val eoriAssocUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012000"))
-      Store.undertakings.put(eoriAssocUndertaking)
-      notOkCreateUndertakingResponseCheck(eoriAssocUndertaking, "101")
-      Store.clear()
-    }
+        val eoriAssocUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012000"))
+        Store.undertakings.put(eoriAssocUndertaking)
+        notOkCreateUndertakingResponseCheck(eoriAssocUndertaking, "101")
+        Store.clear()
+      }
 
     "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
       val result: Future[Result] =
@@ -101,7 +99,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
           fakeCreateUndertakingPost(Json.obj("foo" -> "bar"))
         )
       checkJson(contentAsJson(result), "errorDetailResponse")
-      status(result) mustEqual  play.api.http.Status.FORBIDDEN
+      status(result) mustEqual play.api.http.Status.FORBIDDEN
     }
 
     "return 500 if the BusinessEntity.EORI ends in 999 " in {
@@ -115,12 +113,11 @@ class UndertakingControllerSpec extends BaseControllerSpec {
           )
         )
       checkJson(contentAsJson(result), "errorDetailResponse")
-      status(result) mustEqual  play.api.http.Status.INTERNAL_SERVER_ERROR
+      status(result) mustEqual play.api.http.Status.INTERNAL_SERVER_ERROR
     }
 
-
     def notOkCreateUndertakingResponseCheck(undertaking: Undertaking, responseCode: String) = {
-      val result: Future[Result] = {
+      val result: Future[Result] =
         controller.create.apply(
           fakeCreateUndertakingPost(
             validCreateUndertakingBody(
@@ -128,7 +125,6 @@ class UndertakingControllerSpec extends BaseControllerSpec {
             )
           )
         )
-      }
       val json = contentAsJson(result)
       (json \ "createUndertakingResponse" \ "responseCommon" \ "status").as[String] mustEqual
         EisStatus.NOT_OK.toString
@@ -141,31 +137,31 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 004 " +
       "if BusinessEntity.EORI ends in 888 (duplicate acknowledgementRef)" in {
-      val duffUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012888"))
+        val duffUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012888"))
 
-      notOkCreateUndertakingResponseCheck(duffUndertaking, "004")
-    }
+        notOkCreateUndertakingResponseCheck(duffUndertaking, "004")
+      }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 101 " +
       "if BusinessEntity.EORI ends in 777 (EORI associated with another Undertaking)" in {
-      val eoriAssocUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012777"))
+        val eoriAssocUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012777"))
 
-      notOkCreateUndertakingResponseCheck(eoriAssocUndertaking, "101")
-    }
+        notOkCreateUndertakingResponseCheck(eoriAssocUndertaking, "101")
+      }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 102 if " +
       "BusinessEntity.EORI ends in 666 (invalid EORI number)" in {
-      val invalidEoriUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012666"))
+        val invalidEoriUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012666"))
 
-      notOkCreateUndertakingResponseCheck(invalidEoriUndertaking, "102")
-    }
+        notOkCreateUndertakingResponseCheck(invalidEoriUndertaking, "102")
+      }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 113 if " +
       "BusinessEntity.EORI ends in 555 (Postcode missing for the address)" in {
-      val postcodeMissingUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012555"))
+        val postcodeMissingUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012555"))
 
-      notOkCreateUndertakingResponseCheck(postcodeMissingUndertaking, "113")
-    }
+        notOkCreateUndertakingResponseCheck(postcodeMissingUndertaking, "113")
+      }
   }
 
   "Retrieve Undertaking" must {
@@ -213,8 +209,8 @@ class UndertakingControllerSpec extends BaseControllerSpec {
         "retrieveUndertakingResponse",
         play.api.http.Status.OK,
         List(
-          contentAsJson(_)\\"status" mustEqual List(JsString("NOT_OK")),
-          contentAsJson(_)\\"paramValue" mustEqual
+          contentAsJson(_) \\ "status" mustEqual List(JsString("NOT_OK")),
+          contentAsJson(_) \\ "paramValue" mustEqual
             List(JsString("107"), JsString("Undertaking reference in the API not Subscribed in ETMP"))
         )
       )
@@ -231,8 +227,8 @@ class UndertakingControllerSpec extends BaseControllerSpec {
         "retrieveUndertakingResponse",
         play.api.http.Status.OK,
         List(
-          contentAsJson(_)\\"status" mustEqual List(JsString("NOT_OK")),
-          contentAsJson(_)\\"paramValue" mustEqual
+          contentAsJson(_) \\ "status" mustEqual List(JsString("NOT_OK")),
+          contentAsJson(_) \\ "paramValue" mustEqual
             List(JsString("107"), JsString("Undertaking reference in the API not Subscribed in ETMP"))
         )
       )
@@ -249,8 +245,8 @@ class UndertakingControllerSpec extends BaseControllerSpec {
         "retrieveUndertakingResponse",
         play.api.http.Status.OK,
         List(
-          contentAsJson(_)\\"status" mustEqual List(JsString("NOT_OK")),
-          contentAsJson(_)\\"paramValue" mustEqual
+          contentAsJson(_) \\ "status" mustEqual List(JsString("NOT_OK")),
+          contentAsJson(_) \\ "paramValue" mustEqual
             List(JsString("055"), JsString("ID number missing or invalid"))
         )
       )
@@ -287,40 +283,42 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 004 " +
       "if Undertaking.reference ends in 888 (duplicate acknowledgementRef)" in {
-      testResponse[Undertaking](
-        undertaking.copy(reference = Some(UndertakingRef("888"))),
-        "updateUndertakingResponse",
-        play.api.http.Status.OK,
-        List(
-          contentAsJson(_)\\"status" mustEqual
-            List(JsString("NOT_OK")),
-          contentAsJson(_)\\"paramValue" mustEqual
-            List(JsString("004"), JsString("Duplicate submission acknowledgment reference"))
-        )
-      )(implicitly, writes, implicitly)
-    }
+        testResponse[Undertaking](
+          undertaking.copy(reference = Some(UndertakingRef("888"))),
+          "updateUndertakingResponse",
+          play.api.http.Status.OK,
+          List(
+            contentAsJson(_) \\ "status" mustEqual
+              List(JsString("NOT_OK")),
+            contentAsJson(_) \\ "paramValue" mustEqual
+              List(JsString("004"), JsString("Duplicate submission acknowledgment reference"))
+          )
+        )(implicitly, writes, implicitly)
+      }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 116 " +
       "if Undertaking.reference ends in 777 (bad acknowledgementRef)" in {
-      val badId = "777"
-      testResponse[Undertaking](
-        undertaking.copy(reference = Some(UndertakingRef(badId))),
-        "updateUndertakingResponse",
-        play.api.http.Status.OK,
-        List(
-          contentAsJson(_)\\"status" mustEqual
-            List(JsString("NOT_OK")),
-          contentAsJson(_)\\"paramValue" mustEqual
-            List(JsString("116"), JsString(s"Invalid Undertaking ID $badId"))
-        )
-      )(implicitly, writes, implicitly)
-    }
+        val badId = "777"
+        testResponse[Undertaking](
+          undertaking.copy(reference = Some(UndertakingRef(badId))),
+          "updateUndertakingResponse",
+          play.api.http.Status.OK,
+          List(
+            contentAsJson(_) \\ "status" mustEqual
+              List(JsString("NOT_OK")),
+            contentAsJson(_) \\ "paramValue" mustEqual
+              List(JsString("116"), JsString(s"Invalid Undertaking ID $badId"))
+          )
+        )(implicitly, writes, implicitly)
+      }
 
     "return 200 and a valid response for a successful amend" in {
-      Store.undertakings.put(undertaking.copy(
-        industrySector = Sector.agriculture,
-        industrySectorLimit = IndustrySectorLimit(30000.00).some
-      ))
+      Store.undertakings.put(
+        undertaking.copy(
+          industrySector = Sector.agriculture,
+          industrySectorLimit = IndustrySectorLimit(30000.00).some
+        )
+      )
 
       // Changing the sector should also change the sector limit.
       val editedUndertaking = undertaking.copy(
@@ -332,7 +330,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       testResponse[Undertaking](
         editedUndertaking,
         "updateUndertakingResponse",
-        play.api.http.Status.OK,
+        play.api.http.Status.OK
       )(implicitly, writes, implicitly)
       Store.undertakings.retrieve(editedUndertaking.reference.get) must contain(editedUndertaking)
       Store.clear()
@@ -343,7 +341,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       testResponse[Undertaking](
         undertaking,
         "updateUndertakingResponse",
-        play.api.http.Status.OK,
+        play.api.http.Status.OK
       )(implicitly, updateUndertakingWrites(EisAmendmentType.D), implicitly)
       Store.undertakings.retrieve(undertaking.reference.get) mustEqual None
     }
@@ -375,93 +373,93 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 004 " +
       "if Undertaking.reference ends in 888 (duplicate acknowledgementRef)" in {
-      testResponse[UndertakingBusinessEntityUpdate](
-        businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("888")),
-        "amendUndertakingMemberDataResponse",
-        play.api.http.Status.OK,
-        List(
-          contentAsJson(_)\\"status" mustEqual
-            List(JsString("NOT_OK")),
-          contentAsJson(_)\\"paramValue" mustEqual
-            List(JsString("004"), JsString("Duplicate submission acknowledgment reference"))
+        testResponse[UndertakingBusinessEntityUpdate](
+          businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("888")),
+          "amendUndertakingMemberDataResponse",
+          play.api.http.Status.OK,
+          List(
+            contentAsJson(_) \\ "status" mustEqual
+              List(JsString("NOT_OK")),
+            contentAsJson(_) \\ "paramValue" mustEqual
+              List(JsString("004"), JsString("Duplicate submission acknowledgment reference"))
+          )
         )
-      )
-    }
+      }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 106 " +
       "if Undertaking.reference ends in 777" in {
-      testResponse[UndertakingBusinessEntityUpdate](
-        businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("777")),
-        "amendUndertakingMemberDataResponse",
-        play.api.http.Status.OK,
-        List(
-          contentAsJson(_)\\"status" mustEqual
-            List(JsString("NOT_OK")),
-          contentAsJson(_)\\"paramValue" mustEqual
-            List(JsString("106"), JsString(s"EORI not Subscribed in ETMP $eori"))
+        testResponse[UndertakingBusinessEntityUpdate](
+          businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("777")),
+          "amendUndertakingMemberDataResponse",
+          play.api.http.Status.OK,
+          List(
+            contentAsJson(_) \\ "status" mustEqual
+              List(JsString("NOT_OK")),
+            contentAsJson(_) \\ "paramValue" mustEqual
+              List(JsString("106"), JsString(s"EORI not Subscribed in ETMP $eori"))
+          )
         )
-      )
-    }
+      }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 107 " +
       "if Undertaking.reference ends in 666" in {
-      testResponse[UndertakingBusinessEntityUpdate](
-        businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("666")),
-        "amendUndertakingMemberDataResponse",
-        play.api.http.Status.OK,
-        List(
-          contentAsJson(_)\\"status" mustEqual
-            List(JsString("NOT_OK")),
-          contentAsJson(_)\\"paramValue" mustEqual
-            List(JsString("107"), JsString("Undertaking reference in the API not Subscribed in ETMP"))
+        testResponse[UndertakingBusinessEntityUpdate](
+          businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("666")),
+          "amendUndertakingMemberDataResponse",
+          play.api.http.Status.OK,
+          List(
+            contentAsJson(_) \\ "status" mustEqual
+              List(JsString("NOT_OK")),
+            contentAsJson(_) \\ "paramValue" mustEqual
+              List(JsString("107"), JsString("Undertaking reference in the API not Subscribed in ETMP"))
+          )
         )
-      )
-    }
+      }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 108 " +
       "if Undertaking.reference ends in 555" in {
-      testResponse[UndertakingBusinessEntityUpdate](
-        businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("555")),
-        "amendUndertakingMemberDataResponse",
-        play.api.http.Status.OK,
-        List(
-          contentAsJson(_)\\"status" mustEqual
-            List(JsString("NOT_OK")),
-          contentAsJson(_)\\"paramValue" mustEqual
-            List(JsString("108"), JsString(s"Relationship with another undertaking exist for EORI $eori"))
+        testResponse[UndertakingBusinessEntityUpdate](
+          businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("555")),
+          "amendUndertakingMemberDataResponse",
+          play.api.http.Status.OK,
+          List(
+            contentAsJson(_) \\ "status" mustEqual
+              List(JsString("NOT_OK")),
+            contentAsJson(_) \\ "paramValue" mustEqual
+              List(JsString("108"), JsString(s"Relationship with another undertaking exist for EORI $eori"))
+          )
         )
-      )
-    }
+      }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 109 " +
       "if Undertaking.reference ends in 444" in {
-      testResponse[UndertakingBusinessEntityUpdate](
-        businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("444")),
-        "amendUndertakingMemberDataResponse",
-        play.api.http.Status.OK,
-        List(
-          contentAsJson(_)\\"status" mustEqual
-            List(JsString("NOT_OK")),
-          contentAsJson(_)\\"paramValue" mustEqual
-            List(JsString("109"), JsString(s"Relationship does not exist for EORI $eori"))
+        testResponse[UndertakingBusinessEntityUpdate](
+          businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("444")),
+          "amendUndertakingMemberDataResponse",
+          play.api.http.Status.OK,
+          List(
+            contentAsJson(_) \\ "status" mustEqual
+              List(JsString("NOT_OK")),
+            contentAsJson(_) \\ "paramValue" mustEqual
+              List(JsString("109"), JsString(s"Relationship does not exist for EORI $eori"))
+          )
         )
-      )
-    }
+      }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 110 " +
       "if Undertaking.reference ends in 333" in {
-      testResponse[UndertakingBusinessEntityUpdate](
-        businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("333")),
-        "amendUndertakingMemberDataResponse",
-        play.api.http.Status.OK,
-        List(
-          contentAsJson(_)\\"status" mustEqual
-            List(JsString("NOT_OK")),
-          contentAsJson(_)\\"paramValue" mustEqual
-            List(JsString("110"), JsString(s"Subsidy Compliance address does not exist for EORI $eori"))
+        testResponse[UndertakingBusinessEntityUpdate](
+          businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("333")),
+          "amendUndertakingMemberDataResponse",
+          play.api.http.Status.OK,
+          List(
+            contentAsJson(_) \\ "status" mustEqual
+              List(JsString("NOT_OK")),
+            contentAsJson(_) \\ "paramValue" mustEqual
+              List(JsString("110"), JsString(s"Subsidy Compliance address does not exist for EORI $eori"))
+          )
         )
-      )
-    }
+      }
 
     "return 200 and a valid response for a successful amend" in {
       val ref: UndertakingRef = businessEntityUpdates.undertakingIdentifier

@@ -19,8 +19,8 @@ package uk.gov.hmrc.eusubsidycompliancestub.controllers
 import org.scalatest.Assertion
 import play.api.libs.json.{Format, Json, Writes}
 import uk.gov.hmrc.eusubsidycompliancestub.models._
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{amendUndertakingMemberDataWrites, retrieveUndertakingEORIWrites}
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetail, eisRetrieveUndertakingResponse}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{retrieveUndertakingEORIWrites}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetails, eisRetrieveUndertakingResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType}
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances._
 
@@ -29,14 +29,14 @@ class JsonConversionSpec extends BaseControllerSpec {
   "Json Writes " must {
     "match retrieveUndertakingResponse.schema.json" in {
       forAll { undertaking: Undertaking =>
-        checkWrites[Undertaking](undertaking,"retrieveUndertakingResponse")
+        checkWrites[Undertaking](undertaking, "retrieveUndertakingResponse")
       }
     }
 
     "match createUndertakingRequest.schema.json" in {
       implicit val format: Format[Undertaking] = json.digital.undertakingFormat
       forAll { undertaking: Undertaking =>
-        checkWrites[Undertaking](undertaking,"createUndertakingRequest")
+        checkWrites[Undertaking](undertaking, "createUndertakingRequest")
       }(implicitly, arbUndertakingForCreate, implicitly, implicitly, implicitly, implicitly)
     }
 
@@ -49,20 +49,20 @@ class JsonConversionSpec extends BaseControllerSpec {
     "match updateUndertakingRequest.schema.json for disable" in {
       val writes = json.digital.updateUndertakingWrites(EisAmendmentType.D)
       forAll { undertaking: Undertaking =>
-        checkWrites[Undertaking](undertaking,"updateUndertakingRequest")(writes)
+        checkWrites[Undertaking](undertaking, "updateUndertakingRequest")(writes)
       }(implicitly, arbUndertaking, implicitly, implicitly, implicitly, implicitly)
     }
 
     "match updateUndertakingRequest.schema.json for amend" in {
       val writes = json.digital.updateUndertakingWrites(EisAmendmentType.A)
       forAll { undertaking: Undertaking =>
-        checkWrites[Undertaking](undertaking,"updateUndertakingRequest")(writes)
+        checkWrites[Undertaking](undertaking, "updateUndertakingRequest")(writes)
       }(implicitly, arbUndertaking, implicitly, implicitly, implicitly, implicitly)
     }
 
     "match errorDetailResponse.schema.json" in {
-      forAll { errorDetail: ErrorDetail =>
-        checkWrites[ErrorDetail](errorDetail, "errorDetailResponse")
+      forAll { errorDetails: ErrorDetails =>
+        checkWrites[ErrorDetails](errorDetails, "errorDetailResponse")
       }
     }
 
@@ -80,7 +80,10 @@ class JsonConversionSpec extends BaseControllerSpec {
 
     "match amendUndertakingMemberDataRequest.schema.json" in {
       forAll { undertakingBusinessEntityUpdate: UndertakingBusinessEntityUpdate =>
-        checkWrites[UndertakingBusinessEntityUpdate](undertakingBusinessEntityUpdate, "amendUndertakingMemberDataRequest")
+        checkWrites[UndertakingBusinessEntityUpdate](
+          undertakingBusinessEntityUpdate,
+          "amendUndertakingMemberDataRequest"
+        )
       }
     }
 
@@ -91,7 +94,6 @@ class JsonConversionSpec extends BaseControllerSpec {
     }
   }
 
-  def checkWrites[A](in: A, schemaName: String)(implicit writes: Writes[A]): Assertion = {
+  def checkWrites[A](in: A, schemaName: String)(implicit writes: Writes[A]): Assertion =
     checkJson(Json.toJson(in), schemaName)
-  }
 }

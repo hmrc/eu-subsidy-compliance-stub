@@ -17,11 +17,11 @@
 package uk.gov.hmrc.eusubsidycompliancestub.util
 
 import cats.implicits._
-import java.time._
 
+import java.time._
 import org.scalacheck.{Arbitrary, Gen}
 import uk.gov.hmrc.eusubsidycompliancestub.models._
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.ErrorDetail
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetail, ErrorDetails, SourceFaultDetail}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{CorrelationID, EORI, EisSubsidyAmendmentType, ErrorCode, ErrorMessage, Source, SubsidyAmount, SubsidyRef, TraderRef, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator._
 import uk.gov.hmrc.smartstub._
@@ -32,7 +32,7 @@ object TestInstances {
   implicit def arbSubsidyUpdate: Arbitrary[SubsidyUpdate] = {
     val su = for {
       undertakingRef <- genUndertakingRef
-      n <- Gen.choose(1,25)
+      n <- Gen.choose(1, 25)
       undertakingSubsidyAmendment <- Gen.listOfN(n, arbSubsidy.arbitrary)
     } yield SubsidyUpdate(undertakingRef, UndertakingSubsidyAmendment(undertakingSubsidyAmendment))
     Arbitrary(su)
@@ -41,7 +41,7 @@ object TestInstances {
   implicit def arbSubsidyUpdateNilReturn: Arbitrary[SubsidyUpdate] = {
     val su = for {
       undertakingRef <- genUndertakingRef
-      nilSubmissionDate <-  Gen.date(LocalDate.of(2020,1,1), LocalDate.now)
+      nilSubmissionDate <- Gen.date(LocalDate.of(2020, 1, 1), LocalDate.now)
     } yield SubsidyUpdate(undertakingRef, NilSubmissionDate(nilSubmissionDate))
     Arbitrary(su)
   }
@@ -57,11 +57,9 @@ object TestInstances {
     val ubeu = for {
       undertakingIdentifier <- genUndertakingRef
       undertakingComplete <- Gen.const(true)
-      n <- Gen.choose(1,5)
+      n <- Gen.choose(1, 5)
       businessEntityUpdate <- Gen.listOfN(n, genBusinessEntityUpdate)
-    } yield {
-      UndertakingBusinessEntityUpdate(undertakingIdentifier, undertakingComplete, businessEntityUpdate)
-    }
+    } yield UndertakingBusinessEntityUpdate(undertakingIdentifier, undertakingComplete, businessEntityUpdate)
     Arbitrary(ubeu)
   }
 
@@ -71,27 +69,25 @@ object TestInstances {
 
   implicit def arbSubsidy: Arbitrary[NonHmrcSubsidy] = {
     val a = for {
-      amendmentType <- Gen.oneOf(Seq("1","2","3")).map(x => Some(EisSubsidyAmendmentType(x)))
-      ref <- arbSubsidyRef.arbitrary.map(x => amendmentType.fold(Option.empty[SubsidyRef]){_ => Some(x)})
-      allocationDate <- Gen.date(LocalDate.of(2020,1,1), LocalDate.now)
-      submissionDate <- Gen.date(LocalDate.of(2020,1,1), LocalDate.now)
+      amendmentType <- Gen.oneOf(Seq("1", "2", "3")).map(x => Some(EisSubsidyAmendmentType(x)))
+      ref <- arbSubsidyRef.arbitrary.map(x => amendmentType.fold(Option.empty[SubsidyRef])(_ => Some(x)))
+      allocationDate <- Gen.date(LocalDate.of(2020, 1, 1), LocalDate.now)
+      submissionDate <- Gen.date(LocalDate.of(2020, 1, 1), LocalDate.now)
       publicAuthority <- arbString.arbitrary
       traderReference <- Gen.option(arbTraderRef.arbitrary)
 //      nonHMRCSubsidyAmount <- Gen.choose(1L, 9999999999999L).map(x => PositiveSubsidyAmount(x / 100))
-      nonHMRCSubsidyAmount <- Gen.choose(1F, 9999999999999F).map(x => SubsidyAmount(x / 100))
+      nonHMRCSubsidyAmount <- Gen.choose(1f, 9999999999999f).map(x => SubsidyAmount(x / 100))
       businessEntityIdentifier <- genEORI
-    } yield
-      NonHmrcSubsidy(
-        ref,
-        allocationDate,
-        submissionDate,
-//        publicAuthority,
-        publicAuthority.some,
-        traderReference,
-        nonHMRCSubsidyAmount,
-        businessEntityIdentifier.some,
-        amendmentType
-      )
+    } yield NonHmrcSubsidy(
+      ref,
+      allocationDate,
+      submissionDate,
+      publicAuthority.some,
+      traderReference,
+      nonHMRCSubsidyAmount,
+      businessEntityIdentifier.some,
+      amendmentType
+    )
     Arbitrary(a)
   }
 
@@ -106,22 +102,19 @@ object TestInstances {
   def arbContactDetails: Arbitrary[ContactDetails] =
     Arbitrary(genContactDetails.retryUntil(x => x.phone.nonEmpty || x.mobile.nonEmpty))
 
-  def arbUndertakingForCreate: Arbitrary[Undertaking] = {
+  def arbUndertakingForCreate: Arbitrary[Undertaking] =
     Arbitrary(arbUndertaking.arbitrary.map { x =>
       x.copy(
-        undertakingBusinessEntity =
-          List(
-            x.undertakingBusinessEntity.head.copy(
-              contacts = arbContactDetails.arbitrary.sample.get.some
-            )
+        undertakingBusinessEntity = List(
+          x.undertakingBusinessEntity.head.copy(
+            contacts = arbContactDetails.arbitrary.sample.get.some
           )
+        )
       )
     })
-  }
 
-  implicit def arbEori: Arbitrary[EORI] = {
+  implicit def arbEori: Arbitrary[EORI] =
     Arbitrary(genEORI)
-  }
 
   implicit def arbErrorCode: Arbitrary[ErrorCode] = Arbitrary {
     RegexpGen.from(ErrorCode.regex).map(ErrorCode.apply)
@@ -139,7 +132,7 @@ object TestInstances {
     Arbitrary(genTraderRef)
 
   implicit val arbString: Arbitrary[String] = Arbitrary(
-    Gen.alphaNumStr.map{_.take(255)}
+    Gen.alphaNumStr.map(_.take(255))
   )
 
   implicit def arbSourceFaultDetail: Arbitrary[List[String]] = Arbitrary {
@@ -149,7 +142,7 @@ object TestInstances {
     } yield list
   }
 
-  implicit def arbErrorDetail: Arbitrary[ErrorDetail] =  {
+  implicit def arbErrorDetail: Arbitrary[ErrorDetails] = {
     val ed = for {
       errorCode <- arbErrorCode.arbitrary
       errorMessage <- arbErrorMessage.arbitrary
@@ -157,7 +150,7 @@ object TestInstances {
       corId <- arbCorrelationID.arbitrary
       t = LocalDateTime.now
       s = Source("EIS")
-    } yield ErrorDetail(errorCode, errorMessage, sfd, s, LocalDateTime.now, corId)
+    } yield ErrorDetails(ErrorDetail(t, corId, errorCode, errorMessage, s, SourceFaultDetail(sfd)))
     Arbitrary(ed)
   }
 
