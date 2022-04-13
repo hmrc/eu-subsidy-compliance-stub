@@ -143,9 +143,7 @@ class UndertakingController @Inject() (
             .isEmpty => // fake not found (ideally should have been 404)
         Ok(
           Json.toJson(
-            Json.toJson(
-              RetrieveUndertakingApiResponse("107", "Undertaking reference in the API not Subscribed in ETMP")
-            )
+            RetrieveUndertakingApiResponse("107", "Undertaking reference in the API not Subscribed in ETMP")
           )
         ).toFuture
 
