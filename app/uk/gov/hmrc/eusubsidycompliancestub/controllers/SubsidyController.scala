@@ -23,9 +23,10 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.eusubsidycompliancestub.controllers.SubsidyController.{geFilteredNonHMRCSubsidyList, getFilteredHMRCSubsidyList}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyUndertakingTransactionRequest, SubsidyUpdate, UndertakingSubsidies}
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{eisRetrieveUndertakingSubsidiesResponse, eisUpdateSubsidyUsageResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, SubsidyRef, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingSubsidyResponses.{AmendUndertakingSubsidyUsageApiResponse, GetUndertakingTransactionApiResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.services.Store
+import uk.gov.hmrc.eusubsidycompliancestub.syntax.FutureSyntax.FutureOps
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import java.time.LocalDate
@@ -42,7 +43,7 @@ class SubsidyController @Inject() (
     withJsonBody[JsValue] { json =>
       processPayload(json, "updateSubsidyUsageRequest") match {
         case Some(errorDetail) => // payload fails schema check
-          Future.successful(Forbidden(Json.toJson(errorDetail)))
+          Forbidden(Json.toJson(errorDetail)).toFuture
         case _ =>
           val subsidyUpdate: SubsidyUpdate = json.as[SubsidyUpdate]
           val undertakingRef: UndertakingRef = (json \ "undertakingIdentifier").as[UndertakingRef]
@@ -56,7 +57,7 @@ class SubsidyController @Inject() (
     withJsonBody[JsValue] { json =>
       processPayload(json, "retrieveUndertakingSubsidiesRequest") match {
         case Some(errorDetail) => // payload fails schema check
-          Future.successful(Forbidden(Json.toJson(errorDetail)))
+          Forbidden(Json.toJson(errorDetail)).toFuture
         case _ =>
           val undertakingRef: UndertakingRef = (json \ "undertakingIdentifier").as[UndertakingRef]
           val subsidyUndertakingTransactionRequest = json.as[SubsidyUndertakingTransactionRequest]
@@ -68,71 +69,49 @@ class SubsidyController @Inject() (
   private def getUpdateResponse(undertakingRef: UndertakingRef, json: JsValue, subsidyUpdate: SubsidyUpdate) =
     undertakingRef match {
       case a if a.endsWith("999") => // fake 500
-        Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
+        InternalServerError(Json.toJson(errorDetailFor500)).toFuture
+
       case b if b.endsWith("888") => // fake 004
-        val dupeAckRef: JsValue = Json.obj(
-          "amendUndertakingSubsidyUsageResponse" -> Json.obj(
-            "responseCommon" -> badResponseCommon(
-              "004",
-              "Duplicate submission acknowledgment reference"
-            )
-          )
-        )
-        Future.successful(Ok(Json.toJson(dupeAckRef)))
+        Ok(
+          Json.toJson(AmendUndertakingSubsidyUsageApiResponse("004", "Duplicate submission acknowledgment reference"))
+        ).toFuture
+
       case c if c.endsWith("777") =>
-        val dupeEori: JsValue = Json.obj(
-          "amendUndertakingSubsidyUsageResponse" -> Json.obj(
-            "responseCommon" -> badResponseCommon(
-              "107",
-              s"Undertaking reference in the API not Subscribed in ETMP"
-            )
+        Ok(
+          Json.toJson(
+            AmendUndertakingSubsidyUsageApiResponse("107", s"Undertaking reference in the API not Subscribed in ETMP")
           )
-        )
-        Future.successful(Ok(Json.toJson(dupeEori)))
+        ).toFuture
+
       case d if d.endsWith("666") =>
         val eori = (json \ "undertakingSubsidyAmendment" \ 0 \ "businessEntityIdentifier").as[EORI]
-        val invalidEori: JsValue = Json.obj(
-          "amendUndertakingSubsidyUsageResponse" -> Json.obj(
-            "responseCommon" -> badResponseCommon(
-              "106",
-              s"EORI not Subscribed in ETMP $eori"
-            )
-          )
-        )
-        Future.successful(Ok(Json.toJson(invalidEori)))
+        Ok(Json.toJson(AmendUndertakingSubsidyUsageApiResponse("106", s"EORI not Subscribed in ETMP $eori"))).toFuture
+
       case e if e.endsWith("555") =>
         val eori = (json \ "undertakingSubsidyAmendment" \ 0 \ "businessEntityIdentifier").as[EORI]
-        val invalidEori: JsValue = Json.obj(
-          "amendUndertakingSubsidyUsageResponse" -> Json.obj(
-            "responseCommon" -> badResponseCommon(
-              "112",
-              s"EORI $eori not linked with undertaking." // TODO check full stop
-            )
-          )
-        )
-        Future.successful(Ok(Json.toJson(invalidEori)))
+        Ok(
+          Json.toJson(AmendUndertakingSubsidyUsageApiResponse("112", s"EORI $eori not linked with undertaking."))
+        ).toFuture
+
       case f if f.endsWith("444") =>
         val sutID = (json \ "undertakingSubsidyAmendment" \ 0 \ "subsidyUsageTransactionId").as[SubsidyRef]
-        val invalidEori: JsValue = Json.obj(
-          "amendUndertakingSubsidyUsageResponse" -> Json.obj(
-            "responseCommon" -> badResponseCommon(
+        Ok(
+          Json.toJson(
+            AmendUndertakingSubsidyUsageApiResponse(
               "111",
-              s"Subsidy allocation ID number $sutID or date is invalid is invalid" // TODO this string looks wrong
+              s"Subsidy allocation ID number $sutID or date is invalid is invalid"
             )
           )
-        )
-        Future.successful(Ok(Json.toJson(invalidEori)))
+        ).toFuture
 
       case _ =>
         Try(Store.subsidies.updateSubsidies(undertakingRef, subsidyUpdate.update)) match {
-          case Success(_) => Future.successful(Ok(Json.toJson(subsidyUpdate)(eisUpdateSubsidyUsageResponse)))
+          case Success(_) =>
+            Ok(Json.toJson(AmendUndertakingSubsidyUsageApiResponse(subsidyUpdate.undertakingIdentifier))).toFuture
+
           case Failure(_) =>
-            val updateSubsidyFailed = notOkCommonResponse(
-              "amendUndertakingSubsidyUsageResponse",
-              "003",
-              s"Request couldn't be processed"
-            )
-            Future.successful(Ok(Json.toJson(updateSubsidyFailed)))
+            Ok(Json.toJson(AmendUndertakingSubsidyUsageApiResponse("003", s"Request couldn't be processed"))).toFuture
+
         }
     }
 
@@ -142,37 +121,23 @@ class SubsidyController @Inject() (
   ) =
     undertakingRef match {
       case a if a.endsWith("999") => // fake 500
-        Future.successful(InternalServerError(Json.toJson(errorDetailFor500)))
+        InternalServerError(Json.toJson(errorDetailFor500)).toFuture
+
       case b if b.endsWith("888") => // fake 004
-        val dupeAckRef: JsValue = Json.obj(
-          "getUndertakingTransactionResponse" -> Json.obj(
-            "responseCommon" -> badResponseCommon(
-              "004",
-              "Duplicate submission acknowledgment reference"
-            )
-          )
-        )
-        Future.successful(Ok(Json.toJson(dupeAckRef)))
+        Ok(
+          Json.toJson(GetUndertakingTransactionApiResponse("004", "Duplicate submission acknowledgment reference"))
+        ).toFuture
+
       case c if c.endsWith("777") =>
-        val dupeAckRef: JsValue = Json.obj(
-          "getUndertakingTransactionResponse" -> Json.obj(
-            "responseCommon" -> badResponseCommon(
-              "201",
-              "Invalid Undertaking identifier"
-            )
-          )
-        )
-        Future.successful(Ok(Json.toJson(dupeAckRef)))
+        Ok(Json.toJson(GetUndertakingTransactionApiResponse("201", "Invalid Undertaking identifier"))).toFuture
+
       case d if d.endsWith("666") =>
-        val dupeAckRef: JsValue = Json.obj(
-          "getUndertakingTransactionResponse" -> Json.obj(
-            "responseCommon" -> badResponseCommon(
-              "202",
-              "Error while fetching the Currency conversion values"
-            )
+        Ok(
+          Json.toJson(
+            GetUndertakingTransactionApiResponse("202", "Error while fetching the Currency conversion values")
           )
-        )
-        Future.successful(Ok(Json.toJson(dupeAckRef)))
+        ).toFuture
+
       case _ =>
         Try {
           val subsidies = Store.subsidies
@@ -188,14 +153,11 @@ class SubsidyController @Inject() (
           )
         } match {
           case Success(retrieveResponse) =>
-            Future.successful(Ok(Json.toJson(retrieveResponse)(eisRetrieveUndertakingSubsidiesResponse)))
+            Ok(Json.toJson(GetUndertakingTransactionApiResponse(retrieveResponse))).toFuture
+
           case Failure(_) =>
-            val updateSubsidyFailed = notOkCommonResponse(
-              "getUndertakingTransactionResponse",
-              "003",
-              s"Request couldn't be processed"
-            )
-            Future.successful(Ok(Json.toJson(updateSubsidyFailed)))
+            Ok(Json.toJson(GetUndertakingTransactionApiResponse("003", s"Request couldn't be processed"))).toFuture
+
         }
     }
 }

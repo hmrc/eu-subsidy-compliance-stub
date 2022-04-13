@@ -20,6 +20,7 @@ import javax.inject.Inject
 import play.api.http.HeaderNames
 import play.api.mvc.Results.{Forbidden, Unauthorized}
 import play.api.mvc._
+import uk.gov.hmrc.eusubsidycompliancestub.syntax.FutureSyntax.FutureOps
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -33,17 +34,15 @@ class AuthAndEnvAction @Inject() (cc: ControllerComponents) extends ExtraActions
 
   override val controllerComponents: ControllerComponents = cc
   override protected def filter[A](request: Request[A]): Future[Option[Result]] =
-    Future.successful(
-      (request.headers.get(HeaderNames.AUTHORIZATION), request.headers.get("Environment")) match {
-        case (None, _) =>
-          Some(Unauthorized(""))
-        case (_, None) =>
-          Some(Forbidden(""))
-        case (_, Some(x)) if !x.matches("^(ist0|clone|live)$") =>
-          Some(Forbidden(""))
-        case _ =>
-          None
-      }
-    )
+    ((request.headers.get(HeaderNames.AUTHORIZATION), request.headers.get("Environment")) match {
+      case (None, _) =>
+        Some(Unauthorized(""))
+      case (_, None) =>
+        Some(Forbidden(""))
+      case (_, Some(x)) if !x.matches("^(ist0|clone|live)$") =>
+        Some(Forbidden(""))
+      case _ =>
+        None
+    }).toFuture
 
 }
