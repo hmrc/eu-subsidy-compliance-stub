@@ -23,8 +23,6 @@ import uk.gov.hmrc.eusubsidycompliancestub.services.Store
 import uk.gov.hmrc.eusubsidycompliancestub.syntax.FutureSyntax.FutureOps
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-import scala.concurrent.Future
-
 @Singleton
 class StoreController @Inject() (
   cc: ControllerComponents

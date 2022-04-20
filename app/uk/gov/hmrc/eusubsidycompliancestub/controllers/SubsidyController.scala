@@ -30,7 +30,6 @@ import uk.gov.hmrc.eusubsidycompliancestub.syntax.FutureSyntax.FutureOps
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import java.time.LocalDate
-import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 @Singleton
