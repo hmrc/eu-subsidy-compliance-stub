@@ -43,8 +43,8 @@ class SubsidyController @Inject() (
       processPayload(json, "updateSubsidyUsageRequest") match {
         case Some(errorDetail) => // payload fails schema check
           Forbidden(Json.toJson(errorDetail)).toFuture
-        case _                 =>
-          val subsidyUpdate: SubsidyUpdate   = json.as[SubsidyUpdate]
+        case _ =>
+          val subsidyUpdate: SubsidyUpdate = json.as[SubsidyUpdate]
           val undertakingRef: UndertakingRef = (json \ "undertakingIdentifier").as[UndertakingRef]
           Store.undertakings.updateLastSubsidyUsage(undertakingRef, LocalDate.now())
           getUpdateResponse(undertakingRef, json, subsidyUpdate)
@@ -57,8 +57,8 @@ class SubsidyController @Inject() (
       processPayload(json, "retrieveUndertakingSubsidiesRequest") match {
         case Some(errorDetail) => // payload fails schema check
           Forbidden(Json.toJson(errorDetail)).toFuture
-        case _                 =>
-          val undertakingRef: UndertakingRef       = (json \ "undertakingIdentifier").as[UndertakingRef]
+        case _ =>
+          val undertakingRef: UndertakingRef = (json \ "undertakingIdentifier").as[UndertakingRef]
           val subsidyUndertakingTransactionRequest = json.as[SubsidyUndertakingTransactionRequest]
           getRetrieveResponse(undertakingRef, subsidyUndertakingTransactionRequest)
       }
@@ -139,10 +139,10 @@ class SubsidyController @Inject() (
 
       case _ =>
         Try {
-          val subsidies                     = Store.subsidies
+          val subsidies = Store.subsidies
             .retrieveSubsidies(undertakingRef)
             .getOrElse(UndertakingSubsidies.emptyInstance(undertakingRef))
-          val filteredHMRCSubsidyListOpt    = getFilteredHMRCSubsidyList(subsidyUndertakingTransactionRequest, subsidies)
+          val filteredHMRCSubsidyListOpt = getFilteredHMRCSubsidyList(subsidyUndertakingTransactionRequest, subsidies)
           val filteredNonHMRCSubsidyListOpt =
             geFilteredNonHMRCSubsidyList(subsidyUndertakingTransactionRequest, subsidies)
           subsidies.copy(
@@ -177,7 +177,7 @@ object SubsidyController {
     if (subsidyUndertakingTransactionRequest.getHMRCUsageTransaction) {
       for {
         dateFrom <- subsidyUndertakingTransactionRequest.dateFromHMRCSubsidyUsage
-        dateTo   <- subsidyUndertakingTransactionRequest.dateToHMRCSubsidyUsage
+        dateTo <- subsidyUndertakingTransactionRequest.dateToHMRCSubsidyUsage
       } yield subsidies.hmrcSubsidyUsage.filter(x =>
         (x.acceptanceDate.isAfter(dateFrom) || x.acceptanceDate.isEqual(dateFrom)) && (x.acceptanceDate.isBefore(
           dateTo
@@ -202,7 +202,7 @@ object SubsidyController {
     if (subsidyUndertakingTransactionRequest.getNonHMRCUsageTransaction) {
       for {
         dateFrom <- subsidyUndertakingTransactionRequest.dateFromNonHMRCSubsidyUsage
-        dateTo   <- subsidyUndertakingTransactionRequest.dateToNonHMRCSubsidyUsage
+        dateTo <- subsidyUndertakingTransactionRequest.dateToNonHMRCSubsidyUsage
       } yield subsidies.nonHMRCSubsidyUsage
         .filter(x =>
           (x.allocationDate.isAfter(dateFrom) || x.allocationDate.isEqual(dateFrom)) && (x.allocationDate
