@@ -69,7 +69,8 @@ object Store {
                 name = undertakingName.getOrElse(u.name),
                 industrySector = updatedSector,
                 industrySectorLimit = SectorLimits.get(updatedSector)
-            ))
+              )
+            )
           }
       }
 

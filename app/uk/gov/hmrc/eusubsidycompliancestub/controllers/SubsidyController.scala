@@ -46,7 +46,10 @@ class SubsidyController @Inject() (
         case _ =>
           val subsidyUpdate: SubsidyUpdate = json.as[SubsidyUpdate]
           val undertakingRef: UndertakingRef = (json \ "undertakingIdentifier").as[UndertakingRef]
-          Store.undertakings.updateLastSubsidyUsage(undertakingRef, LocalDate.now())
+          Store.undertakings.updateLastSubsidyUsage(
+            undertakingRef,
+            subsidyUpdate.nilSubmissionDate.map(_.d).getOrElse(LocalDate.now)
+          )
           getUpdateResponse(undertakingRef, json, subsidyUpdate)
       }
     }
