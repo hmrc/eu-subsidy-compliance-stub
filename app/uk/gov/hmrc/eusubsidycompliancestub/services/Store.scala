@@ -17,9 +17,9 @@
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, EisAmendmentType, EisSubsidyAmendmentType, IndustrySectorLimit, Sector, SubsidyAmount, SubsidyRef, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, BusinessEntityUpdate, NilSubmissionDate, NonHmrcSubsidy, Undertaking, UndertakingSubsidies, UndertakingSubsidyAmendment, Update}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, EisAmendmentType, EisSubsidyAmendmentType, IndustrySectorLimit, Sector, SubsidyAmount, SubsidyRef, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models._
 
 import java.time.LocalDate
 import scala.util.Random
@@ -191,9 +191,11 @@ object Store {
           val updatedList = getUpdatedList(amendList, currentNonHMRCSubsidyList)
             .filterNot(sub => removeSubsidyTransactionIds.contains(sub.subsidyUsageTransactionId)) ++ addList
 
+          val updatedTotal = updatedList.map(_.nonHMRCSubsidyAmtEUR).fold(BigDecimal(0))((acc, n) => acc + n)
+
           val updatedSubsidies = undertakingSubsidies.copy(
             nonHMRCSubsidyUsage = updatedList,
-            nonHMRCSubsidyTotalEUR = SubsidyAmount(updatedList.map(_.nonHMRCSubsidyAmtEUR.toDouble).sum)
+            nonHMRCSubsidyTotalEUR = SubsidyAmount(updatedTotal)
           )
 
           put(updatedSubsidies)
