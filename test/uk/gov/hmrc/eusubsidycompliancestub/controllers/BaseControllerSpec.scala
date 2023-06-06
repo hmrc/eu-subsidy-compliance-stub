@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,12 +33,12 @@ import uk.gov.hmrc.eusubsidycompliancestub.services.{JsonSchemaChecker, Store}
 
 import scala.concurrent.Future
 
-class BaseControllerSpec extends
-  PlaySpec
-  with MockitoSugar // TODO remove if unneeded
-  with Results
-  with GuiceOneAppPerSuite
-  with ScalaCheckDrivenPropertyChecks {
+class BaseControllerSpec
+    extends PlaySpec
+    with MockitoSugar // TODO remove if unneeded
+    with Results
+    with GuiceOneAppPerSuite
+    with ScalaCheckDrivenPropertyChecks {
 
   val fakeHeaders =
     FakeHeaders(
@@ -64,9 +64,9 @@ class BaseControllerSpec extends
     debug: Boolean = false
   )(implicit action: Action[JsValue], writes: Writes[A], path: String): Future[Result] = {
     val json = Json.toJson(model)
-    if(debug) println(Json.prettyPrint(json))
+    if (debug) println(Json.prettyPrint(json))
     val result = action.apply(fakePost(json))
-    if(debug) println(Json.prettyPrint(contentAsJson(result)))
+    if (debug) println(Json.prettyPrint(contentAsJson(result)))
     checkJson(contentAsJson(result), responseSchemaName)
     status(result) mustEqual expectedStatus
     extraChecks.map(f => f(result))
@@ -76,13 +76,15 @@ class BaseControllerSpec extends
   def checkUndertakingStore(
     k: UndertakingRef,
     v: Undertaking
-  )(
-    implicit eq: Equality[Undertaking]
+  )(implicit
+    eq: Equality[Undertaking]
   ): Unit = {
     Store.undertakings.retrieve(k).get mustEqual v
-    Store.undertakings.retrieveByEori(
-      v.undertakingBusinessEntity.head.businessEntityIdentifier
-    ).get mustEqual v
+    Store.undertakings
+      .retrieveByEori(
+        v.undertakingBusinessEntity.head.businessEntityIdentifier
+      )
+      .get mustEqual v
     Store.clear()
   }
 }
