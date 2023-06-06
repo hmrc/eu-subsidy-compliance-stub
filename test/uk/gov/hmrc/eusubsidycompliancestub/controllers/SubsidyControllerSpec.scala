@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import uk.gov.hmrc.eusubsidycompliancestub.models._
 import uk.gov.hmrc.eusubsidycompliancestub.services.Store
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
 
-
 class SubsidyControllerSpec extends BaseControllerSpec {
 
   private val controller: SubsidyController =
@@ -39,22 +38,28 @@ class SubsidyControllerSpec extends BaseControllerSpec {
 
     implicit val action: Action[JsValue] = controller.retrieveUsage
 
-    def createUndertakingSubsidies(subsidyUpdate: SubsidyUpdate, ref: UndertakingRef) =  {
+    def createUndertakingSubsidies(subsidyUpdate: SubsidyUpdate, ref: UndertakingRef) = {
       subsidyUpdate.update match {
-        case NilSubmissionDate(_) => UndertakingSubsidies(
-          ref,
-          SubsidyAmount(0),
-          SubsidyAmount(0),
-          SubsidyAmount(0),
-          SubsidyAmount(0), List(), List()
-        )
-        case UndertakingSubsidyAmendment(updates)  => UndertakingSubsidies(
-          ref,
-          SubsidyAmount(0),
-          SubsidyAmount(0),
-          SubsidyAmount(0),
-          SubsidyAmount(0), updates, List()
-        )
+        case NilSubmissionDate(_) =>
+          UndertakingSubsidies(
+            ref,
+            SubsidyAmount(0),
+            SubsidyAmount(0),
+            SubsidyAmount(0),
+            SubsidyAmount(0),
+            List(),
+            List()
+          )
+        case UndertakingSubsidyAmendment(updates) =>
+          UndertakingSubsidies(
+            ref,
+            SubsidyAmount(0),
+            SubsidyAmount(0),
+            SubsidyAmount(0),
+            SubsidyAmount(0),
+            updates,
+            List()
+          )
       }
     }
 
@@ -75,7 +80,7 @@ class SubsidyControllerSpec extends BaseControllerSpec {
     }
 
     "return 200  and a valid response for a successful retrieve" in {
-    Store.subsidies.put(createUndertakingSubsidies(subsidyUpdate, subsidiesRetrieve.undertakingIdentifier))
+      Store.subsidies.put(createUndertakingSubsidies(subsidyUpdate, subsidiesRetrieve.undertakingIdentifier))
       testResponse[SubsidyRetrieve](
         subsidiesRetrieve,
         "retrieveUndertakingSubsidiesResponse",
@@ -86,48 +91,48 @@ class SubsidyControllerSpec extends BaseControllerSpec {
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 004 " +
       "if SubsidyRetrieve.undertakingIdentifier ends in 888 (duplicate acknowledgementRef)" in {
-      testResponse[SubsidyRetrieve](
-        subsidiesRetrieve.copy(undertakingIdentifier = UndertakingRef("888")),
-        "retrieveUndertakingSubsidiesResponse",
-        play.api.http.Status.OK,
-        List(
-          contentAsJson(_) \\ "status" mustEqual
-            List(JsString("NOT_OK")),
-          contentAsJson(_) \\ "paramValue" mustEqual
-            List(JsString("004"), JsString("Duplicate submission acknowledgment reference"))
+        testResponse[SubsidyRetrieve](
+          subsidiesRetrieve.copy(undertakingIdentifier = UndertakingRef("888")),
+          "retrieveUndertakingSubsidiesResponse",
+          play.api.http.Status.OK,
+          List(
+            contentAsJson(_) \\ "status" mustEqual
+              List(JsString("NOT_OK")),
+            contentAsJson(_) \\ "paramValue" mustEqual
+              List(JsString("004"), JsString("Duplicate submission acknowledgment reference"))
+          )
         )
-      )
-    }
+      }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 201 " +
       "if SubsidyRetrieve.undertakingIdentifier ends in 777" in {
-      testResponse[SubsidyRetrieve](
-        subsidiesRetrieve.copy(undertakingIdentifier = UndertakingRef("777")),
-        "retrieveUndertakingSubsidiesResponse",
-        play.api.http.Status.OK,
-        List(
-          contentAsJson(_) \\ "status" mustEqual
-            List(JsString("NOT_OK")),
-          contentAsJson(_) \\ "paramValue" mustEqual
-            List(JsString("201"), JsString("Invalid Undertaking identifier"))
+        testResponse[SubsidyRetrieve](
+          subsidiesRetrieve.copy(undertakingIdentifier = UndertakingRef("777")),
+          "retrieveUndertakingSubsidiesResponse",
+          play.api.http.Status.OK,
+          List(
+            contentAsJson(_) \\ "status" mustEqual
+              List(JsString("NOT_OK")),
+            contentAsJson(_) \\ "paramValue" mustEqual
+              List(JsString("201"), JsString("Invalid Undertaking identifier"))
+          )
         )
-      )
-    }
+      }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 202 " +
       "if SubsidyRetrieve.undertakingIdentifier ends in 666" in {
-      testResponse[SubsidyRetrieve](
-        subsidiesRetrieve.copy(undertakingIdentifier = UndertakingRef("666")),
-        "retrieveUndertakingSubsidiesResponse",
-        play.api.http.Status.OK,
-        List(
-          contentAsJson(_) \\ "status" mustEqual
-            List(JsString("NOT_OK")),
-          contentAsJson(_) \\ "paramValue" mustEqual
-            List(JsString("202"), JsString("Error while fetching the Currency conversion values"))
+        testResponse[SubsidyRetrieve](
+          subsidiesRetrieve.copy(undertakingIdentifier = UndertakingRef("666")),
+          "retrieveUndertakingSubsidiesResponse",
+          play.api.http.Status.OK,
+          List(
+            contentAsJson(_) \\ "status" mustEqual
+              List(JsString("NOT_OK")),
+            contentAsJson(_) \\ "paramValue" mustEqual
+              List(JsString("202"), JsString("Error while fetching the Currency conversion values"))
+          )
         )
-      )
-    }
+      }
 
   }
 
@@ -135,22 +140,28 @@ class SubsidyControllerSpec extends BaseControllerSpec {
     implicit val path: String = "/scp/amendundertakingsubsidyusage/v1"
     implicit val action: Action[JsValue] = controller.updateUsage
 
-    def createUndertakingSubsidies(subsidyUpdate: SubsidyUpdate, ref: UndertakingRef) =  {
+    def createUndertakingSubsidies(subsidyUpdate: SubsidyUpdate, ref: UndertakingRef) = {
       subsidyUpdate.update match {
-        case NilSubmissionDate(_) => UndertakingSubsidies(
-          ref,
-          SubsidyAmount(0),
-          SubsidyAmount(0),
-          SubsidyAmount(0),
-          SubsidyAmount(0), List(), List()
-        )
-        case UndertakingSubsidyAmendment(updates)  => UndertakingSubsidies(
-          ref,
-          SubsidyAmount(0),
-          SubsidyAmount(0),
-          SubsidyAmount(0),
-          SubsidyAmount(0), updates, List()
-        )
+        case NilSubmissionDate(_) =>
+          UndertakingSubsidies(
+            ref,
+            SubsidyAmount(0),
+            SubsidyAmount(0),
+            SubsidyAmount(0),
+            SubsidyAmount(0),
+            List(),
+            List()
+          )
+        case UndertakingSubsidyAmendment(updates) =>
+          UndertakingSubsidies(
+            ref,
+            SubsidyAmount(0),
+            SubsidyAmount(0),
+            SubsidyAmount(0),
+            SubsidyAmount(0),
+            updates,
+            List()
+          )
       }
     }
 
@@ -190,80 +201,80 @@ class SubsidyControllerSpec extends BaseControllerSpec {
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 004 " +
       "if SubsidyUpdate.undertakingIdentifier ends in 888 (duplicate acknowledgementRef)" in {
-      testResponse[SubsidyUpdate](
-        subsidyUpdate.copy(undertakingIdentifier = UndertakingRef("888")),
-        "updateSubsidyUsageResponse",
-        play.api.http.Status.OK,
-        List(
-          contentAsJson(_) \\ "status" mustEqual
-            List(JsString("NOT_OK")),
-          contentAsJson(_) \\ "paramValue" mustEqual
-            List(JsString("004"), JsString("Duplicate submission acknowledgment reference"))
+        testResponse[SubsidyUpdate](
+          subsidyUpdate.copy(undertakingIdentifier = UndertakingRef("888")),
+          "updateSubsidyUsageResponse",
+          play.api.http.Status.OK,
+          List(
+            contentAsJson(_) \\ "status" mustEqual
+              List(JsString("NOT_OK")),
+            contentAsJson(_) \\ "paramValue" mustEqual
+              List(JsString("004"), JsString("Duplicate submission acknowledgment reference"))
+          )
         )
-      )
-    }
+      }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 107 " +
       "if SubsidyUpdate.undertakingIdentifier ends in 777" in {
-      testResponse[SubsidyUpdate](
-        subsidyUpdate.copy(undertakingIdentifier = UndertakingRef("777")),
-        "updateSubsidyUsageResponse",
-        play.api.http.Status.OK,
-        List(
-          contentAsJson(_) \\ "status" mustEqual
-            List(JsString("NOT_OK")),
-          contentAsJson(_) \\ "paramValue" mustEqual
-            List(JsString("107"), JsString("Undertaking reference in the API not Subscribed in ETMP"))
+        testResponse[SubsidyUpdate](
+          subsidyUpdate.copy(undertakingIdentifier = UndertakingRef("777")),
+          "updateSubsidyUsageResponse",
+          play.api.http.Status.OK,
+          List(
+            contentAsJson(_) \\ "status" mustEqual
+              List(JsString("NOT_OK")),
+            contentAsJson(_) \\ "paramValue" mustEqual
+              List(JsString("107"), JsString("Undertaking reference in the API not Subscribed in ETMP"))
+          )
         )
-      )
-    }
+      }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 106 " +
       "if SubsidyUpdate.undertakingIdentifier ends in 666" in {
-      val eori = subsidyUpdate.undertakingSubsidyAmendment.get.updates.head.businessEntityIdentifier.get
-      testResponse[SubsidyUpdate](
-        subsidyUpdate.copy(undertakingIdentifier = UndertakingRef("666")),
-        "updateSubsidyUsageResponse",
-        play.api.http.Status.OK,
-        List(
-          contentAsJson(_) \\ "status" mustEqual
-            List(JsString("NOT_OK")),
-          contentAsJson(_) \\ "paramValue" mustEqual
-            List(JsString("106"), JsString(s"EORI not Subscribed in ETMP $eori"))
+        val eori = subsidyUpdate.undertakingSubsidyAmendment.get.updates.head.businessEntityIdentifier.get
+        testResponse[SubsidyUpdate](
+          subsidyUpdate.copy(undertakingIdentifier = UndertakingRef("666")),
+          "updateSubsidyUsageResponse",
+          play.api.http.Status.OK,
+          List(
+            contentAsJson(_) \\ "status" mustEqual
+              List(JsString("NOT_OK")),
+            contentAsJson(_) \\ "paramValue" mustEqual
+              List(JsString("106"), JsString(s"EORI not Subscribed in ETMP $eori"))
+          )
         )
-      )
-    }
+      }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 112 " +
       "if SubsidyUpdate.undertakingIdentifier ends in 555" in {
-      val eori = subsidyUpdate.undertakingSubsidyAmendment.get.updates.head.businessEntityIdentifier.get
-      testResponse[SubsidyUpdate](
-        subsidyUpdate.copy(undertakingIdentifier = UndertakingRef("555")),
-        "updateSubsidyUsageResponse",
-        play.api.http.Status.OK,
-        List(
-          contentAsJson(_) \\ "status" mustEqual
-            List(JsString("NOT_OK")),
-          contentAsJson(_) \\ "paramValue" mustEqual
-            List(JsString("112"), JsString(s"EORI $eori not linked with undertaking."))
+        val eori = subsidyUpdate.undertakingSubsidyAmendment.get.updates.head.businessEntityIdentifier.get
+        testResponse[SubsidyUpdate](
+          subsidyUpdate.copy(undertakingIdentifier = UndertakingRef("555")),
+          "updateSubsidyUsageResponse",
+          play.api.http.Status.OK,
+          List(
+            contentAsJson(_) \\ "status" mustEqual
+              List(JsString("NOT_OK")),
+            contentAsJson(_) \\ "paramValue" mustEqual
+              List(JsString("112"), JsString(s"EORI $eori not linked with undertaking."))
+          )
         )
-      )
-    }
+      }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 111 " +
       "if SubsidyUpdate.undertakingIdentifier ends in 444" in {
-      val sutId = subsidyUpdate.undertakingSubsidyAmendment.get.updates.head.subsidyUsageTransactionId.get
-      testResponse[SubsidyUpdate](
-        subsidyUpdate.copy(undertakingIdentifier = UndertakingRef("444")),
-        "updateSubsidyUsageResponse",
-        play.api.http.Status.OK,
-        List(
-          contentAsJson(_) \\ "status" mustEqual
-            List(JsString("NOT_OK")),
-          contentAsJson(_) \\ "paramValue" mustEqual
-            List(JsString("111"), JsString(s"Subsidy allocation ID number $sutId or date is invalid is invalid"))
+        val sutId = subsidyUpdate.undertakingSubsidyAmendment.get.updates.head.subsidyUsageTransactionId.get
+        testResponse[SubsidyUpdate](
+          subsidyUpdate.copy(undertakingIdentifier = UndertakingRef("444")),
+          "updateSubsidyUsageResponse",
+          play.api.http.Status.OK,
+          List(
+            contentAsJson(_) \\ "status" mustEqual
+              List(JsString("NOT_OK")),
+            contentAsJson(_) \\ "paramValue" mustEqual
+              List(JsString("111"), JsString(s"Subsidy allocation ID number $sutId or date is invalid is invalid"))
+          )
         )
-      )
-    }
+      }
   }
 }

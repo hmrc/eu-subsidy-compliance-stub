@@ -26,3 +26,24 @@ lazy val microservice = Project(appName, file("."))
   .configs(IntegrationTest)
   .settings(integrationTestSettings(): _*)
   .settings(resolvers += Resolver.jcenterRepo)
+
+//Check both integration and normal scopes so formatAndTest can be applied when needed more easily.
+Test / test := (Test / test)
+  .dependsOn(scalafmtCheckAll)
+  .value
+
+IntegrationTest / test := (IntegrationTest / test)
+  .dependsOn(scalafmtCheckAll)
+  .value
+
+//not to be used in ci, intellij has got a bit bumpy in the format on save on optimize imports across the project
+//Look at readme.md for setting up auto-format on save
+val formatAndTest =
+  taskKey[Unit]("format all code then run tests, do not use on CI as any changes will not be committed")
+
+formatAndTest :=
+  scalafmtAll
+    .dependsOn(Test / test)
+    .dependsOn(IntegrationTest / test)
+    .dependsOn(scalafmtAll)
+    .value
