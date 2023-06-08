@@ -21,7 +21,7 @@ import cats.implicits.catsSyntaxOptionId
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json._
 import play.api.mvc.{Action, ControllerComponents, Result}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntityUpdate, Undertaking}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, BusinessEntityUpdate, ContactDetails, Undertaking}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{receiptDate, undertakingRequestReads}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
@@ -139,7 +139,7 @@ class UndertakingController @Inject() (
                 industrySector = Sector.aquaculture,
                 industrySectorLimit = Some(IndustrySectorLimit(BigDecimal(2000))),
                 lastSubsidyUsageUpdt = Some(LocalDate.now()),
-                undertakingBusinessEntity = List.empty
+                undertakingBusinessEntity = List(BusinessEntity(eori, leadEORI = true, contacts = None))
               )
 
               val madeUndertaking: Undertaking =
