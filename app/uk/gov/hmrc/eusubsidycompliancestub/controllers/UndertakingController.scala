@@ -130,10 +130,8 @@ class UndertakingController @Inject() (
 
           case _ =>
             if (eori.endsWith("321") || eori.endsWith("432")) {
-
-              val cleanedEori = eori.replaceAll("(^[0-9])", "")
-
-              val undertakingRef = UndertakingRef(cleanedEori + "001")
+              val cleanedEori = eori.replaceAll("\\D", "")
+              val undertakingRef = UndertakingRef(cleanedEori + "01")
 
               val undertaking = Undertaking(
                 reference = Some(undertakingRef),
