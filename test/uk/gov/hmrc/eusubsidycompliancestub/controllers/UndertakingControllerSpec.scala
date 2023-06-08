@@ -197,7 +197,11 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
       // TODO this next test should live on the BE
       val u: JsResult[Undertaking] = Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
-      u.isSuccess mustEqual true
+
+      u match {
+        case JsSuccess(value: Undertaking, _) => value.reference mustBe Some("12345678901232101")
+        case JsError(errors) => fail(errors.toString())
+      }
 
       Store.clear()
     }
