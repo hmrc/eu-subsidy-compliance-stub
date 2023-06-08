@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
+import com.github.fge.jsonschema.core.report.AbstractProcessingReport
 import org.scalactic.Equality
 import org.scalatest.Assertion
 import org.scalatestplus.mockito._
@@ -50,7 +51,12 @@ class BaseControllerSpec
     )
 
   def checkJson(json: JsValue, schemaName: String): Assertion = {
-    JsonSchemaChecker[JsValue](json, schemaName).isSuccess mustEqual true
+    withClue("checking schema") {
+      JsonSchemaChecker[JsValue](json, schemaName) match {
+        case _: AbstractProcessingReport => succeed
+        case error => fail(error.toString)
+      }
+    }
   }
 
   def fakePost(body: JsValue)(implicit path: String): FakeRequest[JsValue] =
