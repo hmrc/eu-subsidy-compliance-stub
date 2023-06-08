@@ -20,11 +20,11 @@ import cats.implicits.catsSyntaxOptionId
 
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json._
-import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.eusubsidycompliancestub.models.BusinessEntityUpdate
+import play.api.mvc.{Action, ControllerComponents, Result}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntityUpdate, Undertaking}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{receiptDate, undertakingRequestReads}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses.{AmendUndertakingApiResponse, CreateUndertakingApiResponse, RetrieveUndertakingApiResponse, UpdateUndertakingApiResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.services.{EisService, Store}
@@ -32,6 +32,7 @@ import uk.gov.hmrc.eusubsidycompliancestub.syntax.FutureSyntax.FutureOps
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import java.time.LocalDate
+import scala.concurrent.Future
 
 @Singleton
 class UndertakingController @Inject() (
@@ -51,46 +52,7 @@ class UndertakingController @Inject() (
     }
   }
 
-  def retrieve: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
-    withJsonBody[JsValue] { json =>
-      processPayload(json, "retrieveUndertakingRequest") match {
-        case Some(errorDetail) => // payload fails schema check
-          Forbidden(Json.toJson(errorDetail)).toFuture
-        case _ =>
-          val eori: EORI = (json \ "retrieveUndertakingRequest" \ "requestDetail" \ "idValue").as[EORI]
-          getRetrieveResponse(eori)
-      }
-    }
-  }
-
-  def amendUndertakingMemberData: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
-    withJsonBody[JsValue] { json =>
-      processPayload(json, "amendUndertakingMemberDataRequest") match {
-        case Some(errorDetail) =>
-          Forbidden(Json.toJson(errorDetail)).toFuture
-
-        case _ =>
-          val undertakingRef = (json \ "undertakingIdentifier").as[UndertakingRef]
-          getAmendUndertakingResponse(undertakingRef, json)
-      }
-    }
-  }
-
-  def update: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
-    withJsonBody[JsValue] { json =>
-      processPayload(json, "updateUndertakingRequest") match {
-        case Some(errorDetail) => // payload fails schema check
-          Forbidden(Json.toJson(errorDetail)).toFuture
-
-        case _ =>
-          val undertakingRef: UndertakingRef =
-            (json \ "updateUndertakingRequest" \ "requestDetail" \ "undertakingId").as[UndertakingRef]
-          updateResponse(undertakingRef, json)
-      }
-    }
-  }
-
-  private def getCreateResponse(eori: EORI, json: JsValue) =
+  private def getCreateResponse(eori: EORI, json: JsValue): Future[Result] =
     eori match {
       case a if a.endsWith("999") => // fake 500
         InternalServerError(Json.toJson(errorDetailFor500)).toFuture
@@ -129,28 +91,84 @@ class UndertakingController @Inject() (
         Ok(Json.toJson(CreateUndertakingApiResponse(madeUndertaking.reference.get))).toFuture
     }
 
-  private def getRetrieveResponse(eori: EORI) =
+  def retrieve: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
+    withJsonBody[JsValue] { json =>
+      processPayload(json, "retrieveUndertakingRequest") match {
+        case Some(errorDetail) => // payload fails schema check
+          Forbidden(Json.toJson(errorDetail)).toFuture
+        case _ =>
+          val eori: EORI = (json \ "retrieveUndertakingRequest" \ "requestDetail" \ "idValue").as[EORI]
+          getRetrieveResponse(eori)
+      }
+    }
+  }
+
+  private def getRetrieveResponse(eori: EORI): Future[Result] = {
+    lazy val maybeStoredUndertaking: Option[Undertaking] = Store.undertakings.retrieveByEori(eori)
+
+    val noneSubscribedResponse = Ok(
+      Json.toJson(
+        RetrieveUndertakingApiResponse("107", "Undertaking reference in the API not Subscribed in ETMP")
+      )
+    ).toFuture
+
     eori match {
-      case a if a.endsWith("999") => // fake 500
+
+      case possible500Eori if possible500Eori.endsWith("999") => // fake 500
         InternalServerError(Json.toJson(errorDetailFor500)).toFuture
 
-      case b if b.endsWith("777") => // ID invalid
+      case possibleInvalidEori if possibleInvalidEori.endsWith("777") => // ID invalid
         Ok(Json.toJson(RetrieveUndertakingApiResponse("055", "ID number missing or invalid"))).toFuture
 
-      case c
-          if c.endsWith("888") || Store.undertakings
-            .retrieveByEori(eori)
-            .isEmpty => // fake not found (ideally should have been 404)
-        Ok(
-          Json.toJson(
-            RetrieveUndertakingApiResponse("107", "Undertaking reference in the API not Subscribed in ETMP")
-          )
-        ).toFuture
+      case possibleNotSubscribedEori if possibleNotSubscribedEori.endsWith("888") =>
+        noneSubscribedResponse
 
-      case _ => // successful retrieval
-        val undertaking = Store.undertakings.retrieveByEori(eori).get
-        Ok(Json.toJson(RetrieveUndertakingApiResponse(undertaking))).toFuture
+      case _ =>
+        maybeStoredUndertaking match {
+          case Some(undertaking) =>
+            Ok(Json.toJson(RetrieveUndertakingApiResponse(undertaking))).toFuture
+
+          case _ =>
+            if (eori.endsWith("321") || eori.endsWith("432")) {
+
+              val cleanedEori = eori.replaceAll("(^[0-9])", "")
+
+              val undertakingRef = UndertakingRef(cleanedEori + "001")
+
+              val undertaking = Undertaking(
+                reference = Some(undertakingRef),
+                name = UndertakingName(s"Undertaking-$EORI"),
+                industrySector = Sector.aquaculture,
+                industrySectorLimit = Some(IndustrySectorLimit(BigDecimal(2000))),
+                lastSubsidyUsageUpdt = Some(LocalDate.now()),
+                undertakingBusinessEntity = List.empty
+              )
+
+              val madeUndertaking: Undertaking =
+                EisService.makeUndertaking(undertaking, eori, LocalDate.now.minusDays(77).some)
+
+              Store.undertakings.put(madeUndertaking)
+              Ok(Json.toJson(RetrieveUndertakingApiResponse(undertaking))).toFuture
+            } else {
+              // Original logic said should be 404 but was not 404 but did not explain why
+              noneSubscribedResponse
+            }
+        }
     }
+  }
+
+  def amendUndertakingMemberData: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
+    withJsonBody[JsValue] { json =>
+      processPayload(json, "amendUndertakingMemberDataRequest") match {
+        case Some(errorDetail) =>
+          Forbidden(Json.toJson(errorDetail)).toFuture
+
+        case _ =>
+          val undertakingRef = (json \ "undertakingIdentifier").as[UndertakingRef]
+          getAmendUndertakingResponse(undertakingRef, json)
+      }
+    }
+  }
 
   private def getAmendUndertakingResponse(undertakingRef: UndertakingRef, json: JsValue) =
     undertakingRef match {
@@ -213,6 +231,20 @@ class UndertakingController @Inject() (
 
         }
     }
+
+  def update: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
+    withJsonBody[JsValue] { json =>
+      processPayload(json, "updateUndertakingRequest") match {
+        case Some(errorDetail) => // payload fails schema check
+          Forbidden(Json.toJson(errorDetail)).toFuture
+
+        case _ =>
+          val undertakingRef: UndertakingRef =
+            (json \ "updateUndertakingRequest" \ "requestDetail" \ "undertakingId").as[UndertakingRef]
+          updateResponse(undertakingRef, json)
+      }
+    }
+  }
 
   private def updateResponse(undertakingRef: UndertakingRef, json: JsValue) =
     undertakingRef match {

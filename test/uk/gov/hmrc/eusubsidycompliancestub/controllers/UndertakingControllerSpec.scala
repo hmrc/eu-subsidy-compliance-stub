@@ -187,6 +187,21 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       Store.clear()
     }
 
+    "return 200 and generate an Undertaking when the EORI ends with 321 or 432" in {
+      val generatingEori = EORI("GB123456789012321")
+      val result: Future[Result] = testResponse[EORI](
+        generatingEori,
+        "retrieveUndertakingResponse",
+        play.api.http.Status.OK
+      )
+
+      // TODO this next test should live on the BE
+      val u: JsResult[Undertaking] = Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
+      u.isSuccess mustEqual true
+
+      Store.clear()
+    }
+
     "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
       testResponse[JsValue](
         Json.obj("foo" -> "bar"),

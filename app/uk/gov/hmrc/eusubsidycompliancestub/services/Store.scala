@@ -137,8 +137,14 @@ object Store {
     def retrieve(ref: UndertakingRef): Option[Undertaking] =
       undertakingStore.get(ref)
 
-    def retrieveByEori(eori: EORI): Option[Undertaking] =
-      undertakingStore.values.find(x => x.undertakingBusinessEntity.map(_.businessEntityIdentifier).contains(eori))
+    def retrieveByEori(eori: EORI): Option[Undertaking] = {
+      val values = undertakingStore.values
+      values.foreach(value => println(s"banana - $value"))
+
+      values.find { undertaking =>
+        undertaking.undertakingBusinessEntity.map(_.businessEntityIdentifier).contains(eori)
+      }
+    }
 
     val undertakingStore = mutable[UndertakingRef, Undertaking]
 
