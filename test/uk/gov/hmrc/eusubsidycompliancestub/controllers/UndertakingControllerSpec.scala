@@ -199,7 +199,9 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       val u: JsResult[Undertaking] = Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
 
       u match {
-        case JsSuccess(value: Undertaking, _) => value.reference mustBe Some("12345678901232101")
+        case JsSuccess(value: Undertaking, _) =>
+          value.reference mustBe Some("12345678901232101")
+          value.undertakingBusinessEntity mustBe List(BusinessEntity(generatingEori, leadEORI = true, contacts = None))
         case JsError(errors) => fail(errors.toString())
       }
 
