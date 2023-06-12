@@ -129,28 +129,8 @@ class UndertakingController @Inject() (
             Ok(Json.toJson(RetrieveUndertakingApiResponse(undertaking))).toFuture
 
           case _ =>
-            if (eori.endsWith("321") || eori.endsWith("432")) {
-              val cleanedEori = eori.replaceAll("\\D", "")
-              val undertakingRef = UndertakingRef(cleanedEori + "01")
-
-              val undertaking = Undertaking(
-                reference = Some(undertakingRef),
-                name = UndertakingName(s"Undertaking-$EORI"),
-                industrySector = Sector.aquaculture,
-                industrySectorLimit = Some(IndustrySectorLimit(BigDecimal(2000))),
-                lastSubsidyUsageUpdt = Some(LocalDate.now()),
-                undertakingBusinessEntity = List(BusinessEntity(eori, leadEORI = true, contacts = None))
-              )
-
-              val madeUndertaking: Undertaking =
-                EisService.makeUndertaking(undertaking, eori, LocalDate.now.minusDays(77).some)
-
-              Store.undertakings.put(madeUndertaking)
-              Ok(Json.toJson(RetrieveUndertakingApiResponse(undertaking))).toFuture
-            } else {
-              // Original logic said should be 404 but was not 404 but did not explain why
-              noneSubscribedResponse
-            }
+            // Original logic said should be 404 but was not 404 but did not explain why
+            noneSubscribedResponse
         }
     }
   }
