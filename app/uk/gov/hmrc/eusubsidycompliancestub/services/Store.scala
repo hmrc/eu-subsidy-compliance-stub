@@ -139,7 +139,6 @@ object Store {
 
     def retrieveByEori(eori: EORI): Option[Undertaking] = {
       val values = undertakingStore.values
-      values.foreach(value => println(s"banana - $value"))
 
       values.find { undertaking =>
         undertaking.undertakingBusinessEntity.map(_.businessEntityIdentifier).contains(eori)
