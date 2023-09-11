@@ -26,10 +26,10 @@ import java.time.LocalDate
 object EisService {
 
   private val SectorLimits = Map[Sector, IndustrySectorLimit](
-    Sector.agriculture -> IndustrySectorLimit(30000),
-    Sector.aquaculture -> IndustrySectorLimit(20000),
-    Sector.other -> IndustrySectorLimit(200000),
-    Sector.transport -> IndustrySectorLimit(100000)
+    Sector.agriculture -> IndustrySectorLimit(20000.00),
+    Sector.aquaculture -> IndustrySectorLimit(30000.00),
+    Sector.other -> IndustrySectorLimit(200000.00),
+    Sector.transport -> IndustrySectorLimit(100000.00)
   )
 
   implicit class RichEORI(in: EORI) {
