@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
+import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, EisAmendmentType, EisSubsidyAmendmentType, IndustrySectorLimit, Sector, SubsidyAmount, SubsidyRef, UndertakingName, UndertakingRef}
@@ -40,14 +41,6 @@ object Store {
       subsidies.subsidyStore.toList.isEmpty
 
   object undertakings {
-
-    private val SectorLimits = Map(
-      Sector.aquaculture -> IndustrySectorLimit(20000.00),
-      Sector.agriculture -> IndustrySectorLimit(30000.00),
-      Sector.other -> IndustrySectorLimit(200000.00),
-      Sector.transport -> IndustrySectorLimit(100000.00)
-    )
-
     def put(undertaking: Undertaking): Unit =
       undertakingStore.put(undertaking.reference.get, undertaking)
 
@@ -56,7 +49,7 @@ object Store {
       amendmentType: EisAmendmentType,
       undertakingName: Option[UndertakingName],
       sector: Option[Sector]
-    ): Unit =
+    )(implicit appConfig: AppConfig): Unit =
       amendmentType match {
         case EisAmendmentType.D =>
           undertakingStore.remove(undertakingRef)
@@ -68,7 +61,7 @@ object Store {
               u.copy(
                 name = undertakingName.getOrElse(u.name),
                 industrySector = updatedSector,
-                industrySectorLimit = SectorLimits.get(updatedSector)
+                industrySectorLimit = Some(IndustrySectorLimit(appConfig.sectorCap(updatedSector)))
               )
             )
           }

@@ -11,7 +11,6 @@ object AppDependencies {
     "uk.gov.hmrc"   %% "bootstrap-backend-play-28" % bootStrapVersion,
     "org.typelevel" %% "cats-core"                 % "1.1.0",
     "com.chuusai"   %% "shapeless"                 % "2.3.9",
-    "uk.gov.hmrc"   %% "stub-data-generator"       % "0.5.3",
     "com.github.fge" % "json-schema-validator"     % "2.2.6",
     "wolfendale"    %% "scalacheck-gen-regexp"     % "0.1.2"
   )
@@ -19,6 +18,7 @@ object AppDependencies {
   val test = Seq(
     "org.scalatestplus"      %% "scalacheck-1-15"        % "3.2.11.0"       % Test,
     "com.typesafe.play"      %% "play-test"              % current          % Test,
+    "uk.gov.hmrc"            %% "stub-data-generator"    % "0.5.3"          % Test,
     "org.scalacheck"         %% "scalacheck"             % "1.15.4"         % Test,
     "org.scalatestplus.play" %% "scalatestplus-play"     % "5.1.0"          % Test,
     "uk.gov.hmrc"            %% "bootstrap-test-play-28" % bootStrapVersion % Test,

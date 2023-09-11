@@ -75,7 +75,6 @@ object TestInstances {
       submissionDate <- Gen.date(LocalDate.of(2020, 1, 1), LocalDate.now)
       publicAuthority <- arbString.arbitrary
       traderReference <- Gen.option(arbTraderRef.arbitrary)
-//      nonHMRCSubsidyAmount <- Gen.choose(1L, 9999999999999L).map(x => PositiveSubsidyAmount(x / 100))
       nonHMRCSubsidyAmount <- Gen.choose(1f, 9999999999999f).map(x => SubsidyAmount(x / 100))
       businessEntityIdentifier <- genEORI
     } yield NonHmrcSubsidy(
