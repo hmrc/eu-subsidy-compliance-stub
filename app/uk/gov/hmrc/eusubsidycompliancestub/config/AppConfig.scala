@@ -18,6 +18,7 @@ package uk.gov.hmrc.eusubsidycompliancestub.config
 
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
@@ -30,4 +31,16 @@ class AppConfig @Inject() (
 
   val auditingEnabled: Boolean = config.get[Boolean]("auditing.enabled")
   val graphiteHost: String = config.get[String]("microservice.metrics.graphite.host")
+
+  def sectorCap(sector: Sector): BigDecimal = {
+    val sectorName = sector.id match {
+      case 0 => "other"
+      case 1 => "transport"
+      case 2 => "agriculture"
+      case 3 => "aquaculture"
+    }
+    //The Play ConfigLoader that is used below only has a set number of Data types, BigDecimal is not one of them, so we need to manually convert the value we get
+    val stringValue = config.get[String](s"sectorCap.$sectorName")
+    BigDecimal(stringValue)
+  }
 }

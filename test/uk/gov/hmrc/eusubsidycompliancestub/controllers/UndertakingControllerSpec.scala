@@ -316,7 +316,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       Store.undertakings.put(
         undertaking.copy(
           industrySector = Sector.agriculture,
-          industrySectorLimit = IndustrySectorLimit(30000.00).some
+          industrySectorLimit = IndustrySectorLimit(20000.00).some
         )
       )
 

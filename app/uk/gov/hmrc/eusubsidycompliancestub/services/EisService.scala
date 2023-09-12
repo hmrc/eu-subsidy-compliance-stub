@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
+import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit, Sector, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyRetrieve, Undertaking, UndertakingSubsidies}
@@ -25,13 +26,6 @@ import java.time.LocalDate
 
 object EisService {
 
-  private val SectorLimits = Map[Sector, IndustrySectorLimit](
-    Sector.agriculture -> IndustrySectorLimit(30000),
-    Sector.aquaculture -> IndustrySectorLimit(20000),
-    Sector.other -> IndustrySectorLimit(200000),
-    Sector.transport -> IndustrySectorLimit(100000)
-  )
-
   implicit class RichEORI(in: EORI) {
     def toLong: Long = in.substring(2).toLong
   }
@@ -40,11 +34,11 @@ object EisService {
     undertaking: Undertaking,
     eori: EORI,
     lastSubsidyUsageUpdt: Option[LocalDate] = None
-  ): Undertaking = {
+  )(implicit appConfig: AppConfig): Undertaking = {
     val madeUndertaking = retrieveUndertaking(eori)
     val merged = undertaking.copy(
       reference = madeUndertaking.reference,
-      industrySectorLimit = SectorLimits.get(undertaking.industrySector),
+      industrySectorLimit = Some(IndustrySectorLimit(appConfig.sectorCap(undertaking.industrySector))),
       lastSubsidyUsageUpdt = lastSubsidyUsageUpdt
     )
     merged

@@ -21,6 +21,7 @@ import cats.implicits.catsSyntaxOptionId
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json._
 import play.api.mvc.{Action, ControllerComponents, Result}
+import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, BusinessEntityUpdate, ContactDetails, Undertaking}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{receiptDate, undertakingRequestReads}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
@@ -38,7 +39,8 @@ import scala.concurrent.Future
 class UndertakingController @Inject() (
   cc: ControllerComponents,
   authAndEnvAction: AuthAndEnvAction
-) extends BackendController(cc) {
+)(implicit appConfig: AppConfig)
+    extends BackendController(cc) {
 
   def create: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
     withJsonBody[JsValue] { json =>
