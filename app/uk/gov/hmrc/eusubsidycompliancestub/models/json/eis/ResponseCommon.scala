@@ -79,4 +79,6 @@ object ResponseCommon {
       None
     )
 
+  implicit val format: Format[ResponseCommon] = Json.format[ResponseCommon]
+
 }

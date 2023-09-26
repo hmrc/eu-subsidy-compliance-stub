@@ -22,12 +22,12 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json._
 import play.api.mvc.{Action, ControllerComponents, Result}
 import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, BusinessEntityUpdate, ContactDetails, Undertaking}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntityUpdate, Undertaking, UndertakingSubsidies}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{receiptDate, undertakingRequestReads}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
-import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses.{AmendUndertakingApiResponse, CreateUndertakingApiResponse, RetrieveUndertakingApiResponse, UpdateUndertakingApiResponse}
+import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses.{AmendUndertakingApiResponse, CreateUndertakingApiResponse, GetUndertakingBalanceApiResponse, RetrieveUndertakingApiResponse, UpdateUndertakingApiResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.services.{EisService, Store}
 import uk.gov.hmrc.eusubsidycompliancestub.syntax.FutureSyntax.FutureOps
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -249,5 +249,48 @@ class UndertakingController @Inject() (
         Store.undertakings.updateUndertaking(undertakingRef, amendmentType, name, sector)
         Ok(Json.toJson(UpdateUndertakingApiResponse(UndertakingRef(undertakingRef)))).toFuture
     }
+
+  def getUndertakingBalance: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
+    withJsonBody[JsValue] { json =>
+      processPayload(json, "getUndertakingBalanceRequest") match {
+        case Some(errorDetail) => // payload fails schema check
+          Forbidden(Json.toJson(errorDetail)).toFuture
+        case _ => {
+          val eoriOpt: Option[EORI] = (json \ "eori").asOpt[EORI]
+          val undertakingIdentifierOpt: Option[UndertakingRef] = (json \ "undertakingIdentifier").asOpt[UndertakingRef]
+          getUndertakingBalanceResponse(eoriOpt, undertakingIdentifierOpt)
+        }
+      }
+    }
+  }
+
+  private def getUndertakingBalanceResponse(
+    eoriOpt: Option[EORI],
+    undertakingIdentifierOpt: Option[UndertakingRef]
+  ): Future[Result] = {
+    def getSubsidies(undertakingRef: UndertakingRef): UndertakingSubsidies =
+      Store.subsidies.retrieveSubsidies(undertakingRef).getOrElse(UndertakingSubsidies.emptyInstance(undertakingRef))
+
+    val maybeStoredUndertaking: Option[Undertaking] = (eoriOpt, undertakingIdentifierOpt) match {
+      case (Some(eori), None) => Store.undertakings.retrieveByEori(eori)
+      case (None, Some(undertakingIdentifier)) => Store.undertakings.retrieve(undertakingIdentifier)
+    }
+
+    val noneSubscribedResponse = Ok(
+      Json.toJson(
+        GetUndertakingBalanceApiResponse("107", "Undertaking reference in the API not Subscribed in ETMP")
+      )
+    ).toFuture
+
+    maybeStoredUndertaking match {
+      case Some(undertaking) => {
+        val subsidies = getSubsidies(
+          undertaking.reference.getOrElse(UndertakingRef("BLAH"))
+        ) //fixme this field should be mandatory as it will always be populated. It Will be addressed in ESC-1264
+        Ok(Json.toJson(GetUndertakingBalanceApiResponse(undertaking, subsidies))).toFuture
+      }
+      case _ => noneSubscribedResponse
+    }
+  }
 
 }

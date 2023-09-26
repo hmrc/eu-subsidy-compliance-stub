@@ -24,13 +24,16 @@ import play.api.test.Helpers.{status, _}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, retrieveUndertakingEORIWrites, undertakingFormat, updateUndertakingWrites}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType, EisParamName, EisParamValue, EisStatus, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking, UndertakingBusinessEntityUpdate}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{DeclarationID, EORI, EisAmendmentType, EisParamName, EisParamValue, EisStatus, EisSubsidyAmendmentType, IndustrySectorLimit, Sector, SubsidyAmount, SubsidyRef, TaxType, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, HmrcSubsidy, NonHmrcSubsidy, Undertaking, UndertakingBusinessEntityUpdate, UndertakingSubsidies}
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances.arbContactDetails
 import org.scalactic.Equality
+import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses.GetUndertakingBalanceApiResponse
+import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingrequest.GetUndertakingBalanceRequest
 import uk.gov.hmrc.eusubsidycompliancestub.services.Store
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class UndertakingControllerSpec extends BaseControllerSpec {
@@ -471,6 +474,117 @@ class UndertakingControllerSpec extends BaseControllerSpec {
         play.api.http.Status.OK
       )
       Store.clear()
+    }
+  }
+
+  "Get undertaking balance" must {
+
+    implicit val path: String = "/scp/getsamundertakingbalance/v1"
+    implicit val action: Action[JsValue] = controller.getUndertakingBalance
+    val okEori = EORI("GB123456789012345")
+    val okRequest = GetUndertakingBalanceRequest(eori = Some(okEori))
+    val notFoundEori = EORI("GB123456789012888")
+    val notFoundEoriRequest = GetUndertakingBalanceRequest(eori = Some(notFoundEori))
+    val industrySectorLimit = IndustrySectorLimit(20000)
+    val undertakingRef = UndertakingRef("UR123456")
+    val subsidyAmount = SubsidyAmount(BigDecimal(100.00))
+    val nonHmrcSubsidyAmount = SubsidyAmount(BigDecimal(500.00))
+    val declarationId = DeclarationID("12345")
+    val fixedDate = LocalDate.now().minusDays(20)
+
+    val hmrcSubsidy = HmrcSubsidy(
+      declarationID = declarationId,
+      issueDate = Some(fixedDate),
+      acceptanceDate = fixedDate,
+      declarantEORI = okEori,
+      consigneeEORI = okEori,
+      taxType = Some(TaxType("1")),
+      hmrcSubsidyAmtGBP = Some(subsidyAmount),
+      hmrcSubsidyAmtEUR = Some(subsidyAmount),
+      tradersOwnRefUCR = None
+    )
+
+    val nonHmrcSubsidy = NonHmrcSubsidy(
+      subsidyUsageTransactionId = Some(SubsidyRef("AB12345")),
+      allocationDate = LocalDate.of(2022, 1, 1),
+      submissionDate = fixedDate,
+      publicAuthority = Some("Local Authority"),
+      traderReference = None,
+      nonHMRCSubsidyAmtEUR = nonHmrcSubsidyAmount,
+      businessEntityIdentifier = Some(okEori),
+      amendmentType = Some(EisSubsidyAmendmentType("1"))
+    )
+
+    val undertakingSubsidies = UndertakingSubsidies(
+      undertakingIdentifier = undertakingRef,
+      nonHMRCSubsidyTotalEUR = subsidyAmount,
+      nonHMRCSubsidyTotalGBP = subsidyAmount,
+      hmrcSubsidyTotalEUR = subsidyAmount,
+      hmrcSubsidyTotalGBP = subsidyAmount,
+      nonHMRCSubsidyUsage = List(nonHmrcSubsidy),
+      hmrcSubsidyUsage = List(hmrcSubsidy)
+    )
+
+    val undertaking = Undertaking(
+      reference = Some(undertakingRef),
+      name = UndertakingName("TestUndertaking"),
+      industrySector = Sector.agriculture,
+      industrySectorLimit = Some(industrySectorLimit),
+      lastSubsidyUsageUpdt = Some(LocalDate.of(2021, 1, 18)),
+      undertakingBusinessEntity = List(
+        BusinessEntity(
+          okEori,
+          leadEORI = true,
+          arbContactDetails.arbitrary.sample
+        )
+      )
+    )
+
+    "return 200 and the undertaking balance for a valid request" in {
+      Store.undertakings.put(undertaking)
+      Store.subsidies.put(undertakingSubsidies)
+
+      val result: Future[Result] = testResponse[GetUndertakingBalanceRequest](
+        okRequest,
+        "getUndertakingBalanceResponse",
+        play.api.http.Status.OK
+      )
+
+      // TODO this next test should live on the BE
+      val u: JsResult[GetUndertakingBalanceApiResponse] =
+        Json.fromJson[GetUndertakingBalanceApiResponse](contentAsJson(result))
+      u.isSuccess mustEqual true
+      val response = u.get
+      val undertakingBalance = response.undertakingBalanceResponse.responseDetail.get
+      undertakingBalance.undertakingIdentifier mustEqual undertakingRef
+      undertakingBalance.industrySectorLimit mustEqual industrySectorLimit
+      undertakingBalance.conversionRate mustEqual SubsidyAmount(1.2)
+      undertakingBalance.availableBalanceEUR mustEqual SubsidyAmount(19800.00)
+      undertakingBalance.availableBalanceGBP mustEqual SubsidyAmount(16500.00)
+      undertakingBalance.nationalCapBalanceEUR mustEqual industrySectorLimit
+
+      Store.clear()
+    }
+
+    "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
+      testResponse[JsValue](
+        Json.obj("foo" -> "bar"),
+        "errorDetailResponse",
+        play.api.http.Status.FORBIDDEN
+      )
+    }
+
+    "return 200 but with NOT_OK responseCommon.status and ERRORCODE 107 if EORI not found" in {
+      val result: Future[Result] = testResponse[GetUndertakingBalanceRequest](
+        notFoundEoriRequest,
+        "getUndertakingBalanceResponse",
+        play.api.http.Status.OK,
+        List(
+          contentAsJson(_) \\ "status" mustEqual List(JsString("NOT_OK")),
+          contentAsJson(_) \\ "paramValue" mustEqual
+            List(JsString("107"), JsString("Undertaking reference in the API not Subscribed in ETMP"))
+        )
+      )
     }
   }
 }
