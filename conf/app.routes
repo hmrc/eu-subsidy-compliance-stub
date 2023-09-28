@@ -24,3 +24,6 @@ GET        /show                                uk.gov.hmrc.eusubsidycompliances
 
 # Fake Europa API for exchange rates
 GET       /service/data/EXR/D.GBP.EUR.SP00.A    uk.gov.hmrc.eusubsidycompliancestub.controllers.ExchangeRateController.retrieveExchangeRate(startPeriod, endPeriod, detail, lastNObservations)
+
+#get undertaking balance
+POST       /scp/getsamundertakingbalance/v1     uk.gov.hmrc.eusubsidycompliancestub.controllers.UndertakingController.getUndertakingBalance

@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "SCP08  Get Undertaking Balance Response Schema v.1.0",
+  "type": "object",
+  "properties": {
+    "getUndertakingBalanceResponse": {
+      "type": "object",
+      "$ref": "#/definitions/getUndertakingBalanceResponseType"
+    }
+  },
+  "required": [
+    "getUndertakingBalanceResponse"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "getUndertakingBalanceResponseType": {
+      "type": "object",
+      "properties": {
+            "undertakingIdentifier": {
+              "description": "The unique identifier allocated to the undertaking",
+              "type": "string"
+            },
+            "nonHMRCSubsidyAllocationEUR": {
+              "description": "Non HMRC Subsidy Allocation EURO",
+              "$ref": "#/definitions/decimalNumber"
+            },
+            "hmrcSubsidyAllocationEUR": {
+              "description": "HMRC Subsidy Allocation EURO",
+              "$ref": "#/definitions/decimalNumber"
+            },
+            "industrySectorLimit": {
+              "description": "The industry sector limit for the undertaking",
+              "$ref": "#/definitions/decimalNumber"
+            },
+            "availableBalanceEUR": {
+              "description": "The available balance for the undertaking, as stored within SAM, in Euros",
+              "$ref": "#/definitions/decimalNumber"
+            },
+            "availableBalanceGBP": {
+              "description": "The available balance for the undertaking,as stored within SAM, but converted to GBP based on the current Euro/GBP Exchange rate (as retrieved from XRS)",
+              "$ref": "#/definitions/decimalNumber"
+            },
+            "conversionRate": {
+              "description": "The Euro/GBP exchange rate used for the currency conversion",
+              "$ref": "#/definitions/decimalNumber"
+            },
+            "nationalCapBalanceEUR": {
+              "description": "The available balance for the related National Cap, where a cap is applicable to the industry sector for the undertaking, in Euros",
+              "$ref": "#/definitions/decimalNumber"
+            }
+          },
+          "required": [
+            "undertakingIdentifier",
+            "industrySectorLimit",
+            "availableBalanceEUR",
+            "availableBalanceGBP",
+            "conversionRate",
+            "nationalCapBalanceEUR"
+          ],
+          "additionalProperties": false
+    },
+    "decimalNumber": {
+      "description": "Monetery value: XXXXXXXXXXX.XX",
+      "type": "number",
+      "multipleOf": 0.01,
+      "minimum": -99999999999.99,
+      "maximum" : 99999999999.99
+    }
+  }
+}
