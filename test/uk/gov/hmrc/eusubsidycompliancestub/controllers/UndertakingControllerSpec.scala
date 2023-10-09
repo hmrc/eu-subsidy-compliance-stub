@@ -555,7 +555,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
         Json.fromJson[GetUndertakingBalanceApiResponse](contentAsJson(result))
       u.isSuccess mustEqual true
       val response = u.get
-      val undertakingBalance = response.undertakingBalanceResponse.responseDetail.get
+      val undertakingBalance = response.getUndertakingBalanceResponse.get
       undertakingBalance.undertakingIdentifier mustEqual undertakingRef
       undertakingBalance.industrySectorLimit mustEqual industrySectorLimit
       undertakingBalance.conversionRate mustEqual SubsidyAmount(1.2)
