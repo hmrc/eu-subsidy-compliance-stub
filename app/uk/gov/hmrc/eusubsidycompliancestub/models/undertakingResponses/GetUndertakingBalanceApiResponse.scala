@@ -26,13 +26,16 @@ import java.time.format.DateTimeFormatter
 import java.time.LocalDateTime
 import java.util.UUID
 
-case class GetUndertakingBalanceApiResponse(undertakingBalanceResponse: GetUndertakingBalanceResponse)
+case class GetUndertakingBalanceApiResponse(
+  getUndertakingBalanceResponse: Option[UndertakingBalanceResponse],
+  errorDetail: Option[ResponseCommon] = None
+)
 
 object GetUndertakingBalanceApiResponse {
   def apply(u: Undertaking, subs: UndertakingSubsidies): GetUndertakingBalanceApiResponse =
     GetUndertakingBalanceApiResponse(
-      GetUndertakingBalanceResponse(
-        responseDetail = UndertakingBalanceResponse(
+      getUndertakingBalanceResponse = Some(
+        UndertakingBalanceResponse(
           UndertakingBalance(
             undertakingIdentifier = u.reference.getOrElse(
               UndertakingRef(s"id-${UUID.randomUUID().toString}")
@@ -44,17 +47,17 @@ object GetUndertakingBalanceApiResponse {
             totalGBP = SubsidyAmount(SubsidyAmount(subs.hmrcSubsidyTotalGBP + subs.nonHMRCSubsidyTotalGBP)),
             conversionRate = SubsidyAmount(1.2)
           )
-        ).some
+        )
       )
     )
 
   def apply(errorCode: String, errorText: String): GetUndertakingBalanceApiResponse = GetUndertakingBalanceApiResponse(
-    GetUndertakingBalanceResponse(
-      responseCommon = ResponseCommon(
+    getUndertakingBalanceResponse = None,
+    errorDetail = Some(
+      ResponseCommon(
         errorCode,
         errorText
-      ),
-      None
+      )
     )
   )
 
