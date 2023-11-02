@@ -19,7 +19,7 @@ package uk.gov.hmrc.eusubsidycompliancestub.services
 import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, EisAmendmentType, EisSubsidyAmendmentType, IndustrySectorLimit, Sector, SubsidyAmount, SubsidyRef, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, EisAmendmentType, EisSubsidyAmendmentType, IndustrySectorLimit, SubsidyAmount, SubsidyRef, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models._
 
 import java.time.LocalDate
@@ -42,7 +42,7 @@ object Store {
 
   object undertakings {
     def put(undertaking: Undertaking): Unit =
-      undertakingStore.put(undertaking.reference.get, undertaking)
+      undertakingStore.put(undertaking.reference, undertaking)
 
     def updateUndertaking(
       undertakingRef: UndertakingRef,
@@ -57,11 +57,11 @@ object Store {
           retrieve(undertakingRef).foreach { u =>
             val updatedSector = sector.getOrElse(u.industrySector)
             undertakingStore.update(
-              u.reference.get,
+              u.reference,
               u.copy(
                 name = undertakingName.getOrElse(u.name),
                 industrySector = updatedSector,
-                industrySectorLimit = Some(IndustrySectorLimit(appConfig.sectorCap(updatedSector)))
+                industrySectorLimit = IndustrySectorLimit(appConfig.sectorCap(updatedSector))
               )
             )
           }
@@ -75,7 +75,7 @@ object Store {
         val updatedUndertaking = u.copy(
           lastSubsidyUsageUpdt = Some(lastSubsidyUsageUpdt)
         )
-        undertakingStore.update(u.reference.get, updatedUndertaking)
+        undertakingStore.update(u.reference, updatedUndertaking)
       }
 
     def updateUndertakingBusinessEntities(
@@ -112,7 +112,7 @@ object Store {
         businessEntities.forall(be =>
           retrieveByEori(be.businessEntityIdentifier).isEmpty ||
             retrieveByEori(be.businessEntityIdentifier).fold(true) { undertaking =>
-              undertaking.reference.get == undertakingRef
+              undertaking.reference == undertakingRef
             }
         )
       ) {
@@ -120,7 +120,7 @@ object Store {
         val ed = u.copy(
           undertakingBusinessEntity = businessEntities
         )
-        undertakingStore.update(u.reference.get, ed)
+        undertakingStore.update(u.reference, ed)
       } else {
         throw new IllegalStateException("trying assign eori to multiple undertakings")
       }
@@ -137,6 +137,13 @@ object Store {
         undertaking.undertakingBusinessEntity.map(_.businessEntityIdentifier).contains(eori)
       }
     }
+
+    def retrieveByLeadEoriAndName(eori: EORI, name: String): Option[Undertaking] =
+      undertakingStore.values.find { undertaking =>
+        undertaking.name == name && undertaking.undertakingBusinessEntity
+          .filter(be => be.leadEORI == true && be.businessEntityIdentifier == eori)
+          .nonEmpty
+      }
 
     val undertakingStore = mutable[UndertakingRef, Undertaking]
 

@@ -72,10 +72,10 @@ object RetrieveUndertakingResponse {
 }
 
 case class UndertakingResponse(
-  undertakingReference: Option[UndertakingRef],
+  undertakingReference: UndertakingRef,
   undertakingName: UndertakingName,
   industrySector: Sector,
-  industrySectorLimit: Option[IndustrySectorLimit],
+  industrySectorLimit: IndustrySectorLimit,
   lastSubsidyUsageUpdt: Option[LocalDate],
   undertakingBusinessEntity: List[BusinessEntity]
 )

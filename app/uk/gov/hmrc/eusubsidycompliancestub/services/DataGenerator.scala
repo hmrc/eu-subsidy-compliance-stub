@@ -84,12 +84,12 @@ object DataGenerator {
       nBusinessEntities <- Gen.choose(1, 25)
       undertakingBusinessEntity <- Gen.listOfN(nBusinessEntities, genBusinessEntity)
     } yield Undertaking(
-      Some(UndertakingRef(ref)),
-      UndertakingName(name),
-      Sector(industrySector),
-      industrySectorLimit.some,
-      lastSubsidyUsageUpdt.some,
-      undertakingBusinessEntity.head
+      reference = UndertakingRef(ref),
+      name = UndertakingName(name),
+      industrySector = Sector(industrySector),
+      industrySectorLimit = industrySectorLimit,
+      lastSubsidyUsageUpdt = lastSubsidyUsageUpdt.some,
+      undertakingBusinessEntity = undertakingBusinessEntity.head
         .copy(businessEntityIdentifier = EORI(eori), leadEORI = true) :: undertakingBusinessEntity.tail
     )
 

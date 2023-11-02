@@ -43,8 +43,8 @@ package object eis {
   }
 
   // convenience reads so we can store a created undertaking
-  val undertakingRequestReads: Reads[Undertaking] = new Reads[Undertaking] {
-    override def reads(json: JsValue): JsResult[Undertaking] = {
+  val undertakingRequestReads: Reads[CreateUndertakingRequest] = new Reads[CreateUndertakingRequest] {
+    override def reads(json: JsValue): JsResult[CreateUndertakingRequest] = {
       val contacts: ContactDetails = ContactDetails(
         (json \ "createUndertakingRequest" \ "requestDetail" \ "businessEntity" \ "contacts" \ "phone")
           .asOpt[PhoneNumber],
@@ -57,12 +57,9 @@ package object eis {
         contacts.some
       )
       JsSuccess(
-        Undertaking(
-          None,
+        CreateUndertakingRequest(
           (json \ "createUndertakingRequest" \ "requestDetail" \ "undertakingName").as[UndertakingName],
           (json \ "createUndertakingRequest" \ "requestDetail" \ "industrySector").as[Sector],
-          None,
-          None,
           List(businessEntity)
         )
       )
