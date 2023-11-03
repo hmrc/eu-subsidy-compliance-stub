@@ -84,13 +84,13 @@ class UndertakingController @Inject() (
         val JsSuccess(undertaking, _) = Json.fromJson(json)(undertakingRequestReads)
         val madeUndertaking = EisService.makeUndertaking(undertaking, eori, LocalDate.now.minusDays(77).some)
         Store.undertakings.put(madeUndertaking)
-        Ok(Json.toJson(CreateUndertakingApiResponse(madeUndertaking.reference.get))).toFuture
+        Ok(Json.toJson(CreateUndertakingApiResponse(madeUndertaking.reference))).toFuture
 
       case _ =>
         val JsSuccess(undertaking, _) = Json.fromJson(json)(undertakingRequestReads)
         val madeUndertaking = EisService.makeUndertaking(undertaking, eori)
         Store.undertakings.put(madeUndertaking)
-        Ok(Json.toJson(CreateUndertakingApiResponse(madeUndertaking.reference.get))).toFuture
+        Ok(Json.toJson(CreateUndertakingApiResponse(madeUndertaking.reference))).toFuture
     }
 
   def retrieve: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
@@ -284,9 +284,7 @@ class UndertakingController @Inject() (
 
     maybeStoredUndertaking match {
       case Some(undertaking) => {
-        val subsidies = getSubsidies(
-          undertaking.reference.getOrElse(UndertakingRef("BLAH"))
-        ) //fixme this field should be mandatory as it will always be populated. It Will be addressed in ESC-1264
+        val subsidies = getSubsidies(undertaking.reference)
         Ok(Json.toJson(GetUndertakingBalanceApiResponse(undertaking, subsidies))).toFuture
       }
       case _ => noneSubscribedResponse

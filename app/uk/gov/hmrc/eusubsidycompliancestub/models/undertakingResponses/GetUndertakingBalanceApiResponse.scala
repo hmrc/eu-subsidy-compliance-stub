@@ -37,12 +37,8 @@ object GetUndertakingBalanceApiResponse {
       getUndertakingBalanceResponse = Some(
         UndertakingBalanceResponse(
           UndertakingBalance(
-            undertakingIdentifier = u.reference.getOrElse(
-              UndertakingRef(s"id-${UUID.randomUUID().toString}")
-            ), //fixme this field should be mandatory as it will always be populated. It Will be addressed in ESC-1264
-            industrySectorLimit = u.industrySectorLimit.getOrElse(
-              IndustrySectorLimit(20000)
-            ), //fixme this field should be mandatory as it will always be populated. It Will be addressed in ESC-1264
+            undertakingIdentifier = u.reference,
+            industrySectorLimit = u.industrySectorLimit,
             totalEUR = SubsidyAmount(SubsidyAmount(subs.hmrcSubsidyTotalEUR + subs.nonHMRCSubsidyTotalEUR)),
             totalGBP = SubsidyAmount(SubsidyAmount(subs.hmrcSubsidyTotalGBP + subs.nonHMRCSubsidyTotalGBP)),
             conversionRate = SubsidyAmount(1.2)

@@ -17,13 +17,12 @@
 package uk.gov.hmrc.eusubsidycompliancestub.models.json
 
 import cats.implicits._
-
 import play.api.libs.json._
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{Params, RequestCommon}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType, IndustrySectorLimit, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, CreateUndertakingRequest, Undertaking}
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, ZonedDateTime}
@@ -76,7 +75,7 @@ package object digital {
         case "OK" =>
           val responseDetail: JsLookupResult =
             retrieveUndertakingResponse \ "retrieveUndertakingResponse" \ "responseDetail"
-          val undertakingRef: Option[String] = (responseDetail \ "undertakingReference").asOpt[String]
+          val undertakingRef: String = (responseDetail \ "undertakingReference").as[String]
           val undertakingName: UndertakingName = (responseDetail \ "undertakingName").as[UndertakingName]
           val industrySector: Sector = (responseDetail \ "industrySector").as[Sector]
           val industrySectorLimit: IndustrySectorLimit =
@@ -91,16 +90,46 @@ package object digital {
             (responseDetail \ "undertakingBusinessEntity").as[List[BusinessEntity]]
           JsSuccess(
             Undertaking(
-              undertakingRef.map(UndertakingRef(_)),
+              UndertakingRef(undertakingRef),
               undertakingName,
               industrySector,
-              industrySectorLimit.some,
+              industrySectorLimit,
               lastSubsidyUsageUpdt.some,
               undertakingBusinessEntity
             )
           )
         case _ => JsError("unable to derive Error or Success from SCP04 response")
       }
+    }
+  }
+
+  // provides json for EIS retrieveUndertaking call
+  implicit val createUndertakingRequestWrites: Writes[CreateUndertakingRequest] = new Writes[CreateUndertakingRequest] {
+
+    override def writes(createUndertakingRequest: CreateUndertakingRequest): JsValue = {
+      val lead: BusinessEntity =
+        createUndertakingRequest.businessEntity match {
+          case h :: Nil => h
+          case _ =>
+            throw new IllegalStateException(s"unable to create undertaking with missing or multiple business entities")
+        }
+
+      Json.obj(
+        "createUndertakingRequest" -> Json.obj(
+          "requestCommon" -> RequestCommon("CreateNewUndertaking"),
+          "requestDetail" -> Json.obj(
+            "undertakingName" -> createUndertakingRequest.name,
+            "industrySector" -> createUndertakingRequest.industrySector,
+            "businessEntity" ->
+              Json.obj(
+                "idType" -> "EORI",
+                "idValue" -> JsString(lead.businessEntityIdentifier),
+                "contacts" -> lead.contacts
+              ),
+            "undertakingStartDate" -> dateFormatter.format(LocalDate.now)
+          )
+        )
+      )
     }
   }
 

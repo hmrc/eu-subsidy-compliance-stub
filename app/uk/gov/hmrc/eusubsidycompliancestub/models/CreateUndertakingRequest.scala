@@ -16,16 +16,20 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
-import java.time.LocalDate
-
-import uk.gov.hmrc.eusubsidycompliancestub.models.types._
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
+import uk.gov.hmrc.eusubsidycompliancestub.models.types._
 
-case class Undertaking(
-  reference: UndertakingRef,
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+
+case class CreateUndertakingRequest(
   name: UndertakingName,
   industrySector: Sector,
-  industrySectorLimit: IndustrySectorLimit,
-  lastSubsidyUsageUpdt: Option[LocalDate],
-  undertakingBusinessEntity: List[BusinessEntity]
+  businessEntity: List[BusinessEntity],
+  undertakingStartDate: String = DateTimeFormatter.ISO_LOCAL_DATE.format(LocalDate.now)
 )
+
+case object CreateUndertakingRequest {
+  implicit val format: OFormat[CreateUndertakingRequest] = Json.format[CreateUndertakingRequest]
+}

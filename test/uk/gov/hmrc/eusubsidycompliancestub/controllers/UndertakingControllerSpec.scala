@@ -22,10 +22,10 @@ import play.api.mvc.{Action, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, _}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, retrieveUndertakingEORIWrites, undertakingFormat, updateUndertakingWrites}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, createUndertakingRequestWrites, retrieveUndertakingEORIWrites, undertakingFormat, updateUndertakingWrites}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{DeclarationID, EORI, EisAmendmentType, EisParamName, EisParamValue, EisStatus, EisSubsidyAmendmentType, IndustrySectorLimit, Sector, SubsidyAmount, SubsidyRef, TaxType, UndertakingName, UndertakingRef}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, HmrcSubsidy, NonHmrcSubsidy, Undertaking, UndertakingBusinessEntityUpdate, UndertakingSubsidies}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, CreateUndertakingRequest, HmrcSubsidy, NonHmrcSubsidy, Undertaking, UndertakingBusinessEntityUpdate, UndertakingSubsidies}
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances.arbContactDetails
 import org.scalactic.Equality
@@ -58,6 +58,9 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
   "Create Undertaking" must {
 
+    def validCreateUndertakingRequestBody(undertaking: CreateUndertakingRequest): JsValue =
+      Json.toJson(undertaking)(createUndertakingRequestWrites.writes)
+
     def validCreateUndertakingBody(undertaking: Undertaking): JsValue =
       Json.toJson(undertaking)(undertakingFormat.writes)
 
@@ -77,15 +80,26 @@ class UndertakingControllerSpec extends BaseControllerSpec {
     }
 
     "return 200 and an undertakingRef for a valid createUndertaking request" in {
-      val result: Future[Result] = controller.create.apply(
-        fakeCreateUndertakingPost(validCreateUndertakingBody(undertaking))
+      val leadEori = undertaking.undertakingBusinessEntity.filter(_.leadEORI == true).head.businessEntityIdentifier
+      val createUndertakingRequest = CreateUndertakingRequest(
+        name = undertaking.name,
+        industrySector = undertaking.industrySector,
+        businessEntity = undertaking.undertakingBusinessEntity
       )
-      checkJson(contentAsJson(result), "createUndertakingResponse")
-      val json: JsValue = contentAsJson(result)
-      val undertakingRef: UndertakingRef =
-        (json \ "createUndertakingResponse" \ "responseDetail" \ "undertakingReference").as[UndertakingRef]
-      checkUndertakingStore(undertakingRef, undertaking)
+
+      val result: Future[Result] = controller.create.apply(
+        fakeCreateUndertakingPost(validCreateUndertakingRequestBody(createUndertakingRequest))
+      )
       status(result) mustEqual play.api.http.Status.OK
+      checkJson(contentAsJson(result), "createUndertakingResponse")
+
+      val storedUndertakingOpt = Store.undertakings.retrieveByLeadEoriAndName(leadEori, createUndertakingRequest.name)
+      val storedUndertaking = storedUndertakingOpt.get
+
+      storedUndertaking.industrySector mustEqual createUndertakingRequest.industrySector
+      storedUndertaking.name mustEqual createUndertakingRequest.name
+      storedUndertaking.undertakingBusinessEntity mustEqual createUndertakingRequest.businessEntity
+
     }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 101 " +
@@ -278,7 +292,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
     "return 500 if the undertakingRef ends in 999 " in {
       testResponse[Undertaking](
-        undertaking.copy(reference = Some(UndertakingRef("999"))),
+        undertaking.copy(reference = UndertakingRef("999")),
         "errorDetailResponse",
         play.api.http.Status.INTERNAL_SERVER_ERROR
       )(implicitly, writes, implicitly)
@@ -287,7 +301,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 004 " +
       "if Undertaking.reference ends in 888 (duplicate acknowledgementRef)" in {
         testResponse[Undertaking](
-          undertaking.copy(reference = Some(UndertakingRef("888"))),
+          undertaking.copy(reference = UndertakingRef("888")),
           "updateUndertakingResponse",
           play.api.http.Status.OK,
           List(
@@ -303,7 +317,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       "if Undertaking.reference ends in 777 (bad acknowledgementRef)" in {
         val badId = "777"
         testResponse[Undertaking](
-          undertaking.copy(reference = Some(UndertakingRef(badId))),
+          undertaking.copy(reference = UndertakingRef(badId)),
           "updateUndertakingResponse",
           play.api.http.Status.OK,
           List(
@@ -319,7 +333,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       Store.undertakings.put(
         undertaking.copy(
           industrySector = Sector.agriculture,
-          industrySectorLimit = IndustrySectorLimit(20000.00).some
+          industrySectorLimit = IndustrySectorLimit(20000.00)
         )
       )
 
@@ -327,7 +341,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       val editedUndertaking = undertaking.copy(
         name = UndertakingName("EDITED NAME"),
         industrySector = Sector.other,
-        industrySectorLimit = IndustrySectorLimit(200000.00).some
+        industrySectorLimit = IndustrySectorLimit(200000.00)
       )
 
       testResponse[Undertaking](
@@ -335,7 +349,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
         "updateUndertakingResponse",
         play.api.http.Status.OK
       )(implicitly, writes, implicitly)
-      Store.undertakings.retrieve(editedUndertaking.reference.get) must contain(editedUndertaking)
+      Store.undertakings.retrieve(editedUndertaking.reference) must contain(editedUndertaking)
       Store.clear()
     }
 
@@ -346,7 +360,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
         "updateUndertakingResponse",
         play.api.http.Status.OK
       )(implicitly, updateUndertakingWrites(EisAmendmentType.D), implicitly)
-      Store.undertakings.retrieve(undertaking.reference.get) mustEqual None
+      Store.undertakings.retrieve(undertaking.reference) mustEqual None
     }
 
   }
@@ -466,7 +480,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
     "return 200 and a valid response for a successful amend" in {
       val ref: UndertakingRef = businessEntityUpdates.undertakingIdentifier
-      val u: Undertaking = undertaking.copy(reference = ref.some)
+      val u: Undertaking = undertaking.copy(reference = ref)
       Store.undertakings.put(u)
       testResponse[UndertakingBusinessEntityUpdate](
         businessEntityUpdates,
@@ -526,10 +540,10 @@ class UndertakingControllerSpec extends BaseControllerSpec {
     )
 
     val undertaking = Undertaking(
-      reference = Some(undertakingRef),
+      reference = undertakingRef,
       name = UndertakingName("TestUndertaking"),
       industrySector = Sector.agriculture,
-      industrySectorLimit = Some(industrySectorLimit),
+      industrySectorLimit = industrySectorLimit,
       lastSubsidyUsageUpdt = Some(LocalDate.of(2021, 1, 18)),
       undertakingBusinessEntity = List(
         BusinessEntity(
