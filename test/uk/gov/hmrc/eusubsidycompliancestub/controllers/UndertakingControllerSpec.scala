@@ -600,5 +600,22 @@ class UndertakingControllerSpec extends BaseControllerSpec {
         )
       )
     }
+
+    "return 200 but with NOT_OK responseCommon.status and ERRORCODE 500 Undertaking doesn't exist if eori ends with 111908" in {
+
+      val eoriNumber = EORI("GB123456789111908")
+      val getUndertakingBalanceRequest = GetUndertakingBalanceRequest(eori = Some(eoriNumber))
+
+      val result: Future[Result] = testResponse[GetUndertakingBalanceRequest](
+        getUndertakingBalanceRequest,
+        "getUndertakingBalanceResponse",
+        play.api.http.Status.OK,
+        List(
+          contentAsJson(_) \\ "status" mustEqual List(JsString("NOT_OK")),
+          contentAsJson(_) \\ "paramValue" mustEqual
+            List(JsString("500"), JsString("Undertaking doesn't exist"))
+        )
+      )
+    }
   }
 }

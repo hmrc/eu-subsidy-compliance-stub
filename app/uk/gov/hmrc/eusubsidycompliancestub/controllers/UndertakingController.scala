@@ -23,9 +23,9 @@ import play.api.libs.json._
 import play.api.mvc.{Action, ControllerComponents, Result}
 import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntityUpdate, Undertaking, UndertakingSubsidies}
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{receiptDate, undertakingRequestReads}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetails, receiptDate, undertakingRequestReads}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, ErrorCode, ErrorMessage, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses.{AmendUndertakingApiResponse, CreateUndertakingApiResponse, GetUndertakingBalanceApiResponse, RetrieveUndertakingApiResponse, UpdateUndertakingApiResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.services.{EisService, Store}
@@ -253,7 +253,7 @@ class UndertakingController @Inject() (
   def getUndertakingBalance: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
     withJsonBody[JsValue] { json =>
       processPayload(json, "getUndertakingBalanceRequest") match {
-        case Some(errorDetail) => // payload fails schema check
+        case Some(errorDetail: ErrorDetails) => // payload fails schema check
           Forbidden(Json.toJson(errorDetail)).toFuture
         case _ => {
           val eoriOpt: Option[EORI] = (json \ "eori").asOpt[EORI]
@@ -271,24 +271,34 @@ class UndertakingController @Inject() (
     def getSubsidies(undertakingRef: UndertakingRef): UndertakingSubsidies =
       Store.subsidies.retrieveSubsidies(undertakingRef).getOrElse(UndertakingSubsidies.emptyInstance(undertakingRef))
 
-    val maybeStoredUndertaking: Option[Undertaking] = (eoriOpt, undertakingIdentifierOpt) match {
-      case (Some(eori), None) => Store.undertakings.retrieveByEori(eori)
-      case (None, Some(undertakingIdentifier)) => Store.undertakings.retrieve(undertakingIdentifier)
-    }
-
-    val noneSubscribedResponse = Ok(
-      Json.toJson(
-        GetUndertakingBalanceApiResponse("107", "Undertaking reference in the API not Subscribed in ETMP")
-      )
-    ).toFuture
-
-    maybeStoredUndertaking match {
-      case Some(undertaking) => {
-        val subsidies = getSubsidies(undertaking.reference)
-        Ok(Json.toJson(GetUndertakingBalanceApiResponse(undertaking, subsidies))).toFuture
+    //return undertaking does not exist error when eori ends with 111908
+    if (eoriOpt.map(_.endsWith("111908")) == Some(true)) {
+      Ok(
+        Json.toJson(
+          GetUndertakingBalanceApiResponse("500", "Undertaking doesn't exist")
+        )
+      ).toFuture
+    } else {
+      val maybeStoredUndertaking: Option[Undertaking] = (eoriOpt, undertakingIdentifierOpt) match {
+        case (Some(eori), None) => Store.undertakings.retrieveByEori(eori)
+        case (None, Some(undertakingIdentifier)) => Store.undertakings.retrieve(undertakingIdentifier)
       }
-      case _ => noneSubscribedResponse
+
+      val noneSubscribedResponse = Ok(
+        Json.toJson(
+          GetUndertakingBalanceApiResponse("107", "Undertaking reference in the API not Subscribed in ETMP")
+        )
+      ).toFuture
+
+      maybeStoredUndertaking match {
+        case Some(undertaking) => {
+          val subsidies = getSubsidies(undertaking.reference)
+          Ok(Json.toJson(GetUndertakingBalanceApiResponse(undertaking, subsidies))).toFuture
+        }
+        case _ => noneSubscribedResponse
+      }
     }
+
   }
 
 }
