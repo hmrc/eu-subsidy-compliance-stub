@@ -21,6 +21,7 @@ import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.ResponseCommon
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingStatus.UndertakingStatus
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EisStatus, EisStatusString, IndustrySectorLimit, UndertakingName, UndertakingRef}
 
 import java.time.{LocalDate, LocalDateTime}
@@ -39,6 +40,7 @@ object RetrieveUndertakingApiResponse {
         u.industrySector,
         u.industrySectorLimit,
         u.lastSubsidyUsageUpdt,
+        u.undertakingStatus,
         u.undertakingBusinessEntity
       ).some
     )
@@ -77,6 +79,7 @@ case class UndertakingResponse(
   industrySector: Sector,
   industrySectorLimit: IndustrySectorLimit,
   lastSubsidyUsageUpdt: Option[LocalDate],
+  undertakingStatus: Option[UndertakingStatus],
   undertakingBusinessEntity: List[BusinessEntity]
 )
 

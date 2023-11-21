@@ -22,6 +22,7 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{Params, RequestCommo
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType, IndustrySectorLimit, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingStatus.UndertakingStatus
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, CreateUndertakingRequest, Undertaking}
 
 import java.time.format.DateTimeFormatter
@@ -80,6 +81,7 @@ package object digital {
           val industrySector: Sector = (responseDetail \ "industrySector").as[Sector]
           val industrySectorLimit: IndustrySectorLimit =
             (responseDetail \ "industrySectorLimit").as[IndustrySectorLimit]
+          val undertakingStatus: UndertakingStatus = (responseDetail \ "undertakingStatus").as[UndertakingStatus]
           val lastSubsidyUsageUpdt: LocalDate =
             (responseDetail \ "lastSubsidyUsageUpdt").as[LocalDate](new Reads[LocalDate] {
               override def reads(json: JsValue): JsResult[LocalDate] =
@@ -95,6 +97,7 @@ package object digital {
               industrySector,
               industrySectorLimit,
               lastSubsidyUsageUpdt.some,
+              undertakingStatus.some,
               undertakingBusinessEntity
             )
           )
