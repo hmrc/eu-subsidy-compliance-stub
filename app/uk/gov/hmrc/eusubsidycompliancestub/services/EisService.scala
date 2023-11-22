@@ -17,6 +17,7 @@
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
 import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingStatus.UndertakingStatus
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{CreateUndertakingRequest, SubsidyRetrieve, Undertaking, UndertakingSubsidies}
 import uk.gov.hmrc.smartstub._
@@ -32,7 +33,8 @@ object EisService {
   def makeUndertaking(
     undertaking: CreateUndertakingRequest,
     eori: EORI,
-    lastSubsidyUsageUpdt: Option[LocalDate] = None
+    lastSubsidyUsageUpdt: Option[LocalDate] = None,
+    undertakingStatus: Option[UndertakingStatus] = None
   )(implicit appConfig: AppConfig): Undertaking = {
     val madeUndertaking = retrieveUndertaking(eori)
     Undertaking(
@@ -40,6 +42,7 @@ object EisService {
       name = undertaking.name,
       industrySector = undertaking.industrySector,
       industrySectorLimit = IndustrySectorLimit(appConfig.sectorCap(undertaking.industrySector)),
+      undertakingStatus = undertakingStatus,
       lastSubsidyUsageUpdt = lastSubsidyUsageUpdt,
       undertakingBusinessEntity = undertaking.businessEntity
     )

@@ -24,7 +24,7 @@ import play.api.test.Helpers.{status, _}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, createUndertakingRequestWrites, retrieveUndertakingEORIWrites, undertakingFormat, updateUndertakingWrites}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{DeclarationID, EORI, EisAmendmentType, EisParamName, EisParamValue, EisStatus, EisSubsidyAmendmentType, IndustrySectorLimit, Sector, SubsidyAmount, SubsidyRef, TaxType, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{DeclarationID, EORI, EisAmendmentType, EisParamName, EisParamValue, EisStatus, EisSubsidyAmendmentType, IndustrySectorLimit, Sector, SubsidyAmount, SubsidyRef, TaxType, UndertakingName, UndertakingRef, UndertakingStatus}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, CreateUndertakingRequest, HmrcSubsidy, NonHmrcSubsidy, Undertaking, UndertakingBusinessEntityUpdate, UndertakingSubsidies}
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances.arbContactDetails
@@ -545,6 +545,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       industrySector = Sector.agriculture,
       industrySectorLimit = industrySectorLimit,
       lastSubsidyUsageUpdt = Some(LocalDate.of(2021, 1, 18)),
+      undertakingStatus = UndertakingStatus(1).some,
       undertakingBusinessEntity = List(
         BusinessEntity(
           okEori,

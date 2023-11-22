@@ -25,7 +25,7 @@ import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntityUpdate, Undertaking, UndertakingSubsidies}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetails, receiptDate, undertakingRequestReads}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, ErrorCode, ErrorMessage, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, ErrorCode, ErrorMessage, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef, UndertakingStatus}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses.{AmendUndertakingApiResponse, CreateUndertakingApiResponse, GetUndertakingBalanceApiResponse, RetrieveUndertakingApiResponse, UpdateUndertakingApiResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.services.{EisService, Store}
@@ -82,13 +82,15 @@ class UndertakingController @Inject() (
       //create an Undertaking with lastSubsidyUsageUpdt which is 77 days older than today i.e between the range of 76-90 days
       case f if f.endsWith("444") =>
         val JsSuccess(undertaking, _) = Json.fromJson(json)(undertakingRequestReads)
-        val madeUndertaking = EisService.makeUndertaking(undertaking, eori, LocalDate.now.minusDays(77).some)
+        val madeUndertaking =
+          EisService.makeUndertaking(undertaking, eori, LocalDate.now.minusDays(77).some, UndertakingStatus(0).some)
         Store.undertakings.put(madeUndertaking)
         Ok(Json.toJson(CreateUndertakingApiResponse(madeUndertaking.reference))).toFuture
 
       case _ =>
         val JsSuccess(undertaking, _) = Json.fromJson(json)(undertakingRequestReads)
-        val madeUndertaking = EisService.makeUndertaking(undertaking, eori)
+        val madeUndertaking =
+          EisService.makeUndertaking(undertaking, eori, undertakingStatus = UndertakingStatus(0).some)
         Store.undertakings.put(madeUndertaking)
         Ok(Json.toJson(CreateUndertakingApiResponse(madeUndertaking.reference))).toFuture
     }

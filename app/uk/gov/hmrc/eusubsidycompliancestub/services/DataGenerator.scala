@@ -18,12 +18,12 @@ package uk.gov.hmrc.eusubsidycompliancestub.services
 
 import cats.implicits._
 import org.scalacheck.Gen
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, DeclarationID, EORI, IndustrySectorLimit, PhoneNumber, Sector, SubsidyAmount, SubsidyRef, TaxType, TraderRef, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, DeclarationID, EORI, IndustrySectorLimit, PhoneNumber, Sector, SubsidyAmount, SubsidyRef, TaxType, TraderRef, UndertakingName, UndertakingRef, UndertakingStatus}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{types, _}
 import uk.gov.hmrc.smartstub._
 import wolfendale.scalacheck.regexp.RegexpGen
-import java.time.LocalDate
 
+import java.time.LocalDate
 import shapeless.tag.@@
 
 object DataGenerator {
@@ -81,6 +81,7 @@ object DataGenerator {
       industrySector <- Gen.oneOf(List(0, 1, 2, 3))
       industrySectorLimit <- genIndustrySectorLimit
       lastSubsidyUsageUpdt <- genLastSubsidyUsageUpdt
+      undertakingStatus <- Gen.oneOf(List(0, 1, 5, 9))
       nBusinessEntities <- Gen.choose(1, 25)
       undertakingBusinessEntity <- Gen.listOfN(nBusinessEntities, genBusinessEntity)
     } yield Undertaking(
@@ -89,6 +90,7 @@ object DataGenerator {
       industrySector = Sector(industrySector),
       industrySectorLimit = industrySectorLimit,
       lastSubsidyUsageUpdt = lastSubsidyUsageUpdt.some,
+      undertakingStatus = UndertakingStatus(undertakingStatus).some,
       undertakingBusinessEntity = undertakingBusinessEntity.head
         .copy(businessEntityIdentifier = EORI(eori), leadEORI = true) :: undertakingBusinessEntity.tail
     )

@@ -90,6 +90,15 @@ package object types extends SimpleJson {
     implicit val format: Format[Sector] = Json.formatEnum(Sector)
   }
 
+  object UndertakingStatus extends Enumeration {
+    type UndertakingStatus = Value
+    val active: types.UndertakingStatus.Value = Value(0)
+    val suspendedAutomated: types.UndertakingStatus.Value = Value(1)
+    val suspendedManual: types.UndertakingStatus.Value = Value(5)
+    val inactive: types.UndertakingStatus.Value = Value(9)
+    implicit val format: Format[UndertakingStatus] = Json.formatEnum(UndertakingStatus)
+  }
+
   type Postcode = String @@ Postcode.Tag
   object Postcode
       extends RegexValidatedString(
