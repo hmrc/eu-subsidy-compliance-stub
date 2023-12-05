@@ -129,9 +129,21 @@ class UndertakingController @Inject() (
 
       case _ =>
         maybeStoredUndertaking match {
+          case Some(undertaking)
+              if undertaking.undertakingBusinessEntity
+                .filter(_.leadEORI)
+                .head
+                .businessEntityIdentifier
+                .endsWith("511") => //return an undertaking with a status of 'suspendedAutomated'
+            Ok(
+              Json.toJson(
+                RetrieveUndertakingApiResponse(
+                  undertaking.copy(undertakingStatus = Some(UndertakingStatus.suspendedAutomated))
+                )
+              )
+            ).toFuture
           case Some(undertaking) =>
             Ok(Json.toJson(RetrieveUndertakingApiResponse(undertaking))).toFuture
-
           case _ =>
             // Original logic said should be 404 but was not 404 but did not explain why
             noneSubscribedResponse
