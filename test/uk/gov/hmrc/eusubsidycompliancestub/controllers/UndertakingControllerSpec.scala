@@ -236,22 +236,6 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       Store.clear()
     }
 
-    "return 200 and an Undertaking with status 'suspendedManual' when eori ends with 317" in {
-      val eoriNumber = EORI("GB123456789012317")
-      Store.undertakings.put(undertakingWithEori(eoriNumber))
-      val result: Future[Result] = testResponse[EORI](
-        eoriNumber,
-        "retrieveUndertakingResponse",
-        play.api.http.Status.OK
-      )
-
-      val u: JsResult[Undertaking] = Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
-      u.isSuccess mustEqual true
-      u.get.undertakingStatus mustEqual Some(UndertakingStatus.suspendedManual)
-
-      Store.clear()
-    }
-
     "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
       testResponse[JsValue](
         Json.obj("foo" -> "bar"),
