@@ -147,7 +147,20 @@ class UndertakingController @Inject() (
                 .filter(_.leadEORI)
                 .head
                 .businessEntityIdentifier
-                .endsWith("316") => //return an undertaking with a status of 'suspendedManual'
+                .endsWith("316") => //return an undertaking lead with a status of 'suspendedManual'
+            Ok(
+              Json.toJson(
+                RetrieveUndertakingApiResponse(
+                  undertaking.copy(undertakingStatus = Some(UndertakingStatus.suspendedManual))
+                )
+              )
+            ).toFuture
+          case Some(undertaking)
+            if undertaking.undertakingBusinessEntity
+              .filter(!_.leadEORI)
+              .head
+              .businessEntityIdentifier
+              .endsWith("317") => //return an undertaking member with a status of 'suspendedManual'
             Ok(
               Json.toJson(
                 RetrieveUndertakingApiResponse(
