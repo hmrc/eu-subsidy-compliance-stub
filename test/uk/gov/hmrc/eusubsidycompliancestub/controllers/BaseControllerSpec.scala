@@ -23,7 +23,9 @@ import org.scalatestplus.mockito._
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import play.api.Application
 import play.api.http.HeaderNames
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.mvc.{Action, Result, Results}
 import play.api.test.Helpers.{contentAsJson, status, _}
@@ -40,6 +42,11 @@ class BaseControllerSpec
     with Results
     with GuiceOneAppPerSuite
     with ScalaCheckDrivenPropertyChecks {
+
+  override def fakeApplication(): Application =
+    new GuiceApplicationBuilder()
+      .configure("metrics.jvm" -> false, "microservice.metrics.graphite.enabled" -> false)
+      .build()
 
   val fakeHeaders =
     FakeHeaders(
