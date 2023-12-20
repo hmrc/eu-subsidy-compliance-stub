@@ -143,11 +143,9 @@ class UndertakingController @Inject() (
               )
             ).toFuture
           case Some(undertaking)
-              if undertaking.undertakingBusinessEntity
-                .filter(_.leadEORI)
-                .head
-                .businessEntityIdentifier
-                .endsWith("316") => //return an undertaking with a status of 'suspendedManual'
+              if undertaking.undertakingBusinessEntity.exists(
+                _.businessEntityIdentifier.endsWith("316")
+              ) => //return an undertaking lead with a status of 'suspendedManual'
             Ok(
               Json.toJson(
                 RetrieveUndertakingApiResponse(
