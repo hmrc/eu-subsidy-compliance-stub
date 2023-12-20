@@ -104,8 +104,8 @@ class EscService @Inject() (
       case _ =>
         for {
           eori <- findEoriByUndertakingReference(undertakingRef)
-          undertaking <- undertakingCache.get[Undertaking](eori).map {
-            case Some(e) => e
+          undertaking <- undertakingCache.get[Undertaking](eori).map { case Some(e) =>
+            e
           }
           _ <- undertakingCache.put[Undertaking](
             eori,
@@ -121,8 +121,8 @@ class EscService @Inject() (
   )(implicit headerCarrier: HeaderCarrier): Future[Unit] =
     for {
       eori <- findEoriByUndertakingReference(undertakingRef)
-      undertaking <- undertakingCache.get[Undertaking](eori).map {
-        case Some(e) => e
+      undertaking <- undertakingCache.get[Undertaking](eori).map { case Some(e) =>
+        e
       }
       _ <- undertakingCache.put[Undertaking](eori, undertaking.copy(lastSubsidyUsageUpdt = Some(lastSubsidyUsageUpdt)))
     } yield ()
