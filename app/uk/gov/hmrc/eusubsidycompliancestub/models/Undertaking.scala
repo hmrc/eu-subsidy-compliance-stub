@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
+import play.api.libs.json.{Json, OFormat}
+
 import java.time.LocalDate
 import uk.gov.hmrc.eusubsidycompliancestub.models.types._
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
@@ -30,3 +32,7 @@ case class Undertaking(
   undertakingStatus: Option[UndertakingStatus],
   undertakingBusinessEntity: List[BusinessEntity]
 )
+object Undertaking {
+  import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats.Implicits._
+  implicit val undertakingFormat: OFormat[Undertaking] = Json.format[Undertaking]
+}

@@ -27,19 +27,21 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetails, receip
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, ErrorCode, ErrorMessage, IndustrySectorLimit, Sector, UndertakingName, UndertakingRef, UndertakingStatus}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
-import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses.{AmendUndertakingApiResponse, CreateUndertakingApiResponse, GetUndertakingBalanceApiResponse, RetrieveUndertakingApiResponse, UpdateUndertakingApiResponse}
-import uk.gov.hmrc.eusubsidycompliancestub.services.{EisService, Store}
+import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses.{AmendUndertakingApiResponse, CreateUndertakingApiResponse, GetUndertakingBalanceApiResponse, RetrieveUndertakingApiResponse, UndertakingBalance, UndertakingBalanceResponse, UpdateUndertakingApiResponse}
+import uk.gov.hmrc.eusubsidycompliancestub.services.{EisService, EscService, Store}
 import uk.gov.hmrc.eusubsidycompliancestub.syntax.FutureSyntax.FutureOps
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import java.time.LocalDate
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class UndertakingController @Inject() (
+  escService: EscService,
   cc: ControllerComponents,
   authAndEnvAction: AuthAndEnvAction
-)(implicit appConfig: AppConfig)
+)(implicit appConfig: AppConfig, ec: ExecutionContext)
     extends BackendController(cc) {
 
   def create: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
@@ -54,7 +56,7 @@ class UndertakingController @Inject() (
     }
   }
 
-  private def getCreateResponse(eori: EORI, json: JsValue): Future[Result] =
+  private def getCreateResponse(eori: EORI, json: JsValue)(implicit hc: HeaderCarrier): Future[Result] =
     eori match {
       case a if a.endsWith("999") => // fake 500
         InternalServerError(Json.toJson(errorDetailFor500)).toFuture
@@ -80,19 +82,22 @@ class UndertakingController @Inject() (
         Ok(Json.toJson(CreateUndertakingApiResponse("113", s"Postcode missing for the address"))).toFuture
 
       //create an Undertaking with lastSubsidyUsageUpdt which is 77 days older than today i.e between the range of 76-90 days
-      case f if f.endsWith("444") =>
+      case f if f.endsWith("444") => {
         val JsSuccess(undertaking, _) = Json.fromJson(json)(undertakingRequestReads)
         val madeUndertaking =
           EisService.makeUndertaking(undertaking, eori, LocalDate.now.minusDays(77).some, UndertakingStatus(0).some)
-        Store.undertakings.put(madeUndertaking)
-        Ok(Json.toJson(CreateUndertakingApiResponse(madeUndertaking.reference))).toFuture
 
+        escService.createUndertaking(eori, madeUndertaking).map { reference =>
+          Ok(Json.toJson(CreateUndertakingApiResponse(reference)))
+        }
+      }
       case _ =>
         val JsSuccess(undertaking, _) = Json.fromJson(json)(undertakingRequestReads)
         val madeUndertaking =
           EisService.makeUndertaking(undertaking, eori, undertakingStatus = UndertakingStatus(0).some)
-        Store.undertakings.put(madeUndertaking)
-        Ok(Json.toJson(CreateUndertakingApiResponse(madeUndertaking.reference))).toFuture
+        escService.createUndertaking(eori, madeUndertaking).map { reference =>
+          Ok(Json.toJson(CreateUndertakingApiResponse(reference)))
+        }
     }
 
   def retrieve: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
@@ -107,9 +112,7 @@ class UndertakingController @Inject() (
     }
   }
 
-  private def getRetrieveResponse(eori: EORI): Future[Result] = {
-    lazy val maybeStoredUndertaking: Option[Undertaking] = Store.undertakings.retrieveByEori(eori)
-
+  private def getRetrieveResponse(eori: EORI)(implicit hc: HeaderCarrier): Future[Result] = {
     val noneSubscribedResponse = Ok(
       Json.toJson(
         RetrieveUndertakingApiResponse("107", "Undertaking reference in the API not Subscribed in ETMP")
@@ -128,7 +131,7 @@ class UndertakingController @Inject() (
         noneSubscribedResponse
 
       case _ =>
-        maybeStoredUndertaking match {
+        escService.retrieveUndertaking(eori).flatMap {
           case Some(undertaking)
               if undertaking.undertakingBusinessEntity
                 .filter(_.leadEORI)
@@ -155,8 +158,7 @@ class UndertakingController @Inject() (
                 )
               )
             ).toFuture
-          case Some(undertaking) =>
-            Ok(Json.toJson(RetrieveUndertakingApiResponse(undertaking))).toFuture
+          case Some(undertaking) => Ok(Json.toJson(RetrieveUndertakingApiResponse(undertaking))).toFuture
           case _ =>
             // Original logic said should be 404 but was not 404 but did not explain why
             noneSubscribedResponse
@@ -177,7 +179,9 @@ class UndertakingController @Inject() (
     }
   }
 
-  private def getAmendUndertakingResponse(undertakingRef: UndertakingRef, json: JsValue) =
+  private def getAmendUndertakingResponse(undertakingRef: UndertakingRef, json: JsValue)(implicit
+    headerCarrier: HeaderCarrier
+  ) =
     undertakingRef match {
       case a if a.endsWith("999") => // fake 500
         InternalServerError(Json.toJson(errorDetailFor500)).toFuture
@@ -226,8 +230,9 @@ class UndertakingController @Inject() (
           (json \ "memberAmendments").as[List[BusinessEntityUpdate]]
 
         try {
-          Store.undertakings.updateUndertakingBusinessEntities(undertakingRef, updates)
-          Ok(Json.toJson(success)).toFuture
+          escService.updateUndertakingBusinessEntities(undertakingRef, updates).map { _ =>
+            Ok(Json.toJson(success))
+          }
         } catch {
           case _: IllegalStateException =>
             Ok(
@@ -253,7 +258,7 @@ class UndertakingController @Inject() (
     }
   }
 
-  private def updateResponse(undertakingRef: UndertakingRef, json: JsValue) =
+  private def updateResponse(undertakingRef: UndertakingRef, json: JsValue)(implicit headerCarrier: HeaderCarrier) =
     undertakingRef match {
       case a if a.endsWith("999") => // fake 500
         InternalServerError(Json.toJson(errorDetailFor500)).toFuture
@@ -261,7 +266,7 @@ class UndertakingController @Inject() (
       case b if b.endsWith("888") => // fake 004
         Ok(Json.toJson(UpdateUndertakingApiResponse("004", "Duplicate submission acknowledgment reference"))).toFuture
 
-      case c if c.endsWith("777") || Store.undertakings.retrieve(c).isEmpty => // fake 116
+      case c if c.endsWith("777") => // fake 116
         Ok(Json.toJson(UpdateUndertakingApiResponse("116", s"Invalid Undertaking ID $c"))).toFuture
 
       case _ => // successful amend
@@ -271,10 +276,12 @@ class UndertakingController @Inject() (
           (json \ "updateUndertakingRequest" \ "requestDetail" \ "undertakingId").as[UndertakingRef]
         val name: Option[UndertakingName] =
           (json \ "updateUndertakingRequest" \ "requestDetail" \ "undertakingName").asOpt[UndertakingName]
-        val sector: Option[Sector] =
-          (json \ "updateUndertakingRequest" \ "requestDetail" \ "industrySector").asOpt[Sector]
-        Store.undertakings.updateUndertaking(undertakingRef, amendmentType, name, sector)
-        Ok(Json.toJson(UpdateUndertakingApiResponse(UndertakingRef(undertakingRef)))).toFuture
+        val sector: Sector =
+          (json \ "updateUndertakingRequest" \ "requestDetail" \ "industrySector").as[Sector]
+
+        escService.updateUndertaking(undertakingRef, amendmentType, name, sector).map { _ =>
+          Ok(Json.toJson(UpdateUndertakingApiResponse(UndertakingRef(undertakingRef))))
+        }
     }
 
   def getUndertakingBalance: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
@@ -294,9 +301,7 @@ class UndertakingController @Inject() (
   private def getUndertakingBalanceResponse(
     eoriOpt: Option[EORI],
     undertakingIdentifierOpt: Option[UndertakingRef]
-  ): Future[Result] = {
-    def getSubsidies(undertakingRef: UndertakingRef): UndertakingSubsidies =
-      Store.subsidies.retrieveSubsidies(undertakingRef).getOrElse(UndertakingSubsidies.emptyInstance(undertakingRef))
+  )(implicit headerCarrier: HeaderCarrier): Future[Result] = {
 
     //return undertaking does not exist error when eori ends with 111908
     if (eoriOpt.map(_.endsWith("111908")) == Some(true)) {
@@ -306,26 +311,22 @@ class UndertakingController @Inject() (
         )
       ).toFuture
     } else {
-      val maybeStoredUndertaking: Option[Undertaking] = (eoriOpt, undertakingIdentifierOpt) match {
-        case (Some(eori), None) => Store.undertakings.retrieveByEori(eori)
-        case (None, Some(undertakingIdentifier)) => Store.undertakings.retrieve(undertakingIdentifier)
-      }
-
       val noneSubscribedResponse = Ok(
         Json.toJson(
           GetUndertakingBalanceApiResponse("107", "Undertaking reference in the API not Subscribed in ETMP")
         )
-      ).toFuture
+      )
 
-      maybeStoredUndertaking match {
-        case Some(undertaking) => {
-          val subsidies = getSubsidies(undertaking.reference)
-          Ok(Json.toJson(GetUndertakingBalanceApiResponse(undertaking, subsidies))).toFuture
+      for {
+        undertakingBalanceOpt: Option[UndertakingBalance] <- (eoriOpt, undertakingIdentifierOpt) match {
+          case (Some(eori), None) => escService.getUndertakingBalance(eori)
+          case (None, Some(undertakingIdentifier)) => Future.successful(None)
         }
-        case _ => noneSubscribedResponse
+      } yield undertakingBalanceOpt match {
+        case Some(balance) =>
+          Ok(Json.toJson(GetUndertakingBalanceApiResponse(Some(UndertakingBalanceResponse(balance)))))
+        case None => noneSubscribedResponse
       }
     }
-
   }
-
 }
