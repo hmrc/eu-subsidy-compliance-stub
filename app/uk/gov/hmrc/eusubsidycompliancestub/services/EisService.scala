@@ -42,7 +42,7 @@ object EisService {
       name = undertaking.name,
       industrySector = undertaking.industrySector,
       industrySectorLimit = IndustrySectorLimit(appConfig.sectorCap(undertaking.industrySector)),
-      undertakingStatus = undertakingStatus,
+      undertakingStatus = undertakingStatus.map(_.id),
       lastSubsidyUsageUpdt = lastSubsidyUsageUpdt,
       undertakingBusinessEntity = undertaking.businessEntity
     )

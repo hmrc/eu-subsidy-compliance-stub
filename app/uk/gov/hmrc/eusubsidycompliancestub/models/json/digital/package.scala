@@ -81,7 +81,7 @@ package object digital {
           val industrySector: Sector = (responseDetail \ "industrySector").as[Sector]
           val industrySectorLimit: IndustrySectorLimit =
             (responseDetail \ "industrySectorLimit").as[IndustrySectorLimit]
-          val undertakingStatus: UndertakingStatus = (responseDetail \ "undertakingStatus").as[UndertakingStatus]
+          val undertakingStatus: Int = (responseDetail \ "undertakingStatus").as[Int]
           val lastSubsidyUsageUpdt: LocalDate =
             (responseDetail \ "lastSubsidyUsageUpdt").as[LocalDate](new Reads[LocalDate] {
               override def reads(json: JsValue): JsResult[LocalDate] =

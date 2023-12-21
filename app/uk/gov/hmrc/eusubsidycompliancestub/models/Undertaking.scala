@@ -29,7 +29,7 @@ case class Undertaking(
   industrySector: Sector,
   industrySectorLimit: IndustrySectorLimit,
   lastSubsidyUsageUpdt: Option[LocalDate],
-  undertakingStatus: Option[UndertakingStatus],
+  undertakingStatus: Option[Int],
   undertakingBusinessEntity: List[BusinessEntity]
 )
 object Undertaking {

@@ -141,7 +141,7 @@ class UndertakingController @Inject() (
             Ok(
               Json.toJson(
                 RetrieveUndertakingApiResponse(
-                  undertaking.copy(undertakingStatus = Some(UndertakingStatus.suspendedAutomated))
+                  undertaking.copy(undertakingStatus = Some(UndertakingStatus.suspendedAutomated.id))
                 )
               )
             ).toFuture
@@ -152,7 +152,7 @@ class UndertakingController @Inject() (
             Ok(
               Json.toJson(
                 RetrieveUndertakingApiResponse(
-                  undertaking.copy(undertakingStatus = Some(UndertakingStatus.suspendedManual))
+                  undertaking.copy(undertakingStatus = Some(UndertakingStatus.suspendedManual.id))
                 )
               )
             ).toFuture
