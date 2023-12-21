@@ -91,6 +91,18 @@ case class UndertakingBalance(
   val nationalCapBalanceEUR: IndustrySectorLimit = industrySectorLimit
 
 }
+object UndertakingBalance {
+
+  implicit val format: Format[UndertakingBalance] = Json.format[UndertakingBalance]
+  def apply(u: Undertaking, subs: UndertakingSubsidies): UndertakingBalance =
+    UndertakingBalance(
+      undertakingIdentifier = u.reference,
+      industrySectorLimit = u.industrySectorLimit,
+      totalEUR = SubsidyAmount(SubsidyAmount(subs.hmrcSubsidyTotalEUR + subs.nonHMRCSubsidyTotalEUR)),
+      totalGBP = SubsidyAmount(SubsidyAmount(subs.hmrcSubsidyTotalGBP + subs.nonHMRCSubsidyTotalGBP)),
+      conversionRate = SubsidyAmount(1.2)
+    )
+}
 
 case class UndertakingBalanceResponse(
   undertakingIdentifier: UndertakingRef,

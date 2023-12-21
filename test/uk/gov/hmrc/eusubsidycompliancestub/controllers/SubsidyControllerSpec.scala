@@ -16,18 +16,31 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.libs.json.{JsString, JsValue, Json}
-import play.api.mvc.Action
+import play.api.mvc.{Action, ControllerComponents}
 import play.api.test.Helpers._
+import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{SubsidyAmount, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models._
-import uk.gov.hmrc.eusubsidycompliancestub.services.Store
+import uk.gov.hmrc.eusubsidycompliancestub.services.{EscService, Store}
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class SubsidyControllerSpec extends BaseControllerSpec {
 
-  private val controller: SubsidyController =
-    app.injector.instanceOf[SubsidyController]
+  private val mockEscService = mock[EscService]
+
+  private val appConfig: AppConfig =
+    app.injector.instanceOf[AppConfig]
+
+  private val controller: SubsidyController = new SubsidyController(
+    escService = mockEscService,
+    cc = app.injector.instanceOf[ControllerComponents],
+    authAndEnvAction = app.injector.instanceOf[AuthAndEnvAction]
+  )(appConfig = appConfig, ec = ExecutionContext.global)
 
   val subsidyUpdate: SubsidyUpdate = TestInstances.arbSubsidyUpdate.arbitrary.sample.get
   val nilReturn: SubsidyUpdate = TestInstances.arbSubsidyUpdateNilReturn.arbitrary.sample.get
@@ -80,7 +93,10 @@ class SubsidyControllerSpec extends BaseControllerSpec {
     }
 
     "return 200  and a valid response for a successful retrieve" in {
-      Store.subsidies.put(createUndertakingSubsidies(subsidyUpdate, subsidiesRetrieve.undertakingIdentifier))
+      when(mockEscService.retrieveAllSubsidies(any())(any())).thenReturn(
+        Future.successful(createUndertakingSubsidies(subsidyUpdate, subsidiesRetrieve.undertakingIdentifier))
+      )
+
       testResponse[SubsidyRetrieve](
         subsidiesRetrieve,
         "retrieveUndertakingSubsidiesResponse",
@@ -174,7 +190,8 @@ class SubsidyControllerSpec extends BaseControllerSpec {
     }
 
     "return 200  and a valid response for a successful amend" in {
-      Store.subsidies.put(createUndertakingSubsidies(subsidyUpdate, subsidyUpdate.undertakingIdentifier))
+      when(mockEscService.updateLastSubsidyUsage(any(), any())(any())).thenReturn(Future.successful(()))
+      when(mockEscService.updateSubsidies(any(), any())(any())).thenReturn(Future.successful(()))
       testResponse[SubsidyUpdate](
         subsidyUpdate,
         "updateSubsidyUsageResponse",
@@ -184,6 +201,8 @@ class SubsidyControllerSpec extends BaseControllerSpec {
     }
 
     "return 200  and a valid response for a nil return" in {
+      when(mockEscService.updateLastSubsidyUsage(any(), any())(any())).thenReturn(Future.successful(()))
+      when(mockEscService.updateSubsidies(any(), any())(any())).thenReturn(Future.successful(()))
       testResponse[SubsidyUpdate](
         nilReturn,
         "updateSubsidyUsageResponse",
