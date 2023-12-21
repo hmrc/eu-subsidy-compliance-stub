@@ -90,7 +90,7 @@ object DataGenerator {
       industrySector = Sector(industrySector),
       industrySectorLimit = industrySectorLimit,
       lastSubsidyUsageUpdt = lastSubsidyUsageUpdt.some,
-      undertakingStatus = UndertakingStatus(undertakingStatus).some,
+      undertakingStatus = undertakingStatus.some,
       undertakingBusinessEntity = undertakingBusinessEntity.head
         .copy(businessEntityIdentifier = EORI(eori), leadEORI = true) :: undertakingBusinessEntity.tail
     )

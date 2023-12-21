@@ -228,7 +228,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
       val u: JsResult[Undertaking] = Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
       u.isSuccess mustEqual true
-      u.get.undertakingStatus mustEqual Some(UndertakingStatus.suspendedAutomated)
+      u.get.undertakingStatus mustEqual Some(UndertakingStatus.suspendedAutomated.id)
 
       Store.clear()
     }
@@ -245,7 +245,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
       val u: JsResult[Undertaking] = Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
       u.isSuccess mustEqual true
-      u.get.undertakingStatus mustEqual Some(UndertakingStatus.suspendedManual)
+      u.get.undertakingStatus mustEqual Some(UndertakingStatus.suspendedManual.id)
 
       Store.clear()
     }
@@ -586,7 +586,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       industrySector = Sector.agriculture,
       industrySectorLimit = industrySectorLimit,
       lastSubsidyUsageUpdt = Some(LocalDate.of(2021, 1, 18)),
-      undertakingStatus = UndertakingStatus(1).some,
+      undertakingStatus = Some(UndertakingStatus(1).id),
       undertakingBusinessEntity = List(
         BusinessEntity(
           okEori,
