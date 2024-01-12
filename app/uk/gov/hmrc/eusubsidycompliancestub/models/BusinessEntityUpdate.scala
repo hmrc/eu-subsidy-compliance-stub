@@ -46,7 +46,7 @@ object BusinessEntityUpdate {
   }
 
   implicit val reads: Reads[BusinessEntityUpdate] = new Reads[BusinessEntityUpdate] {
-    implicit val beReads = businessEntityReads
+    implicit val beReads: Reads[BusinessEntity] = businessEntityReads
 
     override def reads(json: JsValue): JsResult[BusinessEntityUpdate] =
       JsSuccess(

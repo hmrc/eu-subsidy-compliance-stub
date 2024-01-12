@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses
 
-import cats.implicits.catsSyntaxOptionId
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.ResponseCommon
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EisStatus, EisStatusString, IndustrySectorLimit, SubsidyAmount, UndertakingRef}
@@ -24,7 +23,6 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.{Undertaking, UndertakingSubsi
 
 import java.time.format.DateTimeFormatter
 import java.time.LocalDateTime
-import java.util.UUID
 
 case class GetUndertakingBalanceApiResponse(
   getUndertakingBalanceResponse: Option[UndertakingBalanceResponse],

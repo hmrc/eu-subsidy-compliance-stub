@@ -16,19 +16,13 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
-import cats.data.EitherT
-import cats.implicits.{catsSyntaxEq, catsSyntaxOptionId}
 import com.google.inject.{Inject, Singleton}
 import play.api.Logging
-import play.api.http.Status.{NOT_FOUND, OK}
-import play.api.libs.json.{JsPath, JsonValidationError, Reads}
 import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, BusinessEntityUpdate, NilSubmissionDate, NonHmrcSubsidy, SubsidyRetrieve, SubsidyUpdate, Undertaking, UndertakingSubsidies, UndertakingSubsidyAmendment, Update}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, EisAmendmentType, EisSubsidyAmendmentType, IndustrySectorLimit, SubsidyAmount, SubsidyRef, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models._
+import uk.gov.hmrc.eusubsidycompliancestub.models.types._
 import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses.UndertakingBalance
 import uk.gov.hmrc.eusubsidycompliancestub.repositories.UndertakingCache
-import uk.gov.hmrc.http.UpstreamErrorResponse.WithStatusCode
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,29 +37,26 @@ class EscService @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  def createUndertaking(eori: EORI, undertaking: Undertaking)(implicit hc: HeaderCarrier): Future[UndertakingRef] =
+  def createUndertaking(eori: EORI, undertaking: Undertaking): Future[UndertakingRef] =
     undertakingCache.put[Undertaking](eori, undertaking).map(_.reference)
 
-  def deleteUndertaking(undertakingRef: UndertakingRef)(implicit hc: HeaderCarrier): Future[Unit] =
+  def deleteUndertaking(undertakingRef: UndertakingRef): Future[Unit] =
     undertakingCache.deleteUndertaking(undertakingRef)
 
-  def retrieveUndertaking(eori: EORI)(implicit hc: HeaderCarrier): Future[Option[Undertaking]] =
+  def retrieveUndertaking(eori: EORI): Future[Option[Undertaking]] =
     undertakingCache.findUndertakingByEori(eori)
 
-  def retrieveUndertakingSubsidiesByEori(
-    eori: EORI
-  )(implicit hc: HeaderCarrier): Future[Option[UndertakingSubsidies]] = {
+  def retrieveUndertakingSubsidiesByEori(eori: EORI): Future[Option[UndertakingSubsidies]] = {
     undertakingCache.get[UndertakingSubsidies](eori)
   }
 
   def updateUndertakingBusinessEntities(
     undertakingRef: UndertakingRef,
     updates: List[BusinessEntityUpdate]
-  )(implicit hc: HeaderCarrier): Future[Unit] = {
-
+  ): Future[Unit] = {
     val remove: List[BusinessEntity] = updates.filter(_.amendmentType == AmendmentType.delete).map(_.businessEntity)
 
-    if (!remove.filter(_.leadEORI).isEmpty) {
+    if (remove.exists(_.leadEORI)) {
       deleteUndertaking(undertakingRef)
     } else {
       val add: List[BusinessEntity] = updates.filter(_.amendmentType == AmendmentType.add).map(_.businessEntity)
@@ -74,9 +65,7 @@ class EscService @Inject() (
 
       for {
         eori <- findEoriByUndertakingReference(undertakingRef)
-        undertaking <- undertakingCache.get[Undertaking](eori).map { case Some(e) =>
-          e //fixme handle None case
-        }
+        undertaking <- undertakingCache.get[Undertaking](eori).map(_.get)
         existingBusinessEntities = undertaking.undertakingBusinessEntity
         updated =
           existingBusinessEntities
@@ -98,15 +87,13 @@ class EscService @Inject() (
     amendmentType: EisAmendmentType,
     undertakingName: Option[UndertakingName],
     sector: Sector
-  )(implicit appConfig: AppConfig, headerCarrier: HeaderCarrier): Future[Unit] =
+  )(implicit appConfig: AppConfig): Future[Unit] =
     amendmentType match {
       case EisAmendmentType.D => undertakingCache.deleteUndertaking(undertakingRef)
       case _ =>
         for {
           eori <- findEoriByUndertakingReference(undertakingRef)
-          undertaking <- undertakingCache.get[Undertaking](eori).map { case Some(e) =>
-            e
-          }
+          undertaking <- undertakingCache.get[Undertaking](eori).map(_.get)
           _ <- undertakingCache.put[Undertaking](
             eori,
             undertaking
@@ -115,21 +102,14 @@ class EscService @Inject() (
         } yield ()
     }
 
-  def updateLastSubsidyUsage(
-    undertakingRef: UndertakingRef,
-    lastSubsidyUsageUpdt: LocalDate
-  )(implicit headerCarrier: HeaderCarrier): Future[Unit] =
+  def updateLastSubsidyUsage(undertakingRef: UndertakingRef, lastSubsidyUsageUpdt: LocalDate): Future[Unit] =
     for {
       eori <- findEoriByUndertakingReference(undertakingRef)
-      undertaking <- undertakingCache.get[Undertaking](eori).map { case Some(e) =>
-        e
-      }
+      undertaking <- undertakingCache.get[Undertaking](eori).map(_.get)
       _ <- undertakingCache.put[Undertaking](eori, undertaking.copy(lastSubsidyUsageUpdt = Some(lastSubsidyUsageUpdt)))
     } yield ()
 
-  def updateSubsidies(undertakingRef: UndertakingRef, update: Update)(implicit
-    headerCarrier: HeaderCarrier
-  ): Future[Unit] =
+  def updateSubsidies(undertakingRef: UndertakingRef, update: Update): Future[Unit] =
     update match {
       case _: NilSubmissionDate => Future.successful(())
       case UndertakingSubsidyAmendment(updates) =>
@@ -175,7 +155,7 @@ class EscService @Inject() (
         } yield undertakingCache.put[UndertakingSubsidies](eori, updatedSubsidies)
     }
 
-  def getUndertakingBalance(eori: EORI)(implicit hc: HeaderCarrier): Future[Option[UndertakingBalance]] = {
+  def getUndertakingBalance(eori: EORI): Future[Option[UndertakingBalance]] = {
     for {
       undertaking <- retrieveUndertaking(eori)
       subsidies <- retrieveUndertakingSubsidiesByEori(eori)
@@ -188,23 +168,17 @@ class EscService @Inject() (
     }
   }
 
-  def retrieveAllSubsidies(
-    undertakingRef: UndertakingRef
-  )(implicit hc: HeaderCarrier): Future[UndertakingSubsidies] =
+  def retrieveAllSubsidies(undertakingRef: UndertakingRef): Future[UndertakingSubsidies] =
     retrieveSubsidies(SubsidyRetrieve(undertakingRef, Option.empty))
 
-  private def retrieveSubsidies(
-    subsidyRetrieve: SubsidyRetrieve
-  )(implicit hc: HeaderCarrier): Future[UndertakingSubsidies] = {
+  private def retrieveSubsidies(subsidyRetrieve: SubsidyRetrieve): Future[UndertakingSubsidies] = {
     for {
       eori <- findEoriByUndertakingReference(subsidyRetrieve.undertakingIdentifier)
       subsidies <- undertakingCache.get[UndertakingSubsidies](eori)
     } yield subsidies.getOrElse(UndertakingSubsidies.emptyInstance(subsidyRetrieve.undertakingIdentifier))
   }
 
-  private def findEoriByUndertakingReference(
-    undertakingRef: UndertakingRef
-  )(implicit hc: HeaderCarrier): Future[EORI] = {
+  private def findEoriByUndertakingReference(undertakingRef: UndertakingRef): Future[EORI] = {
     undertakingCache.findUndertakingEoriByUndertakingRef(undertakingRef).map {
       case Some(e) => e
       case None => throw new IllegalStateException(s"No undertaking for undertaking reference: $undertakingRef")

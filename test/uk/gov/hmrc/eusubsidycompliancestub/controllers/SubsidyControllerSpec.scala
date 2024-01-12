@@ -21,7 +21,6 @@ import org.mockito.Mockito.when
 import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
 import play.api.test.Helpers._
-import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{SubsidyAmount, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models._
 import uk.gov.hmrc.eusubsidycompliancestub.services.{EscService, Store}
@@ -33,14 +32,11 @@ class SubsidyControllerSpec extends BaseControllerSpec {
 
   private val mockEscService = mock[EscService]
 
-  private val appConfig: AppConfig =
-    app.injector.instanceOf[AppConfig]
-
   private val controller: SubsidyController = new SubsidyController(
     escService = mockEscService,
     cc = app.injector.instanceOf[ControllerComponents],
     authAndEnvAction = app.injector.instanceOf[AuthAndEnvAction]
-  )(appConfig = appConfig, ec = ExecutionContext.global)
+  )(ExecutionContext.global)
 
   val subsidyUpdate: SubsidyUpdate = TestInstances.arbSubsidyUpdate.arbitrary.sample.get
   val nilReturn: SubsidyUpdate = TestInstances.arbSubsidyUpdateNilReturn.arbitrary.sample.get
@@ -93,7 +89,7 @@ class SubsidyControllerSpec extends BaseControllerSpec {
     }
 
     "return 200  and a valid response for a successful retrieve" in {
-      when(mockEscService.retrieveAllSubsidies(any())(any())).thenReturn(
+      when(mockEscService.retrieveAllSubsidies(any())).thenReturn(
         Future.successful(createUndertakingSubsidies(subsidyUpdate, subsidiesRetrieve.undertakingIdentifier))
       )
 
@@ -156,31 +152,6 @@ class SubsidyControllerSpec extends BaseControllerSpec {
     implicit val path: String = "/scp/amendundertakingsubsidyusage/v1"
     implicit val action: Action[JsValue] = controller.updateUsage
 
-    def createUndertakingSubsidies(subsidyUpdate: SubsidyUpdate, ref: UndertakingRef) = {
-      subsidyUpdate.update match {
-        case NilSubmissionDate(_) =>
-          UndertakingSubsidies(
-            ref,
-            SubsidyAmount(0),
-            SubsidyAmount(0),
-            SubsidyAmount(0),
-            SubsidyAmount(0),
-            List(),
-            List()
-          )
-        case UndertakingSubsidyAmendment(updates) =>
-          UndertakingSubsidies(
-            ref,
-            SubsidyAmount(0),
-            SubsidyAmount(0),
-            SubsidyAmount(0),
-            SubsidyAmount(0),
-            updates,
-            List()
-          )
-      }
-    }
-
     "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
       testResponse[JsValue](
         Json.obj("foo" -> "bar"),
@@ -190,8 +161,8 @@ class SubsidyControllerSpec extends BaseControllerSpec {
     }
 
     "return 200  and a valid response for a successful amend" in {
-      when(mockEscService.updateLastSubsidyUsage(any(), any())(any())).thenReturn(Future.successful(()))
-      when(mockEscService.updateSubsidies(any(), any())(any())).thenReturn(Future.successful(()))
+      when(mockEscService.updateLastSubsidyUsage(any(), any())).thenReturn(Future.successful(()))
+      when(mockEscService.updateSubsidies(any(), any())).thenReturn(Future.successful(()))
       testResponse[SubsidyUpdate](
         subsidyUpdate,
         "updateSubsidyUsageResponse",
@@ -201,8 +172,8 @@ class SubsidyControllerSpec extends BaseControllerSpec {
     }
 
     "return 200  and a valid response for a nil return" in {
-      when(mockEscService.updateLastSubsidyUsage(any(), any())(any())).thenReturn(Future.successful(()))
-      when(mockEscService.updateSubsidies(any(), any())(any())).thenReturn(Future.successful(()))
+      when(mockEscService.updateLastSubsidyUsage(any(), any())).thenReturn(Future.successful(()))
+      when(mockEscService.updateSubsidies(any(), any())).thenReturn(Future.successful(()))
       testResponse[SubsidyUpdate](
         nilReturn,
         "updateSubsidyUsageResponse",

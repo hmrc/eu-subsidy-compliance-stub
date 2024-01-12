@@ -16,15 +16,13 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.repositories
 
+import cats.implicits.toFunctorOps
 import org.mongodb.scala.MongoCollection
-import org.mongodb.scala.bson.BsonDocument
 import org.mongodb.scala.model.{Filters, IndexOptions, Indexes, Updates}
 import play.api.libs.json.{JsValue, Reads, Writes}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, SubsidyRetrieve, Undertaking, UndertakingSubsidies}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.repositories.UndertakingCache.DefaultCacheTtl
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.{CurrentTimestampSupport, MongoComponent}
 import uk.gov.hmrc.mongo.cache.{CacheItem, DataKey, MongoCacheRepository}
 
@@ -34,8 +32,6 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 import scala.reflect.ClassTag
 import uk.gov.hmrc.eusubsidycompliancestub.repositories.PersistenceHelpers.dataKeyForType
-
-import java.time.LocalDate
 
 @Singleton
 class UndertakingCache @Inject() (
@@ -88,14 +84,13 @@ class UndertakingCache @Inject() (
         .headOption()
     } yield collection
 
-  def get[A : ClassTag](eori: EORI)(implicit reads: Reads[A], headerCarrier: HeaderCarrier): Future[Option[A]] = {
+  def get[A : ClassTag](eori: EORI)(implicit reads: Reads[A]): Future[Option[A]] = {
     indexedCollection.flatMap { _ =>
-      super
-        .get[A](eori)(dataKeyForType[A])
+      super.get[A](eori)(dataKeyForType[A])
     }
   }
 
-  def findUndertakingByEori(eori: EORI)(implicit headerCarrier: HeaderCarrier): Future[Option[Undertaking]] = {
+  def findUndertakingByEori(eori: EORI): Future[Option[Undertaking]] = {
     indexedCollection.flatMap { c =>
       c.find(
         filter = Filters.equal("data.Undertaking.undertakingBusinessEntity.businessEntityIdentifier", eori)
@@ -113,7 +108,7 @@ class UndertakingCache @Inject() (
 
   def findUndertakingEoriByUndertakingRef(
     ref: UndertakingRef
-  )(implicit headerCarrier: HeaderCarrier): Future[Option[EORI]] = {
+  ): Future[Option[EORI]] = {
     indexedCollection.flatMap { c =>
       c.find(
         filter = Filters.equal(UndertakingReference, ref)
@@ -134,40 +129,37 @@ class UndertakingCache @Inject() (
         filter = Filters.equal(UndertakingReference, ref),
         update = Updates.set("data.Undertaking.undertakingBusinessEntity", businessEntities)
       ).toFuture()
-        .map(_ => ())
+        .void
     }
 
   }
 
   def put[A](eori: EORI, in: A)(implicit
-    writes: Writes[A],
-    classTag: ClassTag[A],
-    headerCarrier: HeaderCarrier
+    writes: Writes[A]
   ): Future[A] = {
     indexedCollection.flatMap { _ =>
       super
         .put[A](eori)(DataKey(in.getClass.getSimpleName), in)
-        .map(_ => in)
+        .as(in)
     }
   }
 
-  def deleteUndertaking(ref: UndertakingRef)(implicit headerCarrier: HeaderCarrier): Future[Unit] = {
+  def deleteUndertaking(ref: UndertakingRef): Future[Unit] = {
     indexedCollection.flatMap { c =>
       c.deleteOne(
         filter = Filters.equal(UndertakingReference, ref)
       ).toFuture()
-        .map(_ => ())
+        .void
     }
-
   }
 
-  def deleteUndertakingSubsidies(ref: UndertakingRef)(implicit headerCarrier: HeaderCarrier): Future[Unit] = {
+  def deleteUndertakingSubsidies(ref: UndertakingRef): Future[Unit] = {
     indexedCollection.flatMap { c =>
       c.updateMany(
         filter = Filters.equal(UndertakingSubsidiesIdentifier, ref),
         update = Updates.unset("data.UndertakingSubsidies")
       ).toFuture()
-        .map(_ => ())
+        .void
     }
   }
 }
