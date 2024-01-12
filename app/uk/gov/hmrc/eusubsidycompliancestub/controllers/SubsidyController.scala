@@ -21,26 +21,23 @@ import cats.implicits.catsSyntaxOptionId
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
 import uk.gov.hmrc.eusubsidycompliancestub.controllers.SubsidyController.{geFilteredNonHMRCSubsidyList, getFilteredHMRCSubsidyList}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyUndertakingTransactionRequest, SubsidyUpdate, UndertakingSubsidies}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, SubsidyRef, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingSubsidyResponses.{AmendUndertakingSubsidyUsageApiResponse, GetUndertakingTransactionApiResponse}
-import uk.gov.hmrc.eusubsidycompliancestub.services.{EscService, Store}
+import uk.gov.hmrc.eusubsidycompliancestub.services.EscService
 import uk.gov.hmrc.eusubsidycompliancestub.syntax.FutureSyntax.FutureOps
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext
-import scala.util.{Failure, Success, Try}
 
 @Singleton
 class SubsidyController @Inject() (
   escService: EscService,
   cc: ControllerComponents,
   authAndEnvAction: AuthAndEnvAction
-)(implicit appConfig: AppConfig, ec: ExecutionContext)
+)(implicit ec: ExecutionContext)
     extends BackendController(cc) {
 
   def updateUsage: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
@@ -70,9 +67,7 @@ class SubsidyController @Inject() (
     }
   }
 
-  private def getUpdateResponse(undertakingRef: UndertakingRef, json: JsValue, subsidyUpdate: SubsidyUpdate)(implicit
-    headerCarrier: HeaderCarrier
-  ) =
+  private def getUpdateResponse(undertakingRef: UndertakingRef, json: JsValue, subsidyUpdate: SubsidyUpdate) =
     undertakingRef match {
       case a if a.endsWith("999") => // fake 500
         InternalServerError(Json.toJson(errorDetailFor500)).toFuture
@@ -123,7 +118,7 @@ class SubsidyController @Inject() (
   private def getRetrieveResponse(
     undertakingRef: UndertakingRef,
     subsidyUndertakingTransactionRequest: SubsidyUndertakingTransactionRequest
-  )(implicit headerCarrier: HeaderCarrier) =
+  ) =
     undertakingRef match {
       case a if a.endsWith("999") => // fake 500
         InternalServerError(Json.toJson(errorDetailFor500)).toFuture

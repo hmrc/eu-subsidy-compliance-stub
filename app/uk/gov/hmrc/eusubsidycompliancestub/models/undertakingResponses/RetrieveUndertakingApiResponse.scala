@@ -21,7 +21,6 @@ import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.ResponseCommon
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingStatus.UndertakingStatus
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EisStatus, EisStatusString, IndustrySectorLimit, UndertakingName, UndertakingRef}
 
 import java.time.{LocalDate, LocalDateTime}

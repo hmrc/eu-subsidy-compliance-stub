@@ -21,7 +21,6 @@ import play.api.libs.json.{Json, OFormat}
 import java.time.LocalDate
 import uk.gov.hmrc.eusubsidycompliancestub.models.types._
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingStatus.UndertakingStatus
 
 case class Undertaking(
   reference: UndertakingRef,

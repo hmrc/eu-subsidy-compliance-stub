@@ -18,7 +18,7 @@ package uk.gov.hmrc.eusubsidycompliancestub.services
 
 import cats.implicits._
 import org.scalacheck.Gen
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, DeclarationID, EORI, IndustrySectorLimit, PhoneNumber, Sector, SubsidyAmount, SubsidyRef, TaxType, TraderRef, UndertakingName, UndertakingRef, UndertakingStatus}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, DeclarationID, EORI, IndustrySectorLimit, PhoneNumber, Sector, SubsidyAmount, SubsidyRef, TaxType, TraderRef, UndertakingName, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{types, _}
 import uk.gov.hmrc.smartstub._
 import wolfendale.scalacheck.regexp.RegexpGen

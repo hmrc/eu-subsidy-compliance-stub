@@ -24,19 +24,17 @@ import play.api.test.Helpers.{status, _}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, createUndertakingRequestWrites, retrieveUndertakingEORIWrites, undertakingFormat, updateUndertakingWrites}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{DeclarationID, EORI, EisAmendmentType, EisParamName, EisParamValue, EisStatus, EisSubsidyAmendmentType, IndustrySectorLimit, Sector, SubsidyAmount, SubsidyRef, TaxType, UndertakingName, UndertakingRef, UndertakingStatus}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, CreateUndertakingRequest, HmrcSubsidy, NonHmrcSubsidy, Undertaking, UndertakingBusinessEntityUpdate, UndertakingSubsidies}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType, EisParamName, EisParamValue, EisStatus, IndustrySectorLimit, Sector, SubsidyAmount, UndertakingName, UndertakingRef, UndertakingStatus}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, CreateUndertakingRequest, Undertaking, UndertakingBusinessEntityUpdate}
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances.arbContactDetails
-import org.scalactic.Equality
 import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
 import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses.{GetUndertakingBalanceApiResponse, UndertakingBalance}
 import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingrequest.GetUndertakingBalanceRequest
 import uk.gov.hmrc.eusubsidycompliancestub.services.{EscService, Store}
-import org.mockito.ArgumentMatchers.{any, anySet}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 
-import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class UndertakingControllerSpec extends BaseControllerSpec {
@@ -51,7 +49,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
     authAndEnvAction = app.injector.instanceOf[AuthAndEnvAction]
   )(appConfig = appConfig, ec = ExecutionContext.global)
 
-  val internalServerErrorEori = EORI("GB123456789012999")
+  val internalServerErrorEori: EORI = EORI("GB123456789012999")
   val undertaking: Undertaking = TestInstances.arbUndertakingForCreate.arbitrary.sample.get
   val businessEntityUpdates: UndertakingBusinessEntityUpdate =
     TestInstances.arbUndertakingBusinessEntityUpdate.arbitrary.sample.get
@@ -70,35 +68,22 @@ class UndertakingControllerSpec extends BaseControllerSpec {
   "Create Undertaking" must {
 
     def validCreateUndertakingRequestBody(undertaking: CreateUndertakingRequest): JsValue =
-      Json.toJson(undertaking)(createUndertakingRequestWrites.writes)
+      Json.toJson(undertaking)(createUndertakingRequestWrites)
 
     def validCreateUndertakingBody(undertaking: Undertaking): JsValue =
-      Json.toJson(undertaking)(undertakingFormat.writes)
+      Json.toJson(undertaking)(undertakingFormat.writes(_))
 
     def fakeCreateUndertakingPost(body: JsValue): FakeRequest[JsValue] =
       FakeRequest("POST", "/scp/createundertaking/v1", fakeHeaders, body)
 
-    // the created/stored undertaking is not entirely equal to the one sent by digital
-    implicit val eq = new Equality[Undertaking] {
-      override def areEqual(a: Undertaking, b: Any): Boolean = b match {
-        case u: Undertaking =>
-          u.name == a.name &&
-            u.industrySector == a.industrySector &&
-            u.undertakingBusinessEntity == a.undertakingBusinessEntity
-        case _ =>
-          false
-      }
-    }
-
     "return 200 and an undertakingRef for a valid createUndertaking request" in {
-      val leadEori = undertaking.undertakingBusinessEntity.filter(_.leadEORI == true).head.businessEntityIdentifier
       val createUndertakingRequest = CreateUndertakingRequest(
         name = undertaking.name,
         industrySector = undertaking.industrySector,
         businessEntity = undertaking.undertakingBusinessEntity
       )
 
-      when(mockEscService.createUndertaking(any(), any())(any()))
+      when(mockEscService.createUndertaking(any(), any()))
         .thenReturn(Future.successful(UndertakingRef("some-ref")))
 
       val result: Future[Result] = controller.create.apply(
@@ -107,7 +92,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       status(result) mustEqual play.api.http.Status.OK
       checkJson(contentAsJson(result), "createUndertakingResponse")
 
-      verify(mockEscService, times(1)).createUndertaking(any(), any())(any())
+      verify(mockEscService, times(1)).createUndertaking(any(), any())
 
     }
 
@@ -199,7 +184,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
     val invalidEORI = EORI("GB123456789012777")
 
     "return 200 and an Undertaking for a valid request" in {
-      when(mockEscService.retrieveUndertaking(any())(any()))
+      when(mockEscService.retrieveUndertaking(any()))
         .thenReturn(Future.successful(Some(undertakingWithEori(okEori))))
 
       val result: Future[Result] = testResponse[EORI](
@@ -218,7 +203,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
     "return 200 and an Undertaking with status 'suspendedAutomated' when eori ends with 511" in {
       val eoriNumber = EORI("GB123456789012511")
 
-      when(mockEscService.retrieveUndertaking(any())(any()))
+      when(mockEscService.retrieveUndertaking(any()))
         .thenReturn(Future.successful(Some(undertakingWithEori(eoriNumber))))
       val result: Future[Result] = testResponse[EORI](
         eoriNumber,
@@ -235,7 +220,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
 
     "return 200 and an Undertaking with status 'suspendedManual' when eori ends with 316" in {
       val eoriNumber = EORI("GB123456789012316")
-      when(mockEscService.retrieveUndertaking(any())(any()))
+      when(mockEscService.retrieveUndertaking(any()))
         .thenReturn(Future.successful(Some(undertakingWithEori(eoriNumber))))
       val result: Future[Result] = testResponse[EORI](
         eoriNumber,
@@ -285,7 +270,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
     }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 107 if not found" in {
-      when(mockEscService.retrieveUndertaking(any())(any())).thenReturn(Future.successful(None))
+      when(mockEscService.retrieveUndertaking(any())).thenReturn(Future.successful(None))
       val result: Future[Result] = testResponse[EORI](
         okEori,
         "retrieveUndertakingResponse",
@@ -377,7 +362,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       }
 
     "return 200 and a valid response for a successful amend" in {
-      when(mockEscService.updateUndertaking(any(), any(), any(), any())(any(), any())).thenReturn(Future.successful(()))
+      when(mockEscService.updateUndertaking(any(), any(), any(), any())(any())).thenReturn(Future.successful(()))
 
       // Changing the sector should also change the sector limit.
       val editedUndertaking = undertaking.copy(
@@ -391,17 +376,17 @@ class UndertakingControllerSpec extends BaseControllerSpec {
         "updateUndertakingResponse",
         play.api.http.Status.OK
       )(implicitly, writes, implicitly)
-      verify(mockEscService, times(1)).updateUndertaking(any(), any(), any(), any())(any(), any())
+      verify(mockEscService, times(1)).updateUndertaking(any(), any(), any(), any())(any())
     }
 
     "return 200 and a valid response for a successful disable" in {
-      when(mockEscService.updateUndertaking(any(), any(), any(), any())(any(), any())).thenReturn(Future.successful(()))
+      when(mockEscService.updateUndertaking(any(), any(), any(), any())(any())).thenReturn(Future.successful(()))
       testResponse[Undertaking](
         undertaking,
         "updateUndertakingResponse",
         play.api.http.Status.OK
       )(implicitly, updateUndertakingWrites(EisAmendmentType.D), implicitly)
-      verify(mockEscService, times(2)).updateUndertaking(any(), any(), any(), any())(any(), any())
+      verify(mockEscService, times(2)).updateUndertaking(any(), any(), any(), any())(any())
     }
 
   }
@@ -520,7 +505,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       }
 
     "return 200 and a valid response for a successful amend" in {
-      when(mockEscService.updateUndertakingBusinessEntities(any(), any())(any())).thenReturn(Future.successful(()))
+      when(mockEscService.updateUndertakingBusinessEntities(any(), any())).thenReturn(Future.successful(()))
       val ref: UndertakingRef = businessEntityUpdates.undertakingIdentifier
       val u: Undertaking = undertaking.copy(reference = ref)
       Store.undertakings.put(u)
@@ -542,59 +527,6 @@ class UndertakingControllerSpec extends BaseControllerSpec {
     val notFoundEoriRequest = GetUndertakingBalanceRequest(eori = Some(notFoundEori))
     val industrySectorLimit = IndustrySectorLimit(20000)
     val undertakingRef = UndertakingRef("UR123456")
-    val subsidyAmount = SubsidyAmount(BigDecimal(100.00))
-    val nonHmrcSubsidyAmount = SubsidyAmount(BigDecimal(500.00))
-    val declarationId = DeclarationID("12345")
-    val fixedDate = LocalDate.now().minusDays(20)
-
-    val hmrcSubsidy = HmrcSubsidy(
-      declarationID = declarationId,
-      issueDate = Some(fixedDate),
-      acceptanceDate = fixedDate,
-      declarantEORI = okEori,
-      consigneeEORI = okEori,
-      taxType = Some(TaxType("1")),
-      hmrcSubsidyAmtGBP = Some(subsidyAmount),
-      hmrcSubsidyAmtEUR = Some(subsidyAmount),
-      tradersOwnRefUCR = None
-    )
-
-    val nonHmrcSubsidy = NonHmrcSubsidy(
-      subsidyUsageTransactionId = Some(SubsidyRef("AB12345")),
-      allocationDate = LocalDate.of(2022, 1, 1),
-      submissionDate = fixedDate,
-      publicAuthority = Some("Local Authority"),
-      traderReference = None,
-      nonHMRCSubsidyAmtEUR = nonHmrcSubsidyAmount,
-      businessEntityIdentifier = Some(okEori),
-      amendmentType = Some(EisSubsidyAmendmentType("1"))
-    )
-
-    val undertakingSubsidies = UndertakingSubsidies(
-      undertakingIdentifier = undertakingRef,
-      nonHMRCSubsidyTotalEUR = subsidyAmount,
-      nonHMRCSubsidyTotalGBP = subsidyAmount,
-      hmrcSubsidyTotalEUR = subsidyAmount,
-      hmrcSubsidyTotalGBP = subsidyAmount,
-      nonHMRCSubsidyUsage = List(nonHmrcSubsidy),
-      hmrcSubsidyUsage = List(hmrcSubsidy)
-    )
-
-    val undertaking = Undertaking(
-      reference = undertakingRef,
-      name = UndertakingName("TestUndertaking"),
-      industrySector = Sector.agriculture,
-      industrySectorLimit = industrySectorLimit,
-      lastSubsidyUsageUpdt = Some(LocalDate.of(2021, 1, 18)),
-      undertakingStatus = Some(UndertakingStatus(1).id),
-      undertakingBusinessEntity = List(
-        BusinessEntity(
-          okEori,
-          leadEORI = true,
-          arbContactDetails.arbitrary.sample
-        )
-      )
-    )
 
     val balance = UndertakingBalance(
       undertakingIdentifier = undertakingRef,
@@ -607,7 +539,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
     )
 
     "return 200 and the undertaking balance for a valid request" in {
-      when(mockEscService.getUndertakingBalance(any())(any())).thenReturn(Future.successful(Some(balance)))
+      when(mockEscService.getUndertakingBalance(any())).thenReturn(Future.successful(Some(balance)))
 
       val result: Future[Result] = testResponse[GetUndertakingBalanceRequest](
         okRequest,
@@ -639,8 +571,8 @@ class UndertakingControllerSpec extends BaseControllerSpec {
     }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 107 if EORI not found" in {
-      when(mockEscService.getUndertakingBalance(any())(any())).thenReturn(Future.successful(None))
-      val result: Future[Result] = testResponse[GetUndertakingBalanceRequest](
+      when(mockEscService.getUndertakingBalance(any())).thenReturn(Future.successful(None))
+      testResponse[GetUndertakingBalanceRequest](
         notFoundEoriRequest,
         "getUndertakingBalanceResponse",
         play.api.http.Status.OK,
@@ -657,7 +589,7 @@ class UndertakingControllerSpec extends BaseControllerSpec {
       val eoriNumber = EORI("GB123456789111908")
       val getUndertakingBalanceRequest = GetUndertakingBalanceRequest(eori = Some(eoriNumber))
 
-      val result: Future[Result] = testResponse[GetUndertakingBalanceRequest](
+      testResponse[GetUndertakingBalanceRequest](
         getUndertakingBalanceRequest,
         "getUndertakingBalanceResponse",
         play.api.http.Status.OK,
