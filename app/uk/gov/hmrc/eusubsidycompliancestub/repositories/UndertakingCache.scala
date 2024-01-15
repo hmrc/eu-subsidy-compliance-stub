@@ -17,12 +17,11 @@
 package uk.gov.hmrc.eusubsidycompliancestub.repositories
 
 import cats.implicits.toFunctorOps
-import org.mongodb.scala.MongoCollection
-import org.mongodb.scala.model.{Filters, IndexOptions, Indexes, Updates}
+import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, Indexes, Updates}
 import play.api.libs.json.{JsValue, Reads, Writes}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, UndertakingRef}
-import uk.gov.hmrc.eusubsidycompliancestub.repositories.UndertakingCache.DefaultCacheTtl
+import uk.gov.hmrc.eusubsidycompliancestub.repositories.UndertakingCache._
 import uk.gov.hmrc.mongo.{CurrentTimestampSupport, MongoComponent}
 import uk.gov.hmrc.mongo.cache.{CacheItem, DataKey, MongoCacheRepository}
 
@@ -42,128 +41,99 @@ class UndertakingCache @Inject() (
       collectionName = "undertakingCache",
       ttl = DefaultCacheTtl,
       timestampSupport = new CurrentTimestampSupport,
-      cacheIdType = EoriIdType
+      cacheIdType = EoriIdType,
+      extraIndexes = Seq(
+        undertakingCacheIndex(UndertakingReference, "undertakingReference"),
+        undertakingCacheIndex(UndertakingSubsidiesIdentifier, "undertakingSubsidiesIdentifier"),
+        undertakingCacheIndex(industrySectorLimit, "sectorLimit")
+      ),
+      replaceIndexes = true
     ) {
 
-  private val UndertakingReference = "data.Undertaking.reference"
-  private val UndertakingSubsidiesIdentifier = "data.UndertakingSubsidies.undertakingIdentifier"
-  private val industrySectorLimit = "data.Undertaking.industrySectorLimit"
-
-  // Ensure additional indexes for undertaking and undertaking subsidies deletion are present.
-  private lazy val indexedCollection: Future[MongoCollection[CacheItem]] =
-    for {
-      _ <- collection
-        .createIndex(
-          Indexes.ascending(UndertakingReference),
-          IndexOptions()
-            .background(false)
-            .name("undertakingReference")
-            .sparse(false)
-            .unique(false)
-        )
-        .headOption()
-      _ <- collection
-        .createIndex(
-          Indexes.ascending(UndertakingSubsidiesIdentifier),
-          IndexOptions()
-            .background(false)
-            .name("undertakingSubsidiesIdentifier")
-            .sparse(false)
-            .unique(false)
-        )
-        .headOption()
-      _ <- collection
-        .createIndex(
-          Indexes.ascending(industrySectorLimit),
-          IndexOptions()
-            .background(false)
-            .name("sectorLimit")
-            .sparse(false)
-            .unique(false)
-        )
-        .headOption()
-    } yield collection
-
   def get[A : ClassTag](eori: EORI)(implicit reads: Reads[A]): Future[Option[A]] = {
-    indexedCollection.flatMap { _ =>
-      super.get[A](eori)(dataKeyForType[A])
-    }
+    super.get[A](eori)(dataKeyForType[A])
   }
 
   def findUndertakingByEori(eori: EORI): Future[Option[Undertaking]] = {
-    indexedCollection.flatMap { c =>
-      c.find(
+    collection
+      .find(
         filter = Filters.equal("data.Undertaking.undertakingBusinessEntity.businessEntityIdentifier", eori)
-      ).toFuture()
-        .map { items: Seq[CacheItem] =>
-          if (items.isEmpty) None
-          else
-            items.headOption.flatMap { i =>
-              val data = i.data.as[Map[String, JsValue]]
-              data.get("Undertaking").map(u => u.as[Undertaking])
-            }
-        }
-    }
+      )
+      .toFuture()
+      .map { items: Seq[CacheItem] =>
+        if (items.isEmpty) None
+        else
+          items.headOption.flatMap { i =>
+            val data = i.data.as[Map[String, JsValue]]
+            data.get("Undertaking").map(u => u.as[Undertaking])
+          }
+      }
   }
 
   def findUndertakingEoriByUndertakingRef(
     ref: UndertakingRef
   ): Future[Option[EORI]] = {
-    indexedCollection.flatMap { c =>
-      c.find(
+    collection
+      .find(
         filter = Filters.equal(UndertakingReference, ref)
-      ).toFuture()
-        .map { items: Seq[CacheItem] =>
-          if (items.isEmpty) None
-          else
-            items.headOption.map { i =>
-              i.id.asInstanceOf[EORI]
-            }
-        }
-    }
+      )
+      .toFuture()
+      .map { items: Seq[CacheItem] =>
+        if (items.isEmpty) None
+        else
+          items.headOption.map { i =>
+            i.id.asInstanceOf[EORI]
+          }
+      }
   }
 
   def updateUndertakingBusinessEntities(ref: UndertakingRef, businessEntities: List[BusinessEntity]): Future[Unit] = {
-    indexedCollection.flatMap { c =>
-      c.updateOne(
+    collection
+      .updateOne(
         filter = Filters.equal(UndertakingReference, ref),
         update = Updates.set("data.Undertaking.undertakingBusinessEntity", businessEntities)
-      ).toFuture()
-        .void
-    }
-
+      )
+      .toFuture()
+      .void
   }
 
   def put[A](eori: EORI, in: A)(implicit
     writes: Writes[A]
   ): Future[A] = {
-    indexedCollection.flatMap { _ =>
-      super
-        .put[A](eori)(DataKey(in.getClass.getSimpleName), in)
-        .as(in)
-    }
+    super
+      .put[A](eori)(DataKey(in.getClass.getSimpleName), in)
+      .as(in)
   }
 
   def deleteUndertaking(ref: UndertakingRef): Future[Unit] = {
-    indexedCollection.flatMap { c =>
-      c.deleteOne(
+    collection
+      .deleteOne(
         filter = Filters.equal(UndertakingReference, ref)
-      ).toFuture()
-        .void
-    }
+      )
+      .toFuture()
+      .void
   }
 
   def deleteUndertakingSubsidies(ref: UndertakingRef): Future[Unit] = {
-    indexedCollection.flatMap { c =>
-      c.updateMany(
+    collection
+      .updateMany(
         filter = Filters.equal(UndertakingSubsidiesIdentifier, ref),
         update = Updates.unset("data.UndertakingSubsidies")
-      ).toFuture()
-        .void
-    }
+      )
+      .toFuture()
+      .void
   }
 }
 
 object UndertakingCache {
-  val DefaultCacheTtl: FiniteDuration = 14 days
+  private val DefaultCacheTtl: FiniteDuration = 14 days
+  private val UndertakingReference = "data.Undertaking.reference"
+  private val UndertakingSubsidiesIdentifier = "data.UndertakingSubsidies.undertakingIdentifier"
+  private val industrySectorLimit = "data.Undertaking.industrySectorLimit"
+  private def undertakingCacheIndex(field: String, name: String): IndexModel =
+    IndexModel(
+      Indexes.ascending(field),
+      IndexOptions().background(false).name(name).sparse(false).unique(false)
+    )
+
 }
