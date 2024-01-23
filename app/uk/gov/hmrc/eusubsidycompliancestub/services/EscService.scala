@@ -152,7 +152,8 @@ class EscService @Inject() (
               nonHMRCSubsidyTotalEUR = SubsidyAmount(updatedTotal)
             )
           eori <- findEoriByUndertakingReference(undertakingRef)
-        } yield undertakingCache.put[UndertakingSubsidies](eori, updatedSubsidies)
+          _ <- undertakingCache.put[UndertakingSubsidies](eori, updatedSubsidies)
+        } yield ()
     }
 
   def getUndertakingBalance(eori: EORI): Future[Option[UndertakingBalance]] = {

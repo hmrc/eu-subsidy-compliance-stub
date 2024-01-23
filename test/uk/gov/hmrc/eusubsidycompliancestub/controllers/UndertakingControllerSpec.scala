@@ -20,7 +20,7 @@ import cats.implicits._
 import play.api.libs.json._
 import play.api.mvc.{Action, ControllerComponents, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{status, _}
+import play.api.test.Helpers._
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, createUndertakingRequestWrites, retrieveUndertakingEORIWrites, undertakingFormat, updateUndertakingWrites}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
@@ -34,10 +34,11 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingrequest.GetUndertak
 import uk.gov.hmrc.eusubsidycompliancestub.services.{EscService, Store}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
+import uk.gov.hmrc.eusubsidycompliancestub.BaseSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class UndertakingControllerSpec extends BaseControllerSpec {
+class UndertakingControllerSpec extends BaseSpec {
 
   private val mockEscService = mock[EscService]
   private val appConfig: AppConfig =

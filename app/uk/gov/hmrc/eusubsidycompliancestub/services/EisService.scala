@@ -18,8 +18,8 @@ package uk.gov.hmrc.eusubsidycompliancestub.services
 
 import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingStatus.UndertakingStatus
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit, UndertakingRef}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{CreateUndertakingRequest, SubsidyRetrieve, Undertaking, UndertakingSubsidies}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit}
+import uk.gov.hmrc.eusubsidycompliancestub.models.{CreateUndertakingRequest, Undertaking}
 import uk.gov.hmrc.smartstub._
 
 import java.time.LocalDate
@@ -34,7 +34,7 @@ object EisService {
     undertaking: CreateUndertakingRequest,
     eori: EORI,
     lastSubsidyUsageUpdt: Option[LocalDate] = None,
-    undertakingStatus: Option[UndertakingStatus] = None
+    undertakingStatus: Option[UndertakingStatus]
   )(implicit appConfig: AppConfig): Undertaking = {
     val madeUndertaking = retrieveUndertaking(eori)
     Undertaking(
@@ -55,22 +55,4 @@ object EisService {
         eori.toLong
       )
       .get
-
-  def undertakingRef(eori: EORI): UndertakingRef =
-    DataGenerator.genUndertakingRef
-      .seeded(
-        eori.toLong
-      )
-      .get
-
-  def retrieveSubsidies(r: SubsidyRetrieve): UndertakingSubsidies =
-    DataGenerator
-      .genSubsidies(
-        r
-      )
-      .seeded(
-        r.undertakingIdentifier.hashCode.toLong
-      )
-      .get
-
 }

@@ -21,6 +21,7 @@ import org.mockito.Mockito.when
 import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
 import play.api.test.Helpers._
+import uk.gov.hmrc.eusubsidycompliancestub.BaseSpec
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{SubsidyAmount, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models._
 import uk.gov.hmrc.eusubsidycompliancestub.services.{EscService, Store}
@@ -28,7 +29,7 @@ import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubsidyControllerSpec extends BaseControllerSpec {
+class SubsidyControllerSpec extends BaseSpec {
 
   private val mockEscService = mock[EscService]
 

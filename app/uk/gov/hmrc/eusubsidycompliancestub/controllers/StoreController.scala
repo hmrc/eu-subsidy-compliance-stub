@@ -35,7 +35,7 @@ class StoreController @Inject() (
 
   def show: Action[AnyContent] = Action.async { _ =>
     val store = Store.undertakings.undertakingStore
-    Ok(store.toString).toFuture
+    Ok(Json.toJson(store.values)).toFuture
   }
 
 }
