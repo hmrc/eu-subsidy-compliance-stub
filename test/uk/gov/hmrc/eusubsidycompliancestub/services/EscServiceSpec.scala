@@ -134,8 +134,10 @@ class EscServiceSpec extends BaseSpec with BeforeAndAfterEach {
     }
 
     "add subsidies when updateSubsidies is called" in {
-      implicit val equalsWithIgnore: Equality[NonHmrcSubsidy] = { case (a, b: NonHmrcSubsidy) =>
-        a.copy(subsidyUsageTransactionId = b.subsidyUsageTransactionId, amendmentType = b.amendmentType) == b
+      implicit val equalsWithIgnore: Equality[NonHmrcSubsidy] = {
+        case (a, b: NonHmrcSubsidy) =>
+          a.copy(subsidyUsageTransactionId = b.subsidyUsageTransactionId, amendmentType = b.amendmentType) == b
+        case _ => false
       }
       forAll { (eori: EORI, undertaking: Undertaking, subsidies: List[NonHmrcSubsidy]) =>
         await(undertakingCache.put(eori, undertaking))

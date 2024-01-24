@@ -31,18 +31,18 @@ import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances.arbContactDetails
 import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
 import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses.{GetUndertakingBalanceApiResponse, UndertakingBalance}
 import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingrequest.GetUndertakingBalanceRequest
-import uk.gov.hmrc.eusubsidycompliancestub.services.{EscService, Store}
+import uk.gov.hmrc.eusubsidycompliancestub.services.EscService
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import uk.gov.hmrc.eusubsidycompliancestub.BaseSpec
+import play.api.http.{Status => HttpStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class UndertakingControllerSpec extends BaseSpec {
 
   private val mockEscService = mock[EscService]
-  private val appConfig: AppConfig =
-    app.injector.instanceOf[AppConfig]
+  private val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   private val controller: UndertakingController = new UndertakingController(
     escService = mockEscService,
@@ -84,48 +84,47 @@ class UndertakingControllerSpec extends BaseSpec {
         businessEntity = undertaking.undertakingBusinessEntity
       )
 
-      when(mockEscService.createUndertaking(any(), any()))
-        .thenReturn(Future.successful(UndertakingRef("some-ref")))
+      when(mockEscService.retrieveUndertaking(any())).thenReturn(Future.successful(None))
+      when(mockEscService.createUndertaking(any(), any())).thenReturn(Future.successful(UndertakingRef("some-ref")))
 
       val result: Future[Result] = controller.create.apply(
         fakeCreateUndertakingPost(validCreateUndertakingRequestBody(createUndertakingRequest))
       )
-      status(result) mustEqual play.api.http.Status.OK
+      status(result) mustEqual HttpStatus.OK
       checkJson(contentAsJson(result), "createUndertakingResponse")
 
+      verify(mockEscService, times(1)).retrieveUndertaking(any())
       verify(mockEscService, times(1)).createUndertaking(any(), any())
-
     }
 
-    "return 200 but with NOT_OK responseCommon.status and ERRORCODE 101 " +
-      "if EORI associated with another Undertaking in the Store" in {
-        val eoriAssocUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012000"))
-        Store.undertakings.put(eoriAssocUndertaking)
-        notOkCreateUndertakingResponseCheck(eoriAssocUndertaking, "101")
-        Store.clear()
-      }
+    "return 200 but with NOT_OK responseCommon.status and ERRORCODE 101 if EORI associated with another Undertaking" in {
+      val eori = EORI("GB123456789012000")
+      val eoriAssocUndertaking: Undertaking = undertakingWithEori(eori)
+      when(mockEscService.retrieveUndertaking(eori)) thenReturn Future.successful(Some(eoriAssocUndertaking))
+      notOkCreateUndertakingResponseCheck(eoriAssocUndertaking, "101")
+    }
 
     "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
-      val result: Future[Result] =
-        controller.create.apply(
-          fakeCreateUndertakingPost(Json.obj("foo" -> "bar"))
-        )
+      val result = controller.create.apply(
+        fakeCreateUndertakingPost(Json.obj("foo" -> "bar"))
+      )
       checkJson(contentAsJson(result), "errorDetailResponse")
-      status(result) mustEqual play.api.http.Status.FORBIDDEN
+      status(result) mustEqual HttpStatus.FORBIDDEN
     }
 
     "return 500 if the BusinessEntity.EORI ends in 999 " in {
       val duffUndertaking: Undertaking = undertakingWithEori(internalServerErrorEori)
-      val result: Future[Result] =
-        controller.create.apply(
-          fakeCreateUndertakingPost(
-            validCreateUndertakingBody(
-              duffUndertaking
-            )
+      when(mockEscService.retrieveUndertaking(internalServerErrorEori)) thenReturn
+        Future.successful(Some(duffUndertaking))
+      val result = controller.create.apply(
+        fakeCreateUndertakingPost(
+          validCreateUndertakingBody(
+            duffUndertaking
           )
         )
+      )
       checkJson(contentAsJson(result), "errorDetailResponse")
-      status(result) mustEqual play.api.http.Status.INTERNAL_SERVER_ERROR
+      status(result) mustEqual HttpStatus.INTERNAL_SERVER_ERROR
     }
 
     def notOkCreateUndertakingResponseCheck(undertaking: Undertaking, responseCode: String) = {
@@ -144,7 +143,7 @@ class UndertakingControllerSpec extends BaseSpec {
       (json \ "createUndertakingResponse" \ "responseCommon" \ "returnParameters").as[List[Params]].head mustEqual
         Params(EisParamName.ERRORCODE, EisParamValue(responseCode))
       checkJson(contentAsJson(result), "createUndertakingResponse")
-      status(result) mustEqual play.api.http.Status.OK
+      status(result) mustEqual HttpStatus.OK
     }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 004 " +
@@ -164,7 +163,6 @@ class UndertakingControllerSpec extends BaseSpec {
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 102 if " +
       "BusinessEntity.EORI ends in 666 (invalid EORI number)" in {
         val invalidEoriUndertaking: Undertaking = undertakingWithEori(EORI("GB123456789012666"))
-
         notOkCreateUndertakingResponseCheck(invalidEoriUndertaking, "102")
       }
 
@@ -191,14 +189,12 @@ class UndertakingControllerSpec extends BaseSpec {
       val result: Future[Result] = testResponse[EORI](
         okEori,
         "retrieveUndertakingResponse",
-        play.api.http.Status.OK
+        HttpStatus.OK
       )
 
       // TODO this next test should live on the BE
       val u: JsResult[Undertaking] = Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
       u.isSuccess mustEqual true
-
-      Store.clear()
     }
 
     "return 200 and an Undertaking with status 'suspendedAutomated' when eori ends with 511" in {
@@ -209,14 +205,12 @@ class UndertakingControllerSpec extends BaseSpec {
       val result: Future[Result] = testResponse[EORI](
         eoriNumber,
         "retrieveUndertakingResponse",
-        play.api.http.Status.OK
+        HttpStatus.OK
       )
 
       val u: JsResult[Undertaking] = Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
       u.isSuccess mustEqual true
       u.get.undertakingStatus mustEqual Some(UndertakingStatus.suspendedAutomated.id)
-
-      Store.clear()
     }
 
     "return 200 and an Undertaking with status 'suspendedManual' when eori ends with 316" in {
@@ -226,21 +220,19 @@ class UndertakingControllerSpec extends BaseSpec {
       val result: Future[Result] = testResponse[EORI](
         eoriNumber,
         "retrieveUndertakingResponse",
-        play.api.http.Status.OK
+        HttpStatus.OK
       )
 
       val u: JsResult[Undertaking] = Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
       u.isSuccess mustEqual true
       u.get.undertakingStatus mustEqual Some(UndertakingStatus.suspendedManual.id)
-
-      Store.clear()
     }
 
     "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
       testResponse[JsValue](
         Json.obj("foo" -> "bar"),
         "errorDetailResponse",
-        play.api.http.Status.FORBIDDEN
+        HttpStatus.FORBIDDEN
       )
     }
 
@@ -248,7 +240,7 @@ class UndertakingControllerSpec extends BaseSpec {
       testResponse[EORI](
         internalServerErrorEori,
         "errorDetailResponse",
-        play.api.http.Status.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR
       )
     }
 
@@ -256,7 +248,7 @@ class UndertakingControllerSpec extends BaseSpec {
       val result: Future[Result] = testResponse[EORI](
         notFoundEori,
         "retrieveUndertakingResponse",
-        play.api.http.Status.OK,
+        HttpStatus.OK,
         List(
           contentAsJson(_) \\ "status" mustEqual List(JsString("NOT_OK")),
           contentAsJson(_) \\ "paramValue" mustEqual
@@ -275,7 +267,7 @@ class UndertakingControllerSpec extends BaseSpec {
       val result: Future[Result] = testResponse[EORI](
         okEori,
         "retrieveUndertakingResponse",
-        play.api.http.Status.OK,
+        HttpStatus.OK,
         List(
           contentAsJson(_) \\ "status" mustEqual List(JsString("NOT_OK")),
           contentAsJson(_) \\ "paramValue" mustEqual
@@ -293,7 +285,7 @@ class UndertakingControllerSpec extends BaseSpec {
       val result: Future[Result] = testResponse[EORI](
         invalidEORI,
         "retrieveUndertakingResponse",
-        play.api.http.Status.OK,
+        HttpStatus.OK,
         List(
           contentAsJson(_) \\ "status" mustEqual List(JsString("NOT_OK")),
           contentAsJson(_) \\ "paramValue" mustEqual
@@ -319,7 +311,7 @@ class UndertakingControllerSpec extends BaseSpec {
       testResponse[JsValue](
         Json.obj("foo" -> "bar"),
         "errorDetailResponse",
-        play.api.http.Status.FORBIDDEN
+        HttpStatus.FORBIDDEN
       )
     }
 
@@ -327,7 +319,7 @@ class UndertakingControllerSpec extends BaseSpec {
       testResponse[Undertaking](
         undertaking.copy(reference = UndertakingRef("999")),
         "errorDetailResponse",
-        play.api.http.Status.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR
       )(implicitly, writes, implicitly)
     }
 
@@ -336,7 +328,7 @@ class UndertakingControllerSpec extends BaseSpec {
         testResponse[Undertaking](
           undertaking.copy(reference = UndertakingRef("888")),
           "updateUndertakingResponse",
-          play.api.http.Status.OK,
+          HttpStatus.OK,
           List(
             contentAsJson(_) \\ "status" mustEqual
               List(JsString("NOT_OK")),
@@ -352,7 +344,7 @@ class UndertakingControllerSpec extends BaseSpec {
         testResponse[Undertaking](
           undertaking.copy(reference = UndertakingRef(badId)),
           "updateUndertakingResponse",
-          play.api.http.Status.OK,
+          HttpStatus.OK,
           List(
             contentAsJson(_) \\ "status" mustEqual
               List(JsString("NOT_OK")),
@@ -375,7 +367,7 @@ class UndertakingControllerSpec extends BaseSpec {
       testResponse[Undertaking](
         editedUndertaking,
         "updateUndertakingResponse",
-        play.api.http.Status.OK
+        HttpStatus.OK
       )(implicitly, writes, implicitly)
       verify(mockEscService, times(1)).updateUndertaking(any(), any(), any(), any())(any())
     }
@@ -385,7 +377,7 @@ class UndertakingControllerSpec extends BaseSpec {
       testResponse[Undertaking](
         undertaking,
         "updateUndertakingResponse",
-        play.api.http.Status.OK
+        HttpStatus.OK
       )(implicitly, updateUndertakingWrites(EisAmendmentType.D), implicitly)
       verify(mockEscService, times(2)).updateUndertaking(any(), any(), any(), any())(any())
     }
@@ -403,7 +395,7 @@ class UndertakingControllerSpec extends BaseSpec {
       testResponse[JsValue](
         Json.obj("foo" -> "bar"),
         "errorDetailResponse",
-        play.api.http.Status.FORBIDDEN
+        HttpStatus.FORBIDDEN
       )
     }
 
@@ -411,7 +403,7 @@ class UndertakingControllerSpec extends BaseSpec {
       testResponse[UndertakingBusinessEntityUpdate](
         businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("999")),
         "errorDetailResponse",
-        play.api.http.Status.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR
       )
     }
 
@@ -420,7 +412,7 @@ class UndertakingControllerSpec extends BaseSpec {
         testResponse[UndertakingBusinessEntityUpdate](
           businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("888")),
           "amendUndertakingMemberDataResponse",
-          play.api.http.Status.OK,
+          HttpStatus.OK,
           List(
             contentAsJson(_) \\ "status" mustEqual
               List(JsString("NOT_OK")),
@@ -435,7 +427,7 @@ class UndertakingControllerSpec extends BaseSpec {
         testResponse[UndertakingBusinessEntityUpdate](
           businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("777")),
           "amendUndertakingMemberDataResponse",
-          play.api.http.Status.OK,
+          HttpStatus.OK,
           List(
             contentAsJson(_) \\ "status" mustEqual
               List(JsString("NOT_OK")),
@@ -450,7 +442,7 @@ class UndertakingControllerSpec extends BaseSpec {
         testResponse[UndertakingBusinessEntityUpdate](
           businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("666")),
           "amendUndertakingMemberDataResponse",
-          play.api.http.Status.OK,
+          HttpStatus.OK,
           List(
             contentAsJson(_) \\ "status" mustEqual
               List(JsString("NOT_OK")),
@@ -465,7 +457,7 @@ class UndertakingControllerSpec extends BaseSpec {
         testResponse[UndertakingBusinessEntityUpdate](
           businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("555")),
           "amendUndertakingMemberDataResponse",
-          play.api.http.Status.OK,
+          HttpStatus.OK,
           List(
             contentAsJson(_) \\ "status" mustEqual
               List(JsString("NOT_OK")),
@@ -480,7 +472,7 @@ class UndertakingControllerSpec extends BaseSpec {
         testResponse[UndertakingBusinessEntityUpdate](
           businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("444")),
           "amendUndertakingMemberDataResponse",
-          play.api.http.Status.OK,
+          HttpStatus.OK,
           List(
             contentAsJson(_) \\ "status" mustEqual
               List(JsString("NOT_OK")),
@@ -495,7 +487,7 @@ class UndertakingControllerSpec extends BaseSpec {
         testResponse[UndertakingBusinessEntityUpdate](
           businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("333")),
           "amendUndertakingMemberDataResponse",
-          play.api.http.Status.OK,
+          HttpStatus.OK,
           List(
             contentAsJson(_) \\ "status" mustEqual
               List(JsString("NOT_OK")),
@@ -507,13 +499,10 @@ class UndertakingControllerSpec extends BaseSpec {
 
     "return 200 and a valid response for a successful amend" in {
       when(mockEscService.updateUndertakingBusinessEntities(any(), any())).thenReturn(Future.successful(()))
-      val ref: UndertakingRef = businessEntityUpdates.undertakingIdentifier
-      val u: Undertaking = undertaking.copy(reference = ref)
-      Store.undertakings.put(u)
       testResponse[UndertakingBusinessEntityUpdate](
         businessEntityUpdates,
         "amendUndertakingMemberDataResponse",
-        play.api.http.Status.OK
+        HttpStatus.OK
       )
     }
   }
@@ -545,7 +534,7 @@ class UndertakingControllerSpec extends BaseSpec {
       val result: Future[Result] = testResponse[GetUndertakingBalanceRequest](
         okRequest,
         "getUndertakingBalanceResponse",
-        play.api.http.Status.OK
+        HttpStatus.OK
       )
 
       // TODO this next test should live on the BE
@@ -567,7 +556,7 @@ class UndertakingControllerSpec extends BaseSpec {
       testResponse[JsValue](
         Json.obj("foo" -> "bar"),
         "errorDetailResponse",
-        play.api.http.Status.FORBIDDEN
+        HttpStatus.FORBIDDEN
       )
     }
 
@@ -576,7 +565,7 @@ class UndertakingControllerSpec extends BaseSpec {
       testResponse[GetUndertakingBalanceRequest](
         notFoundEoriRequest,
         "getUndertakingBalanceResponse",
-        play.api.http.Status.OK,
+        HttpStatus.OK,
         List(
           contentAsJson(_) \\ "status" mustEqual List(JsString("NOT_OK")),
           contentAsJson(_) \\ "paramValue" mustEqual
@@ -593,7 +582,7 @@ class UndertakingControllerSpec extends BaseSpec {
       testResponse[GetUndertakingBalanceRequest](
         getUndertakingBalanceRequest,
         "getUndertakingBalanceResponse",
-        play.api.http.Status.OK,
+        HttpStatus.OK,
         List(
           contentAsJson(_) \\ "status" mustEqual List(JsString("NOT_OK")),
           contentAsJson(_) \\ "paramValue" mustEqual
