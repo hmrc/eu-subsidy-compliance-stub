@@ -18,6 +18,7 @@ package uk.gov.hmrc.eusubsidycompliancestub.controllers
 
 import org.scalatest.Assertion
 import play.api.libs.json.{Format, Json, Writes}
+import uk.gov.hmrc.eusubsidycompliancestub.BaseSpec
 import uk.gov.hmrc.eusubsidycompliancestub.models._
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.retrieveUndertakingEORIWrites
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.ErrorDetails
@@ -25,7 +26,7 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType}
 import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses.RetrieveUndertakingApiResponse
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances._
 
-class JsonConversionSpec extends BaseControllerSpec {
+class JsonConversionSpec extends BaseSpec {
 
   "Json Writes " must {
     "match retrieveUndertakingResponse.schema.json" in {

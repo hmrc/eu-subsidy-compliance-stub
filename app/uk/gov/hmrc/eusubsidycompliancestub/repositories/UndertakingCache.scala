@@ -17,9 +17,9 @@
 package uk.gov.hmrc.eusubsidycompliancestub.repositories
 
 import cats.implicits.toFunctorOps
-import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, Indexes, Updates}
+import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, Indexes}
 import play.api.libs.json.{JsValue, Reads, Writes}
-import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, Undertaking}
+import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.repositories.UndertakingCache._
 import uk.gov.hmrc.mongo.{CurrentTimestampSupport, MongoComponent}
@@ -61,12 +61,10 @@ class UndertakingCache @Inject() (
       )
       .toFuture()
       .map { items: Seq[CacheItem] =>
-        if (items.isEmpty) None
-        else
-          items.headOption.flatMap { i =>
-            val data = i.data.as[Map[String, JsValue]]
-            data.get("Undertaking").map(u => u.as[Undertaking])
-          }
+        items.headOption.flatMap { i =>
+          val data = i.data.as[Map[String, JsValue]]
+          data.get("Undertaking").map(u => u.as[Undertaking])
+        }
       }
   }
 
@@ -79,22 +77,10 @@ class UndertakingCache @Inject() (
       )
       .toFuture()
       .map { items: Seq[CacheItem] =>
-        if (items.isEmpty) None
-        else
-          items.headOption.map { i =>
-            i.id.asInstanceOf[EORI]
-          }
+        items.headOption.map { i =>
+          i.id.asInstanceOf[EORI]
+        }
       }
-  }
-
-  def updateUndertakingBusinessEntities(ref: UndertakingRef, businessEntities: List[BusinessEntity]): Future[Unit] = {
-    collection
-      .updateOne(
-        filter = Filters.equal(UndertakingReference, ref),
-        update = Updates.set("data.Undertaking.undertakingBusinessEntity", businessEntities)
-      )
-      .toFuture()
-      .void
   }
 
   def put[A](eori: EORI, in: A)(implicit
@@ -109,16 +95,6 @@ class UndertakingCache @Inject() (
     collection
       .deleteOne(
         filter = Filters.equal(UndertakingReference, ref)
-      )
-      .toFuture()
-      .void
-  }
-
-  def deleteUndertakingSubsidies(ref: UndertakingRef): Future[Unit] = {
-    collection
-      .updateMany(
-        filter = Filters.equal(UndertakingSubsidiesIdentifier, ref),
-        update = Updates.unset("data.UndertakingSubsidies")
       )
       .toFuture()
       .void

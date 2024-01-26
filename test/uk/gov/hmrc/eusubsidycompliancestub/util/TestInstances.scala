@@ -27,6 +27,8 @@ import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator._
 import uk.gov.hmrc.smartstub._
 import wolfendale.scalacheck.regexp.RegexpGen
 
+import scala.math.BigDecimal.RoundingMode
+
 object TestInstances {
 
   implicit def arbSubsidyUpdate: Arbitrary[SubsidyUpdate] = {
@@ -75,7 +77,9 @@ object TestInstances {
       submissionDate <- Gen.date(LocalDate.of(2020, 1, 1), LocalDate.now)
       publicAuthority <- arbString.arbitrary
       traderReference <- Gen.option(arbTraderRef.arbitrary)
-      nonHMRCSubsidyAmount <- Gen.choose(1f, 9999999999999f).map(x => SubsidyAmount(x / 100))
+      nonHMRCSubsidyAmount <- Gen
+        .choose(BigDecimal(0), BigDecimal(999999999.99f))
+        .map(x => SubsidyAmount(x.setScale(2, RoundingMode.DOWN).bigDecimal.stripTrailingZeros()))
       businessEntityIdentifier <- genEORI
     } yield NonHmrcSubsidy(
       ref,
@@ -90,6 +94,8 @@ object TestInstances {
     Arbitrary(a)
   }
 
+  implicit def arbSubsidies: Arbitrary[List[NonHmrcSubsidy]] = Arbitrary(Gen.nonEmptyListOf(arbSubsidy.arbitrary))
+
   implicit def arbUndertaking: Arbitrary[Undertaking] = {
     val u = for {
       eori <- genEORI
@@ -97,6 +103,11 @@ object TestInstances {
     } yield undertaking
     Arbitrary(u)
   }
+
+  implicit def arbUndertakings: Arbitrary[List[Undertaking]] =
+    Arbitrary(
+      Gen.listOf(arbUndertaking.arbitrary).map(_.distinctBy(_.reference))
+    )
 
   def arbContactDetails: Arbitrary[ContactDetails] =
     Arbitrary(genContactDetails.retryUntil(x => x.phone.nonEmpty || x.mobile.nonEmpty))
@@ -163,5 +174,4 @@ object TestInstances {
       range <- Gen.option((LocalDate.now.minusMonths(6L), LocalDate.now))
     } yield SubsidyRetrieve(ref, range)
   }
-
 }

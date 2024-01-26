@@ -26,6 +26,8 @@ import wolfendale.scalacheck.regexp.RegexpGen
 import java.time.LocalDate
 import shapeless.tag.@@
 
+import scala.math.BigDecimal.RoundingMode
+
 object DataGenerator {
 
   private def variableLengthString(min: Int, max: Int) =
@@ -69,7 +71,9 @@ object DataGenerator {
     } yield BusinessEntityUpdate(amendmentType, amendmentEffectiveDate, businessEntity)
 
   def genIndustrySectorLimit: Gen[@@[BigDecimal, types.IndustrySectorLimit.Tag]] =
-    Gen.choose(1f, 9999999999999f).map(x => IndustrySectorLimit(x / 100))
+    Gen
+      .choose(BigDecimal(0), BigDecimal(99999999999.99f))
+      .map(n => IndustrySectorLimit(n.setScale(2, RoundingMode.DOWN).bigDecimal.stripTrailingZeros()))
 
   def genLastSubsidyUsageUpdt: Gen[LocalDate] =
     Gen.date(LocalDate.of(2020, 1, 1), LocalDate.now)
@@ -82,7 +86,7 @@ object DataGenerator {
       industrySectorLimit <- genIndustrySectorLimit
       lastSubsidyUsageUpdt <- genLastSubsidyUsageUpdt
       undertakingStatus <- Gen.oneOf(List(0, 1, 5, 9))
-      nBusinessEntities <- Gen.choose(1, 25)
+      nBusinessEntities <- Gen.choose(2, 25)
       undertakingBusinessEntity <- Gen.listOfN(nBusinessEntities, genBusinessEntity)
     } yield Undertaking(
       reference = UndertakingRef(ref),

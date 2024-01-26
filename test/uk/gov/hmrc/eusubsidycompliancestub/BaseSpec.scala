@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.eusubsidycompliancestub.controllers
+package uk.gov.hmrc.eusubsidycompliancestub
 
 import com.github.fge.jsonschema.core.report.AbstractProcessingReport
-import org.scalactic.Equality
 import org.scalatest.Assertion
 import org.scalatestplus.mockito._
 import org.scalatestplus.play.PlaySpec
@@ -30,13 +29,11 @@ import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.mvc.{Action, Result, Results}
 import play.api.test.Helpers.{contentAsJson, status, _}
 import play.api.test.{FakeHeaders, FakeRequest}
-import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef
-import uk.gov.hmrc.eusubsidycompliancestub.services.{JsonSchemaChecker, Store}
+import uk.gov.hmrc.eusubsidycompliancestub.services.JsonSchemaChecker
 
 import scala.concurrent.Future
 
-class BaseControllerSpec
+abstract class BaseSpec
     extends PlaySpec
     with MockitoSugar // TODO remove if unneeded
     with Results
@@ -84,20 +81,5 @@ class BaseControllerSpec
     status(result) mustEqual expectedStatus
     extraChecks.map(f => f(result))
     result
-  }
-
-  def checkUndertakingStore(
-    k: UndertakingRef,
-    v: Undertaking
-  )(implicit
-    eq: Equality[Undertaking]
-  ): Unit = {
-    Store.undertakings.retrieve(k).get mustEqual v
-    Store.undertakings
-      .retrieveByEori(
-        v.undertakingBusinessEntity.head.businessEntityIdentifier
-      )
-      .get mustEqual v
-    Store.clear()
   }
 }

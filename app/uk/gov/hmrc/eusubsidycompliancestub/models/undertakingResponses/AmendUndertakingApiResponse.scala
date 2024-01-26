@@ -32,11 +32,6 @@ object AmendUndertakingApiResponse {
       )
     )
   )
-  def apply(receiptDate: String): AmendUndertakingApiResponse = AmendUndertakingApiResponse(
-    AmendUndertakingMemberDataResponse(
-      responseCommon = ResponseCommon(receiptDate)
-    )
-  )
 }
 
 case class AmendUndertakingMemberDataResponse(

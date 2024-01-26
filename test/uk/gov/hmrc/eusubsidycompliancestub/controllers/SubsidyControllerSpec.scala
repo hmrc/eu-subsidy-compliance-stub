@@ -21,14 +21,15 @@ import org.mockito.Mockito.when
 import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
 import play.api.test.Helpers._
+import uk.gov.hmrc.eusubsidycompliancestub.BaseSpec
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{SubsidyAmount, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models._
-import uk.gov.hmrc.eusubsidycompliancestub.services.{EscService, Store}
+import uk.gov.hmrc.eusubsidycompliancestub.services.EscService
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubsidyControllerSpec extends BaseControllerSpec {
+class SubsidyControllerSpec extends BaseSpec {
 
   private val mockEscService = mock[EscService]
 
@@ -98,7 +99,6 @@ class SubsidyControllerSpec extends BaseControllerSpec {
         "retrieveUndertakingSubsidiesResponse",
         play.api.http.Status.OK
       )
-      Store.clear()
     }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 004 " +
@@ -168,7 +168,6 @@ class SubsidyControllerSpec extends BaseControllerSpec {
         "updateSubsidyUsageResponse",
         play.api.http.Status.OK
       )
-      Store.clear()
     }
 
     "return 200  and a valid response for a nil return" in {

@@ -28,7 +28,7 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmen
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, UndertakingName, UndertakingRef, UndertakingStatus}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses.{AmendUndertakingApiResponse, CreateUndertakingApiResponse, GetUndertakingBalanceApiResponse, RetrieveUndertakingApiResponse, UndertakingBalanceResponse, UpdateUndertakingApiResponse}
-import uk.gov.hmrc.eusubsidycompliancestub.services.{EisService, EscService, Store}
+import uk.gov.hmrc.eusubsidycompliancestub.services.{EisService, EscService}
 import uk.gov.hmrc.eusubsidycompliancestub.syntax.FutureSyntax.FutureOps
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -55,48 +55,51 @@ class UndertakingController @Inject() (
     }
   }
 
-  private def getCreateResponse(eori: EORI, json: JsValue): Future[Result] =
-    eori match {
-      case a if a.endsWith("999") => // fake 500
-        InternalServerError(Json.toJson(errorDetailFor500)).toFuture
+  private def getCreateResponse(eori: EORI, json: JsValue): Future[Result] = {
+    escService.retrieveUndertaking(eori).flatMap { undertakingOpt =>
+      eori match {
+        case a if a.endsWith("999") => // fake 500
+          InternalServerError(Json.toJson(errorDetailFor500)).toFuture
 
-      case b if b.endsWith("888") => // fake 004s
-        Ok(Json.toJson(CreateUndertakingApiResponse("004", "Duplicate submission acknowledgment reference"))).toFuture
+        case b if b.endsWith("888") => // fake 004s
+          Ok(Json.toJson(CreateUndertakingApiResponse("004", "Duplicate submission acknowledgment reference"))).toFuture
 
-      case c if c.endsWith("777") || Store.undertakings.retrieveByEori(c).nonEmpty =>
-        Ok(
-          Json.toJson(
-            CreateUndertakingApiResponse("101", s"EORI $eori already associated with another Undertaking $eori")
-          )
-        ).toFuture
+        case c if c.endsWith("777") || undertakingOpt.isDefined =>
+          Ok(
+            Json.toJson(
+              CreateUndertakingApiResponse("101", s"EORI $eori already associated with another Undertaking $eori")
+            )
+          ).toFuture
 
-      case d if d.endsWith("666") =>
-        Ok(
-          Json.toJson(
-            CreateUndertakingApiResponse("102", s"Invalid EORI number $eori")
-          )
-        ).toFuture
+        case d if d.endsWith("666") =>
+          Ok(
+            Json.toJson(
+              CreateUndertakingApiResponse("102", s"Invalid EORI number $eori")
+            )
+          ).toFuture
 
-      case e if e.endsWith("555") =>
-        Ok(Json.toJson(CreateUndertakingApiResponse("113", s"Postcode missing for the address"))).toFuture
+        case e if e.endsWith("555") =>
+          Ok(Json.toJson(CreateUndertakingApiResponse("113", s"Postcode missing for the address"))).toFuture
 
-      //create an Undertaking with lastSubsidyUsageUpdt which is 77 days older than today i.e between the range of 76-90 days
-      case f if f.endsWith("444") =>
-        val undertaking = Json.fromJson(json)(undertakingRequestReads).get
-        val madeUndertaking =
-          EisService.makeUndertaking(undertaking, eori, LocalDate.now.minusDays(77).some, UndertakingStatus(0).some)
+        //create an Undertaking with lastSubsidyUsageUpdt which is 77 days older than today i.e between the range of 76-90 days
+        case f if f.endsWith("444") =>
+          val undertaking = Json.fromJson(json)(undertakingRequestReads).get
+          val madeUndertaking =
+            EisService.makeUndertaking(undertaking, eori, LocalDate.now.minusDays(77).some, UndertakingStatus(0).some)
 
-        escService.createUndertaking(eori, madeUndertaking).map { reference =>
-          Ok(Json.toJson(CreateUndertakingApiResponse(reference)))
-        }
-      case _ =>
-        val undertaking = Json.fromJson(json)(undertakingRequestReads).get
-        val madeUndertaking =
-          EisService.makeUndertaking(undertaking, eori, undertakingStatus = UndertakingStatus(0).some)
-        escService.createUndertaking(eori, madeUndertaking).map { reference =>
-          Ok(Json.toJson(CreateUndertakingApiResponse(reference)))
-        }
+          escService.createUndertaking(eori, madeUndertaking).map { reference =>
+            Ok(Json.toJson(CreateUndertakingApiResponse(reference)))
+          }
+        case _ =>
+          val undertaking = Json.fromJson(json)(undertakingRequestReads).get
+          val madeUndertaking =
+            EisService.makeUndertaking(undertaking, eori, undertakingStatus = UndertakingStatus(0).some)
+          escService.createUndertaking(eori, madeUndertaking).map { reference =>
+            Ok(Json.toJson(CreateUndertakingApiResponse(reference)))
+          }
+      }
     }
+  }
 
   def retrieve: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
     withJsonBody[JsValue] { json =>
