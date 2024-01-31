@@ -97,7 +97,7 @@ class EscServiceSpec extends BaseSpec with BeforeAndAfterEach {
     "delete undertaking if updateUndertaking is called with Delete" in {
       forAll { (eori: EORI, undertaking: Undertaking) =>
         await(undertakingCache.put(eori, undertaking))
-        await(escService.updateUndertaking(undertaking.reference, EisAmendmentType.D, None, null))
+        await(escService.updateUndertaking(undertaking.reference, EisAmendmentType.D, null))
         await(undertakingCache.get[Undertaking](eori)) mustBe None
       }
     }
@@ -107,7 +107,7 @@ class EscServiceSpec extends BaseSpec with BeforeAndAfterEach {
         await(undertakingCache.put(eori, undertaking))
         val updatedSector: Sector = Gen.oneOf(Sector.values - undertaking.industrySector).sample.get
         await(
-          escService.updateUndertaking(undertaking.reference, EisAmendmentType.A, None, updatedSector)
+          escService.updateUndertaking(undertaking.reference, EisAmendmentType.A, updatedSector)
         )
         val actualUndertaking = await(undertakingCache.get[Undertaking](eori)).get
         actualUndertaking.industrySector mustBe updatedSector

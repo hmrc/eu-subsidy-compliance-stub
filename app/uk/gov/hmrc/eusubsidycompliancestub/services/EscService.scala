@@ -85,7 +85,6 @@ class EscService @Inject() (
   def updateUndertaking(
     undertakingRef: UndertakingRef,
     amendmentType: EisAmendmentType,
-    undertakingName: Option[UndertakingName],
     sector: Sector
   )(implicit appConfig: AppConfig): Future[Unit] =
     amendmentType match {

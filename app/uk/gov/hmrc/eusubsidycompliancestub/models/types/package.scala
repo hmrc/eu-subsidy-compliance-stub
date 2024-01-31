@@ -106,26 +106,10 @@ package object types extends SimpleJson {
         _.trim.replaceAll("[ \\t]+", " ").toUpperCase
       )
 
-  type AddressLine = String @@ AddressLine.Tag
-  object AddressLine
-      extends RegexValidatedString(
-        regex = """^[a-zA-Z0-9 '&.-]{1,40}$"""
-      )
-
   type PhoneNumber = String @@ PhoneNumber.Tag
   object PhoneNumber
       extends RegexValidatedString(
         regex = """.{1,24}"""
-      )
-
-  type CountryCode = String @@ CountryCode.Tag
-  object CountryCode
-      extends RegexValidatedString(
-        """^[A-Z][A-Z]$""",
-        _.toUpperCase match {
-          case "UK" => "GB"
-          case other => other
-        }
       )
 
   type SubsidyRef = String @@ SubsidyRef.Tag
@@ -212,10 +196,4 @@ package object types extends SimpleJson {
       extends RegexValidatedString(
         """.{32}"""
       )
-
-  type NonEmptyString = String @@ NonEmptyString.Tag
-  object NonEmptyString extends ValidatedType[String] {
-    def validateAndTransform(in: String): Option[String] =
-      Some(in).filter(_.nonEmpty)
-  }
 }
