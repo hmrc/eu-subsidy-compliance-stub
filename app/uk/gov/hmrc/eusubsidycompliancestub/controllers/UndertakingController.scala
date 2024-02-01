@@ -25,7 +25,7 @@ import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
 import uk.gov.hmrc.eusubsidycompliancestub.models.BusinessEntityUpdate
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetails, receiptDate, undertakingRequestReads}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, UndertakingName, UndertakingRef, UndertakingStatus}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, UndertakingRef, UndertakingStatus}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses.{AmendUndertakingApiResponse, CreateUndertakingApiResponse, GetUndertakingBalanceApiResponse, RetrieveUndertakingApiResponse, UndertakingBalanceResponse, UpdateUndertakingApiResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.services.{EisService, EscService}
@@ -271,12 +271,10 @@ class UndertakingController @Inject() (
           (json \ "updateUndertakingRequest" \ "requestDetail" \ "amendmentType").as[EisAmendmentType]
         val undertakingRef: UndertakingRef =
           (json \ "updateUndertakingRequest" \ "requestDetail" \ "undertakingId").as[UndertakingRef]
-        val name: Option[UndertakingName] =
-          (json \ "updateUndertakingRequest" \ "requestDetail" \ "undertakingName").asOpt[UndertakingName]
         val sector: Sector =
           (json \ "updateUndertakingRequest" \ "requestDetail" \ "industrySector").as[Sector]
 
-        escService.updateUndertaking(undertakingRef, amendmentType, name, sector).map { _ =>
+        escService.updateUndertaking(undertakingRef, amendmentType, sector).map { _ =>
           Ok(Json.toJson(UpdateUndertakingApiResponse(UndertakingRef(undertakingRef))))
         }
     }
@@ -288,16 +286,12 @@ class UndertakingController @Inject() (
           Forbidden(Json.toJson(errorDetail)).toFuture
         case _ =>
           val eoriOpt: Option[EORI] = (json \ "eori").asOpt[EORI]
-          val undertakingIdentifierOpt: Option[UndertakingRef] = (json \ "undertakingIdentifier").asOpt[UndertakingRef]
-          getUndertakingBalanceResponse(eoriOpt, undertakingIdentifierOpt)
+          getUndertakingBalanceResponse(eoriOpt)
       }
     }
   }
 
-  private def getUndertakingBalanceResponse(
-    eoriOpt: Option[EORI],
-    undertakingIdentifierOpt: Option[UndertakingRef]
-  ): Future[Result] = {
+  private def getUndertakingBalanceResponse(eoriOpt: Option[EORI]): Future[Result] = {
 
     //return undertaking does not exist error when eori ends with 111908
     if (eoriOpt.exists(_.endsWith("111908"))) {

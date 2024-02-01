@@ -355,7 +355,7 @@ class UndertakingControllerSpec extends BaseSpec {
       }
 
     "return 200 and a valid response for a successful amend" in {
-      when(mockEscService.updateUndertaking(any(), any(), any(), any())(any())).thenReturn(Future.successful(()))
+      when(mockEscService.updateUndertaking(any(), any(), any())(any())).thenReturn(Future.successful(()))
 
       // Changing the sector should also change the sector limit.
       val editedUndertaking = undertaking.copy(
@@ -369,17 +369,17 @@ class UndertakingControllerSpec extends BaseSpec {
         "updateUndertakingResponse",
         HttpStatus.OK
       )(implicitly, writes, implicitly)
-      verify(mockEscService, times(1)).updateUndertaking(any(), any(), any(), any())(any())
+      verify(mockEscService, times(1)).updateUndertaking(any(), any(), any())(any())
     }
 
     "return 200 and a valid response for a successful disable" in {
-      when(mockEscService.updateUndertaking(any(), any(), any(), any())(any())).thenReturn(Future.successful(()))
+      when(mockEscService.updateUndertaking(any(), any(), any())(any())).thenReturn(Future.successful(()))
       testResponse[Undertaking](
         undertaking,
         "updateUndertakingResponse",
         HttpStatus.OK
       )(implicitly, updateUndertakingWrites(EisAmendmentType.D), implicitly)
-      verify(mockEscService, times(2)).updateUndertaking(any(), any(), any(), any())(any())
+      verify(mockEscService, times(2)).updateUndertaking(any(), any(), any())(any())
     }
 
   }
