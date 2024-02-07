@@ -1,0 +1,2522 @@
+[
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.85628,
+    "dateStart": "01/02/2024",
+    "dateEnd": "29/02/2024"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8706,
+    "dateStart": "01/01/2024",
+    "dateEnd": "31/01/2024"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.86525,
+    "dateStart": "01/12/2023",
+    "dateEnd": "31/12/2023"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.87345,
+    "dateStart": "01/11/2023",
+    "dateEnd": "30/11/2023"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.86333,
+    "dateStart": "01/10/2023",
+    "dateEnd": "31/10/2023"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8592,
+    "dateStart": "01/09/2023",
+    "dateEnd": "30/09/2023"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8556,
+    "dateStart": "01/08/2023",
+    "dateEnd": "31/08/2023"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.864,
+    "dateStart": "01/07/2023",
+    "dateEnd": "31/07/2023"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.86365,
+    "dateStart": "01/06/2023",
+    "dateEnd": "30/06/2023"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.88428,
+    "dateStart": "01/05/2023",
+    "dateEnd": "31/05/2023"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.88164,
+    "dateStart": "01/04/2023",
+    "dateEnd": "30/04/2023"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.88073,
+    "dateStart": "01/03/2023",
+    "dateEnd": "31/03/2023"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.87978,
+    "dateStart": "01/02/2023",
+    "dateEnd": "28/02/2023"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.88549,
+    "dateStart": "01/01/2023",
+    "dateEnd": "31/01/2023"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.86218,
+    "dateStart": "01/12/2022",
+    "dateEnd": "31/12/2022"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8612,
+    "dateStart": "01/11/2022",
+    "dateEnd": "30/11/2022"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.89485,
+    "dateStart": "01/10/2022",
+    "dateEnd": "31/10/2022"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.85645,
+    "dateStart": "01/09/2022",
+    "dateEnd": "30/09/2022"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.83586,
+    "dateStart": "01/08/2022",
+    "dateEnd": "31/08/2022"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.86461,
+    "dateStart": "01/07/2022",
+    "dateEnd": "31/07/2022"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8515,
+    "dateStart": "01/06/2022",
+    "dateEnd": "30/06/2022"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8435,
+    "dateStart": "01/05/2022",
+    "dateEnd": "31/05/2022"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.84563,
+    "dateStart": "01/04/2022",
+    "dateEnd": "30/04/2022"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8374,
+    "dateStart": "01/03/2022",
+    "dateEnd": "31/03/2022"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.83178,
+    "dateStart": "01/02/2022",
+    "dateEnd": "28/02/2022"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8393,
+    "dateStart": "01/01/2022",
+    "dateEnd": "31/01/2022"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.84583,
+    "dateStart": "01/12/2021",
+    "dateEnd": "31/12/2021"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.84373,
+    "dateStart": "01/11/2021",
+    "dateEnd": "30/11/2021"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.86443,
+    "dateStart": "01/10/2021",
+    "dateEnd": "31/10/2021"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.85748,
+    "dateStart": "01/09/2021",
+    "dateEnd": "30/09/2021"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8508,
+    "dateStart": "01/08/2021",
+    "dateEnd": "31/08/2021"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.85948,
+    "dateStart": "01/07/2021",
+    "dateEnd": "31/07/2021"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.85765,
+    "dateStart": "01/06/2021",
+    "dateEnd": "30/06/2021"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8691,
+    "dateStart": "01/05/2021",
+    "dateEnd": "31/05/2021"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.85378,
+    "dateStart": "01/04/2021",
+    "dateEnd": "30/04/2021"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.86408,
+    "dateStart": "01/03/2021",
+    "dateEnd": "31/03/2021"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.88603,
+    "dateStart": "01/02/2021",
+    "dateEnd": "28/02/2021"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.90307,
+    "dateStart": "01/01/2021",
+    "dateEnd": "31/01/2021"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.89442,
+    "dateStart": "01/12/2020",
+    "dateEnd": "31/12/2020"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.9043,
+    "dateStart": "01/11/2020",
+    "dateEnd": "30/11/2020"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.90963,
+    "dateStart": "01/10/2020",
+    "dateEnd": "31/10/2020"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.89468,
+    "dateStart": "01/09/2020",
+    "dateEnd": "30/09/2020"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.90268,
+    "dateStart": "01/08/2020",
+    "dateEnd": "31/08/2020"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.9154,
+    "dateStart": "01/07/2020",
+    "dateEnd": "31/07/2020"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.89728,
+    "dateStart": "01/06/2020",
+    "dateEnd": "30/06/2020"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.87378,
+    "dateStart": "01/05/2020",
+    "dateEnd": "31/05/2020"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.889,
+    "dateStart": "01/04/2020",
+    "dateEnd": "30/04/2020"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.84995,
+    "dateStart": "01/03/2020",
+    "dateEnd": "31/03/2020"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.84183,
+    "dateStart": "01/02/2020",
+    "dateEnd": "29/02/2020"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.85208,
+    "dateStart": "01/01/2020",
+    "dateEnd": "31/01/2020"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8518,
+    "dateStart": "01/12/2019",
+    "dateEnd": "31/12/2019"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.862,
+    "dateStart": "01/11/2019",
+    "dateEnd": "30/11/2019"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.88778,
+    "dateStart": "01/10/2019",
+    "dateEnd": "31/10/2019"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.90531,
+    "dateStart": "01/09/2019",
+    "dateEnd": "30/09/2019"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.91653,
+    "dateStart": "01/08/2019",
+    "dateEnd": "31/08/2019"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.89428,
+    "dateStart": "01/07/2019",
+    "dateEnd": "31/07/2019"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.88373,
+    "dateStart": "01/06/2019",
+    "dateEnd": "30/06/2019"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8634,
+    "dateStart": "01/05/2019",
+    "dateEnd": "31/05/2019"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.85555,
+    "dateStart": "01/04/2019",
+    "dateEnd": "30/04/2019"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.85503,
+    "dateStart": "01/03/2019",
+    "dateEnd": "31/03/2019"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.87341,
+    "dateStart": "01/02/2019",
+    "dateEnd": "28/02/2019"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.90273,
+    "dateStart": "01/01/2019",
+    "dateEnd": "31/01/2019"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.89135,
+    "dateStart": "01/12/2018",
+    "dateEnd": "31/12/2018"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.89148,
+    "dateStart": "01/11/2018",
+    "dateEnd": "30/11/2018"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.88973,
+    "dateStart": "01/10/2018",
+    "dateEnd": "31/10/2018"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.89758,
+    "dateStart": "01/09/2018",
+    "dateEnd": "30/09/2018"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8907,
+    "dateStart": "01/08/2018",
+    "dateEnd": "31/08/2018"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8852,
+    "dateStart": "01/07/2018",
+    "dateEnd": "31/07/2018"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.875,
+    "dateStart": "01/06/2018",
+    "dateEnd": "30/06/2018"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.877,
+    "dateStart": "01/05/2018",
+    "dateEnd": "31/05/2018"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.87605,
+    "dateStart": "01/04/2018",
+    "dateEnd": "30/04/2018"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.884,
+    "dateStart": "01/03/2018",
+    "dateEnd": "31/03/2018"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8793,
+    "dateStart": "01/02/2018",
+    "dateEnd": "28/02/2018"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.88768,
+    "dateStart": "01/01/2018",
+    "dateEnd": "31/01/2018"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.88293,
+    "dateStart": "01/12/2017",
+    "dateEnd": "31/12/2017"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8798,
+    "dateStart": "01/11/2017",
+    "dateEnd": "30/11/2017"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.87635,
+    "dateStart": "01/10/2017",
+    "dateEnd": "31/10/2017"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.92246,
+    "dateStart": "01/09/2017",
+    "dateEnd": "30/09/2017"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.89568,
+    "dateStart": "01/08/2017",
+    "dateEnd": "31/08/2017"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8799,
+    "dateStart": "01/07/2017",
+    "dateEnd": "31/07/2017"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.86793,
+    "dateStart": "01/06/2017",
+    "dateEnd": "30/06/2017"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8442,
+    "dateStart": "01/05/2017",
+    "dateEnd": "31/05/2017"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8618,
+    "dateStart": "01/04/2017",
+    "dateEnd": "30/04/2017"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8528,
+    "dateStart": "01/03/2017",
+    "dateEnd": "31/03/2017"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.84935,
+    "dateStart": "01/02/2017",
+    "dateEnd": "28/02/2017"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.853,
+    "dateStart": "01/01/2017",
+    "dateEnd": "31/01/2017"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.84815,
+    "dateStart": "01/12/2016",
+    "dateEnd": "31/12/2016"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.89905,
+    "dateStart": "01/11/2016",
+    "dateEnd": "30/11/2016"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.86138,
+    "dateStart": "01/10/2016",
+    "dateEnd": "31/10/2016"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8517,
+    "dateStart": "01/09/2016",
+    "dateEnd": "30/09/2016"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8422,
+    "dateStart": "01/08/2016",
+    "dateEnd": "31/08/2016"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8255,
+    "dateStart": "01/07/2016",
+    "dateEnd": "31/07/2016"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.76125,
+    "dateStart": "01/06/2016",
+    "dateEnd": "30/06/2016"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.77838,
+    "dateStart": "01/05/2016",
+    "dateEnd": "31/05/2016"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7858,
+    "dateStart": "01/04/2016",
+    "dateEnd": "30/04/2016"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.78745,
+    "dateStart": "01/03/2016",
+    "dateEnd": "31/03/2016"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.76228,
+    "dateStart": "01/02/2016",
+    "dateEnd": "29/02/2016"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.73799,
+    "dateStart": "01/01/2016",
+    "dateEnd": "31/01/2016"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7029,
+    "dateStart": "01/12/2015",
+    "dateEnd": "31/12/2015"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7167,
+    "dateStart": "01/11/2015",
+    "dateEnd": "30/11/2015"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7391,
+    "dateStart": "01/10/2015",
+    "dateEnd": "31/10/2015"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7321,
+    "dateStart": "01/09/2015",
+    "dateEnd": "30/09/2015"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.701,
+    "dateStart": "01/08/2015",
+    "dateEnd": "31/08/2015"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7085,
+    "dateStart": "01/07/2015",
+    "dateEnd": "31/07/2015"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7124,
+    "dateStart": "01/06/2015",
+    "dateEnd": "30/06/2015"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7161,
+    "dateStart": "01/05/2015",
+    "dateEnd": "31/05/2015"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7328,
+    "dateStart": "01/04/2015",
+    "dateEnd": "30/04/2015"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7301,
+    "dateStart": "01/03/2015",
+    "dateEnd": "31/03/2015"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.74775,
+    "dateStart": "01/02/2015",
+    "dateEnd": "28/02/2015"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7823,
+    "dateStart": "01/01/2015",
+    "dateEnd": "31/01/2015"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.792,
+    "dateStart": "01/12/2014",
+    "dateEnd": "31/12/2014"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7872,
+    "dateStart": "01/11/2014",
+    "dateEnd": "30/11/2014"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7827,
+    "dateStart": "01/10/2014",
+    "dateEnd": "31/10/2014"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7945,
+    "dateStart": "01/09/2014",
+    "dateEnd": "30/09/2014"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7917,
+    "dateStart": "01/08/2014",
+    "dateEnd": "31/08/2014"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.79965,
+    "dateStart": "01/07/2014",
+    "dateEnd": "31/07/2014"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.811,
+    "dateStart": "01/06/2014",
+    "dateEnd": "30/06/2014"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8222,
+    "dateStart": "01/05/2014",
+    "dateEnd": "31/05/2014"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8272,
+    "dateStart": "01/04/2014",
+    "dateEnd": "30/04/2014"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.82035,
+    "dateStart": "01/03/2014",
+    "dateEnd": "31/03/2014"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8238,
+    "dateStart": "01/02/2014",
+    "dateEnd": "28/02/2014"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8364,
+    "dateStart": "01/01/2014",
+    "dateEnd": "31/01/2014"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.83215,
+    "dateStart": "01/12/2013",
+    "dateEnd": "31/12/2013"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8559,
+    "dateStart": "01/11/2013",
+    "dateEnd": "30/11/2013"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.84,
+    "dateStart": "01/10/2013",
+    "dateEnd": "31/10/2013"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8549,
+    "dateStart": "01/09/2013",
+    "dateEnd": "30/09/2013"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.86735,
+    "dateStart": "01/08/2013",
+    "dateEnd": "31/08/2013"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8531,
+    "dateStart": "01/07/2013",
+    "dateEnd": "31/07/2013"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8557,
+    "dateStart": "01/06/2013",
+    "dateEnd": "30/06/2013"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.844,
+    "dateStart": "01/05/2013",
+    "dateEnd": "31/05/2013"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8456,
+    "dateStart": "01/04/2013",
+    "dateEnd": "30/04/2013"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.86405,
+    "dateStart": "01/03/2013",
+    "dateEnd": "31/03/2013"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8583,
+    "dateStart": "01/02/2013",
+    "dateEnd": "28/02/2013"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.81695,
+    "dateStart": "01/01/2013",
+    "dateEnd": "31/01/2013"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.81053,
+    "dateStart": "01/12/2012",
+    "dateEnd": "31/12/2012"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8062,
+    "dateStart": "01/11/2012",
+    "dateEnd": "30/11/2012"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7939,
+    "dateStart": "01/10/2012",
+    "dateEnd": "31/10/2012"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7911,
+    "dateStart": "01/09/2012",
+    "dateEnd": "30/09/2012"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.77985,
+    "dateStart": "01/08/2012",
+    "dateEnd": "31/08/2012"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.79885,
+    "dateStart": "01/07/2012",
+    "dateEnd": "31/07/2012"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.79775,
+    "dateStart": "01/06/2012",
+    "dateEnd": "30/06/2012"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8153,
+    "dateStart": "01/05/2012",
+    "dateEnd": "31/05/2012"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8358,
+    "dateStart": "01/04/2012",
+    "dateEnd": "30/04/2012"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8479,
+    "dateStart": "01/03/2012",
+    "dateEnd": "31/03/2012"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8358,
+    "dateStart": "01/02/2012",
+    "dateEnd": "29/02/2012"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.836,
+    "dateStart": "01/01/2012",
+    "dateEnd": "31/01/2012"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.85365,
+    "dateStart": "01/12/2011",
+    "dateEnd": "31/12/2011"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.87935,
+    "dateStart": "01/11/2011",
+    "dateEnd": "30/11/2011"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.87065,
+    "dateStart": "01/10/2011",
+    "dateEnd": "31/10/2011"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.88365,
+    "dateStart": "01/09/2011",
+    "dateEnd": "30/09/2011"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8739,
+    "dateStart": "01/08/2011",
+    "dateEnd": "31/08/2011"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8998,
+    "dateStart": "01/07/2011",
+    "dateEnd": "31/07/2011"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8671,
+    "dateStart": "01/06/2011",
+    "dateEnd": "30/06/2011"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8888,
+    "dateStart": "01/05/2011",
+    "dateEnd": "31/05/2011"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8789,
+    "dateStart": "01/04/2011",
+    "dateEnd": "30/04/2011"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8553,
+    "dateStart": "01/03/2011",
+    "dateEnd": "31/03/2011"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8609,
+    "dateStart": "01/02/2011",
+    "dateEnd": "28/02/2011"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8602,
+    "dateStart": "01/01/2011",
+    "dateEnd": "31/01/2011"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.844,
+    "dateStart": "01/12/2010",
+    "dateEnd": "31/12/2010"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8704,
+    "dateStart": "01/11/2010",
+    "dateEnd": "30/11/2010"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8618,
+    "dateStart": "01/10/2010",
+    "dateEnd": "31/10/2010"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8165,
+    "dateStart": "01/09/2010",
+    "dateEnd": "30/09/2010"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8367,
+    "dateStart": "01/08/2010",
+    "dateEnd": "31/08/2010"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8104,
+    "dateStart": "01/07/2010",
+    "dateEnd": "31/07/2010"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.84995,
+    "dateStart": "01/06/2010",
+    "dateEnd": "30/06/2010"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.86785,
+    "dateStart": "01/05/2010",
+    "dateEnd": "31/05/2010"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8933,
+    "dateStart": "01/04/2010",
+    "dateEnd": "30/04/2010"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8809,
+    "dateStart": "01/03/2010",
+    "dateEnd": "31/03/2010"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8616,
+    "dateStart": "01/02/2010",
+    "dateEnd": "28/02/2010"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.904,
+    "dateStart": "01/01/2010",
+    "dateEnd": "31/01/2010"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.9091,
+    "dateStart": "01/12/2009",
+    "dateEnd": "31/12/2009"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8975,
+    "dateStart": "01/11/2009",
+    "dateEnd": "30/11/2009"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.9118,
+    "dateStart": "01/10/2009",
+    "dateEnd": "31/10/2009"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8784,
+    "dateStart": "01/09/2009",
+    "dateEnd": "30/09/2009"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8524,
+    "dateStart": "01/08/2009",
+    "dateEnd": "31/08/2009"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.84865,
+    "dateStart": "01/07/2009",
+    "dateEnd": "31/07/2009"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.87,
+    "dateStart": "01/06/2009",
+    "dateEnd": "30/06/2009"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.89875,
+    "dateStart": "01/05/2009",
+    "dateEnd": "31/05/2009"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.9291,
+    "dateStart": "01/04/2009",
+    "dateEnd": "30/04/2009"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8913,
+    "dateStart": "01/03/2009",
+    "dateEnd": "31/03/2009"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.91725,
+    "dateStart": "01/02/2009",
+    "dateEnd": "28/02/2009"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.9742,
+    "dateStart": "01/01/2009",
+    "dateEnd": "31/01/2009"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8358,
+    "dateStart": "01/12/2008",
+    "dateEnd": "31/12/2008"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7907,
+    "dateStart": "01/11/2008",
+    "dateEnd": "30/11/2008"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7959,
+    "dateStart": "01/10/2008",
+    "dateEnd": "31/10/2008"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.8047,
+    "dateStart": "01/09/2008",
+    "dateEnd": "30/09/2008"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7867,
+    "dateStart": "01/08/2008",
+    "dateEnd": "31/08/2008"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.79235,
+    "dateStart": "01/07/2008",
+    "dateEnd": "31/07/2008"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7866,
+    "dateStart": "01/06/2008",
+    "dateEnd": "30/06/2008"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.78895,
+    "dateStart": "01/05/2008",
+    "dateEnd": "31/05/2008"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7908,
+    "dateStart": "01/04/2008",
+    "dateEnd": "30/04/2008"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.76135,
+    "dateStart": "01/03/2008",
+    "dateEnd": "31/03/2008"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7434,
+    "dateStart": "01/02/2008",
+    "dateEnd": "29/02/2008"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7348,
+    "dateStart": "01/01/2008",
+    "dateEnd": "31/01/2008"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.71475,
+    "dateStart": "01/12/2007",
+    "dateEnd": "31/12/2007"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6972,
+    "dateStart": "01/11/2007",
+    "dateEnd": "30/11/2007"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6993,
+    "dateStart": "01/10/2007",
+    "dateEnd": "31/10/2007"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.678,
+    "dateStart": "01/09/2007",
+    "dateEnd": "30/09/2007"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6753,
+    "dateStart": "01/08/2007",
+    "dateEnd": "31/08/2007"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.67215,
+    "dateStart": "01/07/2007",
+    "dateEnd": "31/07/2007"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6795,
+    "dateStart": "01/06/2007",
+    "dateEnd": "30/06/2007"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.68225,
+    "dateStart": "01/05/2007",
+    "dateEnd": "31/05/2007"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6793,
+    "dateStart": "01/04/2007",
+    "dateEnd": "30/04/2007"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6737,
+    "dateStart": "01/03/2007",
+    "dateEnd": "31/03/2007"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6603,
+    "dateStart": "01/02/2007",
+    "dateEnd": "28/02/2007"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.67115,
+    "dateStart": "01/01/2007",
+    "dateEnd": "31/01/2007"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6743,
+    "dateStart": "01/12/2006",
+    "dateEnd": "31/12/2006"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.668,
+    "dateStart": "01/11/2006",
+    "dateEnd": "30/11/2006"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.67715,
+    "dateStart": "01/10/2006",
+    "dateEnd": "31/10/2006"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.67405,
+    "dateStart": "01/09/2006",
+    "dateEnd": "30/09/2006"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6825,
+    "dateStart": "01/08/2006",
+    "dateEnd": "31/08/2006"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6911,
+    "dateStart": "01/07/2006",
+    "dateEnd": "31/07/2006"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6847,
+    "dateStart": "01/06/2006",
+    "dateEnd": "30/06/2006"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6958,
+    "dateStart": "01/05/2006",
+    "dateEnd": "31/05/2006"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6946,
+    "dateStart": "01/04/2006",
+    "dateEnd": "30/04/2006"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.68105,
+    "dateStart": "01/03/2006",
+    "dateEnd": "31/03/2006"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.68365,
+    "dateStart": "01/02/2006",
+    "dateEnd": "28/02/2006"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6883,
+    "dateStart": "01/01/2006",
+    "dateEnd": "31/01/2006"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6843,
+    "dateStart": "01/12/2005",
+    "dateEnd": "31/12/2005"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6809,
+    "dateStart": "01/11/2005",
+    "dateEnd": "30/11/2005"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6826,
+    "dateStart": "01/10/2005",
+    "dateEnd": "31/10/2005"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.68275,
+    "dateStart": "01/09/2005",
+    "dateEnd": "30/09/2005"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6907,
+    "dateStart": "01/08/2005",
+    "dateEnd": "31/08/2005"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6669,
+    "dateStart": "01/07/2005",
+    "dateEnd": "31/07/2005"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.68495,
+    "dateStart": "01/06/2005",
+    "dateEnd": "30/06/2005"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6773,
+    "dateStart": "01/05/2005",
+    "dateEnd": "31/05/2005"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6877,
+    "dateStart": "01/04/2005",
+    "dateEnd": "30/04/2005"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.68975,
+    "dateStart": "01/03/2005",
+    "dateEnd": "31/03/2005"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.69255,
+    "dateStart": "01/02/2005",
+    "dateEnd": "28/02/2005"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7088,
+    "dateStart": "01/01/2005",
+    "dateEnd": "31/01/2005"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.701,
+    "dateStart": "01/12/2004",
+    "dateEnd": "31/12/2004"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6957,
+    "dateStart": "01/11/2004",
+    "dateEnd": "30/11/2004"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6818,
+    "dateStart": "01/10/2004",
+    "dateEnd": "31/10/2004"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6726,
+    "dateStart": "01/09/2004",
+    "dateEnd": "30/09/2004"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.663,
+    "dateStart": "01/08/2004",
+    "dateEnd": "31/08/2004"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6682,
+    "dateStart": "01/07/2004",
+    "dateEnd": "31/07/2004"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6673,
+    "dateStart": "01/06/2004",
+    "dateEnd": "30/06/2004"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6713,
+    "dateStart": "01/05/2004",
+    "dateEnd": "31/05/2004"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6681,
+    "dateStart": "01/04/2004",
+    "dateEnd": "30/04/2004"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6683,
+    "dateStart": "01/03/2004",
+    "dateEnd": "31/03/2004"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.685,
+    "dateStart": "01/02/2004",
+    "dateEnd": "29/02/2004"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7036,
+    "dateStart": "01/01/2004",
+    "dateEnd": "31/01/2004"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6947,
+    "dateStart": "01/12/2003",
+    "dateEnd": "31/12/2003"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.68825,
+    "dateStart": "01/11/2003",
+    "dateEnd": "30/11/2003"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6931,
+    "dateStart": "01/10/2003",
+    "dateEnd": "31/10/2003"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.69035,
+    "dateStart": "01/09/2003",
+    "dateEnd": "30/09/2003"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7044,
+    "dateStart": "01/08/2003",
+    "dateEnd": "31/08/2003"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6901,
+    "dateStart": "01/07/2003",
+    "dateEnd": "31/07/2003"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.7158,
+    "dateStart": "01/06/2003",
+    "dateEnd": "30/06/2003"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6891,
+    "dateStart": "01/05/2003",
+    "dateEnd": "31/05/2003"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6865,
+    "dateStart": "01/04/2003",
+    "dateEnd": "30/04/2003"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6842,
+    "dateStart": "01/03/2003",
+    "dateEnd": "31/03/2003"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6534,
+    "dateStart": "01/02/2003",
+    "dateEnd": "28/02/2003"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.65,
+    "dateStart": "01/01/2003",
+    "dateEnd": "31/01/2003"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6395,
+    "dateStart": "01/12/2002",
+    "dateEnd": "31/12/2002"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6317,
+    "dateStart": "01/11/2002",
+    "dateEnd": "30/11/2002"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6282,
+    "dateStart": "01/10/2002",
+    "dateEnd": "31/10/2002"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6383,
+    "dateStart": "01/09/2002",
+    "dateEnd": "30/09/2002"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6294,
+    "dateStart": "01/08/2002",
+    "dateEnd": "31/08/2002"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.646,
+    "dateStart": "01/07/2002",
+    "dateEnd": "31/07/2002"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6395,
+    "dateStart": "01/06/2002",
+    "dateEnd": "30/06/2002"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6186,
+    "dateStart": "01/05/2002",
+    "dateEnd": "31/05/2002"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6139,
+    "dateStart": "01/04/2002",
+    "dateEnd": "30/04/2002"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.61,
+    "dateStart": "01/03/2002",
+    "dateEnd": "31/03/2002"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.611,
+    "dateStart": "01/02/2002",
+    "dateEnd": "28/02/2002"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.609,
+    "dateStart": "01/01/2002",
+    "dateEnd": "31/01/2002"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6236,
+    "dateStart": "01/12/2001",
+    "dateEnd": "31/12/2001"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6232,
+    "dateStart": "01/11/2001",
+    "dateEnd": "30/11/2001"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6244,
+    "dateStart": "01/10/2001",
+    "dateEnd": "31/10/2001"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6257,
+    "dateStart": "01/09/2001",
+    "dateEnd": "30/09/2001"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6136,
+    "dateStart": "01/08/2001",
+    "dateEnd": "31/08/2001"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6035,
+    "dateStart": "01/07/2001",
+    "dateEnd": "31/07/2001"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6024,
+    "dateStart": "01/06/2001",
+    "dateEnd": "30/06/2001"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6254,
+    "dateStart": "01/05/2001",
+    "dateEnd": "31/05/2001"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6148,
+    "dateStart": "01/04/2001",
+    "dateEnd": "30/04/2001"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6349,
+    "dateStart": "01/03/2001",
+    "dateEnd": "31/03/2001"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6298,
+    "dateStart": "01/02/2001",
+    "dateEnd": "28/02/2001"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6238,
+    "dateStart": "01/01/2001",
+    "dateEnd": "31/01/2001"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6069,
+    "dateStart": "01/12/2000",
+    "dateEnd": "31/12/2000"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.5812,
+    "dateStart": "01/11/2000",
+    "dateEnd": "30/11/2000"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6025,
+    "dateStart": "01/10/2000",
+    "dateEnd": "31/10/2000"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6148,
+    "dateStart": "01/09/2000",
+    "dateEnd": "30/09/2000"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.615,
+    "dateStart": "01/08/2000",
+    "dateEnd": "31/08/2000"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6257,
+    "dateStart": "01/07/2000",
+    "dateEnd": "31/07/2000"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6226,
+    "dateStart": "01/06/2000",
+    "dateEnd": "30/06/2000"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.5827,
+    "dateStart": "01/05/2000",
+    "dateEnd": "31/05/2000"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.601,
+    "dateStart": "01/04/2000",
+    "dateEnd": "30/04/2000"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6072,
+    "dateStart": "01/03/2000",
+    "dateEnd": "31/03/2000"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6051,
+    "dateStart": "01/02/2000",
+    "dateEnd": "29/02/2000"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6226,
+    "dateStart": "01/01/2000",
+    "dateEnd": "31/01/2000"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6297,
+    "dateStart": "01/12/1999",
+    "dateEnd": "31/12/1999"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6415,
+    "dateStart": "01/11/1999",
+    "dateEnd": "30/11/1999"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.643,
+    "dateStart": "01/10/1999",
+    "dateEnd": "31/10/1999"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6582,
+    "dateStart": "01/09/1999",
+    "dateEnd": "30/09/1999"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6665,
+    "dateStart": "01/08/1999",
+    "dateEnd": "31/08/1999"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6544,
+    "dateStart": "01/07/1999",
+    "dateEnd": "31/07/1999"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6546,
+    "dateStart": "01/06/1999",
+    "dateEnd": "30/06/1999"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6584,
+    "dateStart": "01/05/1999",
+    "dateEnd": "31/05/1999"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6638,
+    "dateStart": "01/04/1999",
+    "dateEnd": "30/04/1999"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6888,
+    "dateStart": "01/03/1999",
+    "dateEnd": "31/03/1999"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.6928,
+    "dateStart": "01/02/1999",
+    "dateEnd": "28/02/1999"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "EUR",
+    "amount": 0.705455,
+    "dateStart": "01/01/1999",
+    "dateEnd": "31/01/1999"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.694555,
+    "dateStart": "01/12/1998",
+    "dateEnd": "31/12/1998"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.707318,
+    "dateStart": "01/11/1998",
+    "dateEnd": "30/11/1998"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.686316,
+    "dateStart": "01/10/1998",
+    "dateEnd": "31/10/1998"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.668086,
+    "dateStart": "01/09/1998",
+    "dateEnd": "30/09/1998"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.678113,
+    "dateStart": "01/08/1998",
+    "dateEnd": "31/08/1998"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.65562,
+    "dateStart": "01/07/1998",
+    "dateEnd": "31/07/1998"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.678599,
+    "dateStart": "01/06/1998",
+    "dateEnd": "30/06/1998"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.658153,
+    "dateStart": "01/05/1998",
+    "dateEnd": "31/05/1998"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.642628,
+    "dateStart": "01/04/1998",
+    "dateEnd": "30/04/1998"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.65165,
+    "dateStart": "01/03/1998",
+    "dateEnd": "31/03/1998"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.66447,
+    "dateStart": "01/02/1998",
+    "dateEnd": "28/02/1998"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.666193,
+    "dateStart": "01/01/1998",
+    "dateEnd": "31/01/1998"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.669225,
+    "dateStart": "01/12/1997",
+    "dateEnd": "31/12/1997"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.688283,
+    "dateStart": "01/11/1997",
+    "dateEnd": "30/11/1997"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.690455,
+    "dateStart": "01/10/1997",
+    "dateEnd": "31/10/1997"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.677814,
+    "dateStart": "01/09/1997",
+    "dateEnd": "30/09/1997"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.660434,
+    "dateStart": "01/08/1997",
+    "dateEnd": "31/08/1997"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.681623,
+    "dateStart": "01/07/1997",
+    "dateEnd": "31/07/1997"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.70145,
+    "dateStart": "01/06/1997",
+    "dateEnd": "30/06/1997"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.697428,
+    "dateStart": "01/05/1997",
+    "dateEnd": "31/05/1997"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.715275,
+    "dateStart": "01/04/1997",
+    "dateEnd": "30/04/1997"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.71082,
+    "dateStart": "01/03/1997",
+    "dateEnd": "31/03/1997"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.732974,
+    "dateStart": "01/02/1997",
+    "dateEnd": "28/02/1997"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.739865,
+    "dateStart": "01/01/1997",
+    "dateEnd": "31/01/1997"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.752896,
+    "dateStart": "01/12/1996",
+    "dateEnd": "31/12/1996"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.781246,
+    "dateStart": "01/11/1996",
+    "dateEnd": "30/11/1996"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.805847,
+    "dateStart": "01/10/1996",
+    "dateEnd": "31/10/1996"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.825752,
+    "dateStart": "01/09/1996",
+    "dateEnd": "30/09/1996"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.826749,
+    "dateStart": "01/08/1996",
+    "dateEnd": "31/08/1996"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.815548,
+    "dateStart": "01/07/1996",
+    "dateEnd": "31/07/1996"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.813917,
+    "dateStart": "01/06/1996",
+    "dateEnd": "30/06/1996"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.830447,
+    "dateStart": "01/05/1996",
+    "dateEnd": "31/05/1996"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.840331,
+    "dateStart": "01/04/1996",
+    "dateEnd": "30/04/1996"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.843206,
+    "dateStart": "01/03/1996",
+    "dateEnd": "31/03/1996"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.843889,
+    "dateStart": "01/02/1996",
+    "dateEnd": "29/02/1996"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.845181,
+    "dateStart": "01/01/1996",
+    "dateEnd": "31/01/1996"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.854512,
+    "dateStart": "01/12/1995",
+    "dateEnd": "31/12/1995"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.843142,
+    "dateStart": "01/11/1995",
+    "dateEnd": "30/11/1995"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.836417,
+    "dateStart": "01/10/1995",
+    "dateEnd": "31/10/1995"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.826828,
+    "dateStart": "01/09/1995",
+    "dateEnd": "30/09/1995"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.845681,
+    "dateStart": "01/08/1995",
+    "dateEnd": "31/08/1995"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.843141,
+    "dateStart": "01/07/1995",
+    "dateEnd": "31/07/1995"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.838155,
+    "dateStart": "01/06/1995",
+    "dateEnd": "30/06/1995"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.833631,
+    "dateStart": "01/05/1995",
+    "dateEnd": "31/05/1995"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.822178,
+    "dateStart": "01/04/1995",
+    "dateEnd": "30/04/1995"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.810991,
+    "dateStart": "01/03/1995",
+    "dateEnd": "31/03/1995"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.789073,
+    "dateStart": "01/02/1995",
+    "dateEnd": "28/02/1995"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.787706,
+    "dateStart": "01/01/1995",
+    "dateEnd": "31/01/1995"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.78148,
+    "dateStart": "01/12/1994",
+    "dateEnd": "31/12/1994"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.783254,
+    "dateStart": "01/11/1994",
+    "dateEnd": "30/11/1994"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.785772,
+    "dateStart": "01/10/1994",
+    "dateEnd": "31/10/1994"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.789471,
+    "dateStart": "01/09/1994",
+    "dateEnd": "30/09/1994"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.794652,
+    "dateStart": "01/08/1994",
+    "dateEnd": "31/08/1994"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.783608,
+    "dateStart": "01/07/1994",
+    "dateEnd": "31/07/1994"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.777196,
+    "dateStart": "01/06/1994",
+    "dateEnd": "30/06/1994"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.767641,
+    "dateStart": "01/05/1994",
+    "dateEnd": "31/05/1994"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.775297,
+    "dateStart": "01/04/1994",
+    "dateEnd": "30/04/1994"
+  },
+  {
+    "currencyIso": "GBP",
+    "refCurrencyIso": "ECU",
+    "amount": 0.760522,
+    "dateStart": "01/03/1994",
+    "dateEnd": "31/03/1994"
+  }
+]

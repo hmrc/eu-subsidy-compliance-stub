@@ -102,4 +102,17 @@ object DataGenerator {
   def genTraderRef: Gen[TraderRef] =
     RegexpGen.from(TraderRef.regex).map(TraderRef.apply)
 
+  def genMonthlyExchangeRate(year: Int, month: Int): Gen[MonthlyExchangeRate] = {
+    Gen.chooseNum(BigDecimal(0.8), BigDecimal(0.95)).map { amount =>
+      val dateStart = LocalDate.of(year, month, 1)
+      MonthlyExchangeRate(
+        currencyIso = "GBP",
+        refCurrencyIso = "EUR",
+        amount = amount.setScale(4, RoundingMode.DOWN),
+        dateStart = dateStart,
+        dateEnd = dateStart.plusMonths(1).minusDays(1)
+      )
+    }
+  }
+
 }
