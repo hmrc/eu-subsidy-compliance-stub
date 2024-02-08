@@ -22,4 +22,4 @@ POST       /scp/getundertakingtransactions/v1   uk.gov.hmrc.eusubsidycompliances
 POST       /scp/getsamundertakingbalance/v1     uk.gov.hmrc.eusubsidycompliancestub.controllers.UndertakingController.getUndertakingBalance
 
 #get exchange rates (europa)
-GET        /exchange-rates                      uk.gov.hmrc.eusubsidycompliancestub.controllers.ExchangeRateController.retrieveExchangeRates
+GET        /budg/inforeuro/api/public/currencies/gbp    uk.gov.hmrc.eusubsidycompliancestub.controllers.ExchangeRateController.retrieveExchangeRates
