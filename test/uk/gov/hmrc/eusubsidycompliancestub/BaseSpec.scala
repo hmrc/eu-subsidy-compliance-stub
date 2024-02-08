@@ -64,7 +64,7 @@ abstract class BaseSpec
   }
 
   def fakePost(body: JsValue)(implicit path: String): FakeRequest[JsValue] =
-    FakeRequest("POST", path, fakeHeaders, body)
+    FakeRequest(POST, path, fakeHeaders, body)
 
   def testResponse[A](
     model: A,
