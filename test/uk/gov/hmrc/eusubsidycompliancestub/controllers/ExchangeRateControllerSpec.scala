@@ -30,7 +30,7 @@ class ExchangeRateControllerSpec extends BaseSpec {
 
   "ExchangeRateController" must {
     "return exchange rates for the last 12 months" in {
-      val response = controller.retrieveExchangeRates()(FakeRequest(GET, "/exchange-rates"))
+      val response = controller.retrieveExchangeRates()(FakeRequest(GET, "/budg/inforeuro/api/public/currencies/gbp"))
       val exchangeRates = contentAsJson(response).as[List[MonthlyExchangeRate]]
       val `1yearAgo` = LocalDate.now().withDayOfMonth(1).minusYears(1)
       exchangeRates.filter(_.dateStart > `1yearAgo`).distinctBy(_.dateStart).size mustBe 12
