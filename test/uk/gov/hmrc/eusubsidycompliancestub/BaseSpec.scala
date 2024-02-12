@@ -22,7 +22,7 @@ import org.scalatestplus.mockito._
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import play.api.Application
+import play.api.{Application, Logging}
 import play.api.http.HeaderNames
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json, Writes}
@@ -38,7 +38,8 @@ abstract class BaseSpec
     with MockitoSugar // TODO remove if unneeded
     with Results
     with GuiceOneAppPerSuite
-    with ScalaCheckDrivenPropertyChecks {
+    with ScalaCheckDrivenPropertyChecks
+    with Logging {
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
@@ -74,9 +75,9 @@ abstract class BaseSpec
     debug: Boolean = false
   )(implicit action: Action[JsValue], writes: Writes[A], path: String): Future[Result] = {
     val json = Json.toJson(model)
-    if (debug) println(Json.prettyPrint(json))
+    if (debug) logger.debug(Json.prettyPrint(json))
     val result = action.apply(fakePost(json))
-    if (debug) println(Json.prettyPrint(contentAsJson(result)))
+    if (debug) logger.debug(Json.prettyPrint(contentAsJson(result)))
     checkJson(contentAsJson(result), responseSchemaName)
     status(result) mustEqual expectedStatus
     extraChecks.map(f => f(result))
