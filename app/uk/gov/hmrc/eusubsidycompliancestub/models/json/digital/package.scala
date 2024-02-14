@@ -29,10 +29,10 @@ import java.time.{LocalDate, ZonedDateTime}
 
 package object digital {
 
-  val dateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
+  private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
   implicit val undertakingFormat: Format[Undertaking] = new Format[Undertaking] {
-    val requestCommon = RequestCommon("CreateNewUndertaking")
+    val requestCommon: RequestCommon = RequestCommon("CreateNewUndertaking")
     // provides json for EIS createUndertaking call
     override def writes(o: Undertaking): JsValue = {
       val lead: BusinessEntity =
@@ -69,9 +69,11 @@ package object digital {
         case "NOT_OK" =>
           val processingDate = (responseCommon \ "processingDate").as[ZonedDateTime]
           val statusText = (responseCommon \ "statusText").asOpt[String]
-          val returnParameters = (responseCommon \ "returnParameters").asOpt[List[Params]]
-          // TODO consider moving exception to connector
-          throw new EisBadResponseException("NOT_OK", processingDate, statusText, returnParameters)
+          val returnParameters = (responseCommon \ "returnParameters").asOpt[List[Params]].getOrElse(Nil)
+          JsError(s"""Bad Response:
+                     |  processingDate: $processingDate
+                     |  statusText: $statusText
+                     |  returnParameters: ${returnParameters.mkString("\n", "\n    -", "")}""".stripMargin)
         case "OK" =>
           val responseDetail: JsLookupResult =
             retrieveUndertakingResponse \ "retrieveUndertakingResponse" \ "responseDetail"
@@ -82,10 +84,13 @@ package object digital {
             (responseDetail \ "industrySectorLimit").as[IndustrySectorLimit]
           val undertakingStatus: Int = (responseDetail \ "undertakingStatus").as[Int]
           val lastSubsidyUsageUpdt: LocalDate =
-            (responseDetail \ "lastSubsidyUsageUpdt").as[LocalDate](new Reads[LocalDate] {
-              override def reads(json: JsValue): JsResult[LocalDate] =
-                // TODO consider Either.catchOnly (cats)
-                JsSuccess(LocalDate.parse(json.as[String], eis.oddEisDateFormat))
+            (responseDetail \ "lastSubsidyUsageUpdt").as[LocalDate]((json: JsValue) => {
+              Either
+                .catchNonFatal(LocalDate.parse(json.as[String], eis.oddEisDateFormat))
+                .fold(
+                  t => JsError(JsPath(List(KeyPathNode("lastSubsidyUsageUpdt"))), t.getMessage),
+                  s => JsSuccess(s)
+                )
             })
           val undertakingBusinessEntity: List[BusinessEntity] =
             (responseDetail \ "undertakingBusinessEntity").as[List[BusinessEntity]]
@@ -170,24 +175,5 @@ package object digital {
         )
     }
     amendUndertakingWrites
-  }
-
-  // provides reads for eis response for undertaking create call
-  implicit val undertakingCreateResponseReads: Reads[UndertakingRef] = new Reads[UndertakingRef] {
-    override def reads(json: JsValue): JsResult[UndertakingRef] = {
-      val responseCommon: JsLookupResult = json \ "createUndertakingResponse" \ "responseCommon"
-      (responseCommon \ "status").as[String] match {
-        case "NOT_OK" =>
-          val processingDate = (responseCommon \ "processingDate").as[ZonedDateTime]
-          val statusText = (responseCommon \ "statusText").asOpt[String]
-          val returnParameters = (responseCommon \ "returnParameters").asOpt[List[Params]]
-          // TODO consider moving exception to connector
-          throw new EisBadResponseException("NOT_OK", processingDate, statusText, returnParameters)
-        case "OK" =>
-          val ref = (json \ "createUndertakingResponse" \ "responseDetail" \ "undertakingReference").as[String]
-          JsSuccess(UndertakingRef(ref))
-        case _ => JsError("unable to derive Error or Success from SCP02 response")
-      }
-    }
   }
 }
