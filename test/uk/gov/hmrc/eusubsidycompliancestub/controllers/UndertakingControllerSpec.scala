@@ -22,7 +22,7 @@ import play.api.mvc.{Action, ControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital
-import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{EisBadResponseException, createUndertakingRequestWrites, retrieveUndertakingEORIWrites, undertakingFormat, updateUndertakingWrites}
+import uk.gov.hmrc.eusubsidycompliancestub.models.json.digital.{createUndertakingRequestWrites, retrieveUndertakingEORIWrites, undertakingFormat, updateUndertakingWrites}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.Params
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType, EisParamName, EisParamValue, EisStatus, IndustrySectorLimit, Sector, SubsidyAmount, UndertakingName, UndertakingRef, UndertakingStatus}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, CreateUndertakingRequest, Undertaking, UndertakingBusinessEntityUpdate}
@@ -192,7 +192,6 @@ class UndertakingControllerSpec extends BaseSpec {
         HttpStatus.OK
       )
 
-      // TODO this next test should live on the BE
       val u: JsResult[Undertaking] = Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
       u.isSuccess mustEqual true
     }
@@ -256,10 +255,8 @@ class UndertakingControllerSpec extends BaseSpec {
         )
       )
 
-      // TODO this next test should live on the BE
-      intercept[EisBadResponseException] {
-        Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
-      }
+      val undertakingResult = Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
+      undertakingResult.isError mustBe true
     }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 107 if not found" in {
@@ -275,10 +272,8 @@ class UndertakingControllerSpec extends BaseSpec {
         )
       )
 
-      // TODO this next test should live on the BE
-      intercept[EisBadResponseException] {
-        Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
-      }
+      val undertakingResult = Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
+      undertakingResult.isError mustBe true
     }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 055 if EORI is invalid" in {
@@ -293,10 +288,8 @@ class UndertakingControllerSpec extends BaseSpec {
         )
       )
 
-      // TODO this next test should live on the BE
-      intercept[EisBadResponseException] {
-        Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
-      }
+      val undertakingResult = Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
+      undertakingResult.isError mustBe true
     }
 
   }
@@ -537,7 +530,6 @@ class UndertakingControllerSpec extends BaseSpec {
         HttpStatus.OK
       )
 
-      // TODO this next test should live on the BE
       val u: JsResult[GetUndertakingBalanceApiResponse] =
         Json.fromJson[GetUndertakingBalanceApiResponse](contentAsJson(result))
       u.isSuccess mustEqual true

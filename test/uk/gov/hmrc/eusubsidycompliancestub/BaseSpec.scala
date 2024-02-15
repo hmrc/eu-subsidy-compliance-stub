@@ -35,7 +35,7 @@ import scala.concurrent.Future
 
 abstract class BaseSpec
     extends PlaySpec
-    with MockitoSugar // TODO remove if unneeded
+    with MockitoSugar
     with Results
     with GuiceOneAppPerSuite
     with ScalaCheckDrivenPropertyChecks
