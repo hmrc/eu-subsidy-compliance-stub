@@ -24,6 +24,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.eusubsidycompliancestub.BaseSpec
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{SubsidyAmount, UndertakingRef}
 import uk.gov.hmrc.eusubsidycompliancestub.models._
+import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator.getSampleValue
 import uk.gov.hmrc.eusubsidycompliancestub.services.EscService
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances
 
@@ -39,9 +40,9 @@ class SubsidyControllerSpec extends BaseSpec {
     authAndEnvAction = app.injector.instanceOf[AuthAndEnvAction]
   )(ExecutionContext.global)
 
-  val subsidyUpdate: SubsidyUpdate = TestInstances.arbSubsidyUpdate.arbitrary.sample.get
-  val nilReturn: SubsidyUpdate = TestInstances.arbSubsidyUpdateNilReturn.arbitrary.sample.get
-  val subsidiesRetrieve: SubsidyRetrieve = TestInstances.arbSubsidyRetrieve.arbitrary.sample.get
+  val subsidyUpdate: SubsidyUpdate = getSampleValue(TestInstances.arbSubsidyUpdate.arbitrary)
+  val nilReturn: SubsidyUpdate = getSampleValue(TestInstances.arbSubsidyUpdateNilReturn.arbitrary)
+  val subsidiesRetrieve: SubsidyRetrieve = getSampleValue(TestInstances.arbSubsidyRetrieve.arbitrary)
 
   "retrieve subsidy usage" must {
     implicit val path: String = "/scp/getundertakingtransactions/v1"

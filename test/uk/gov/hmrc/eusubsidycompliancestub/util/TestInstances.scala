@@ -116,9 +116,7 @@ object TestInstances {
     Arbitrary(arbUndertaking.arbitrary.map { x =>
       x.copy(
         undertakingBusinessEntity = List(
-          x.undertakingBusinessEntity.head.copy(
-            contacts = arbContactDetails.arbitrary.sample.get.some
-          )
+          x.undertakingBusinessEntity.head.copy(contacts = getSampleValue(arbContactDetails.arbitrary).some)
         )
       )
     })
