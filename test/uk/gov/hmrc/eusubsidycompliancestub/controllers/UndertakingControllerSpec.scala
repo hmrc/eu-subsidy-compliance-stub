@@ -36,6 +36,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import uk.gov.hmrc.eusubsidycompliancestub.BaseSpec
 import play.api.http.{Status => HttpStatus}
+import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator.getSampleValue
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -51,19 +52,13 @@ class UndertakingControllerSpec extends BaseSpec {
   )(appConfig = appConfig, ec = ExecutionContext.global)
 
   val internalServerErrorEori: EORI = EORI("GB123456789012999")
-  val undertaking: Undertaking = TestInstances.arbUndertakingForCreate.arbitrary.sample.get
+  val undertaking: Undertaking = getSampleValue(TestInstances.arbUndertakingForCreate.arbitrary)
   val businessEntityUpdates: UndertakingBusinessEntityUpdate =
-    TestInstances.arbUndertakingBusinessEntityUpdate.arbitrary.sample.get
+    getSampleValue(TestInstances.arbUndertakingBusinessEntityUpdate.arbitrary)
 
   def undertakingWithEori(eori: EORI): Undertaking =
     undertaking.copy(undertakingBusinessEntity =
-      List(
-        BusinessEntity(
-          eori,
-          leadEORI = true,
-          arbContactDetails.arbitrary.sample.get.some
-        )
-      )
+      List(BusinessEntity(eori, leadEORI = true, getSampleValue(arbContactDetails.arbitrary).some))
     )
 
   "Create Undertaking" must {

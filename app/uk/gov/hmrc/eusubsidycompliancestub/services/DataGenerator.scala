@@ -115,4 +115,13 @@ object DataGenerator {
     }
   }
 
+  def getSampleValue[A](gen: Gen[A], seed: Option[Long] = None, retries: Int = 10): A = {
+    LazyList
+      .continually(seed.map(gen.seeded(_)(identity(_))).getOrElse(gen.sample))
+      .take(retries)
+      .flatten
+      .headOption
+      .getOrElse(throw new Exception(s"Can't generate a sample after $retries retries"))
+  }
+
 }
