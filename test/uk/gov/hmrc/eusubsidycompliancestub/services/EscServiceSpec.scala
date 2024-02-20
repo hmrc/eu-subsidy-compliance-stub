@@ -26,6 +26,7 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, EisAmendmentType, EisSubsidyAmendmentType, Sector}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, BusinessEntityUpdate, NilSubmissionDate, NonHmrcSubsidy, Undertaking, UndertakingSubsidies, UndertakingSubsidyAmendment}
 import uk.gov.hmrc.eusubsidycompliancestub.repositories.UndertakingCache
+import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator.getSampleValue
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances.{arbContactDetails, arbEori, arbSubsidies, arbUndertaking}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.smartstub.AdvGen
@@ -81,7 +82,7 @@ class EscServiceSpec extends BaseSpec with BeforeAndAfterEach {
         val amendedEntities =
           existingEntities
             .filterNot(deletedEntity.contains)
-            .map(entity => entity.copy(contacts = Some(arbContactDetails.arbitrary.sample.get)))
+            .map(entity => entity.copy(contacts = Some(getSampleValue(arbContactDetails.arbitrary))))
         val amendments =
           deletedEntity.toList.flatMap(e => List(BusinessEntityUpdate(AmendmentType.delete, LocalDate.now(), e))) ++
             amendedEntities.map(e => BusinessEntityUpdate(AmendmentType.amend, LocalDate.now(), e))
@@ -105,7 +106,7 @@ class EscServiceSpec extends BaseSpec with BeforeAndAfterEach {
     "update undertaking" in {
       forAll { (eori: EORI, undertaking: Undertaking) =>
         await(undertakingCache.put(eori, undertaking))
-        val updatedSector: Sector = Gen.oneOf(Sector.values - undertaking.industrySector).sample.get
+        val updatedSector: Sector = getSampleValue(Gen.oneOf(Sector.values - undertaking.industrySector))
         await(
           escService.updateUndertaking(undertaking.reference, EisAmendmentType.A, updatedSector)
         )
