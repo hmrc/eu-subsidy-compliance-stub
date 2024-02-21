@@ -22,7 +22,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json._
 import play.api.mvc.{Action, ControllerComponents, Result}
 import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
-import uk.gov.hmrc.eusubsidycompliancestub.models.BusinessEntityUpdate
+import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntityUpdate, Undertaking}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetails, receiptDate, undertakingRequestReads}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, UndertakingRef, UndertakingStatus}
@@ -120,48 +120,52 @@ class UndertakingController @Inject() (
       )
     ).toFuture
 
-    eori match {
+    def isLead(undertaking: Undertaking) =
+      undertaking.undertakingBusinessEntity.exists(be => be.businessEntityIdentifier == eori && be.leadEORI)
 
-      case possible500Eori if possible500Eori.endsWith("999") => // fake 500
-        InternalServerError(Json.toJson(errorDetailFor500)).toFuture
+    def returnUndertaking(undertaking: Undertaking) = {
+      Ok(Json.toJson(RetrieveUndertakingApiResponse(undertaking))).toFuture
+    }
 
-      case possibleInvalidEori if possibleInvalidEori.endsWith("777") => // ID invalid
-        Ok(Json.toJson(RetrieveUndertakingApiResponse("055", "ID number missing or invalid"))).toFuture
+    escService.retrieveUndertaking(eori).flatMap {
+      case Some(undertaking)
+          if undertaking.undertakingBusinessEntity
+            .filter(_.leadEORI)
+            .head
+            .businessEntityIdentifier
+            .endsWith("511") => //return an undertaking with a status of 'suspendedAutomated'
+        Ok(
+          Json.toJson(
+            RetrieveUndertakingApiResponse(
+              undertaking.copy(undertakingStatus = Some(UndertakingStatus.suspendedAutomated.id))
+            )
+          )
+        ).toFuture
+      case Some(undertaking)
+          if undertaking.undertakingBusinessEntity.exists(
+            _.businessEntityIdentifier.endsWith("316")
+          ) => //return an undertaking lead with a status of 'suspendedManual'
+        Ok(
+          Json.toJson(
+            RetrieveUndertakingApiResponse(
+              undertaking.copy(undertakingStatus = Some(UndertakingStatus.suspendedManual.id))
+            )
+          )
+        ).toFuture
+      case Some(undertaking) if !isLead(undertaking) => returnUndertaking(undertaking)
+      case Some(undertaking) =>
+        eori match {
+          case possible500Eori if possible500Eori.endsWith("999") => // fake 500
+            InternalServerError(Json.toJson(errorDetailFor500)).toFuture
 
-      case possibleNotSubscribedEori if possibleNotSubscribedEori.endsWith("888") =>
-        noneSubscribedResponse
+          case possibleInvalidEori if possibleInvalidEori.endsWith("777") => // ID invalid
+            Ok(Json.toJson(RetrieveUndertakingApiResponse("055", "ID number missing or invalid"))).toFuture
 
-      case _ =>
-        escService.retrieveUndertaking(eori).flatMap {
-          case Some(undertaking)
-              if undertaking.undertakingBusinessEntity
-                .filter(_.leadEORI)
-                .head
-                .businessEntityIdentifier
-                .endsWith("511") => //return an undertaking with a status of 'suspendedAutomated'
-            Ok(
-              Json.toJson(
-                RetrieveUndertakingApiResponse(
-                  undertaking.copy(undertakingStatus = Some(UndertakingStatus.suspendedAutomated.id))
-                )
-              )
-            ).toFuture
-          case Some(undertaking)
-              if undertaking.undertakingBusinessEntity.exists(
-                _.businessEntityIdentifier.endsWith("316")
-              ) => //return an undertaking lead with a status of 'suspendedManual'
-            Ok(
-              Json.toJson(
-                RetrieveUndertakingApiResponse(
-                  undertaking.copy(undertakingStatus = Some(UndertakingStatus.suspendedManual.id))
-                )
-              )
-            ).toFuture
-          case Some(undertaking) => Ok(Json.toJson(RetrieveUndertakingApiResponse(undertaking))).toFuture
-          case _ =>
-            // Original logic said should be 404 but was not 404 but did not explain why
+          case possibleNotSubscribedEori if possibleNotSubscribedEori.endsWith("888") =>
             noneSubscribedResponse
+          case _ => returnUndertaking(undertaking)
         }
+      case None => noneSubscribedResponse
     }
   }
 
@@ -178,8 +182,11 @@ class UndertakingController @Inject() (
     }
   }
 
-  private def getAmendUndertakingResponse(undertakingRef: UndertakingRef, json: JsValue) =
-    undertakingRef match {
+  private def getAmendUndertakingResponse(undertakingRef: UndertakingRef, json: JsValue) = {
+    //memberAmendments should only contain 1 item
+    val incomingEori =
+      (json \ "memberAmendments").as[List[BusinessEntityUpdate]].head.businessEntity.businessEntityIdentifier
+    incomingEori match {
       case a if a.endsWith("999") => // fake 500
         InternalServerError(Json.toJson(errorDetailFor500)).toFuture
 
@@ -240,6 +247,7 @@ class UndertakingController @Inject() (
 
         }
     }
+  }
 
   def update: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
     withJsonBody[JsValue] { json =>

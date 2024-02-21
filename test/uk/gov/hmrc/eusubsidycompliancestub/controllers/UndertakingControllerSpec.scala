@@ -55,6 +55,7 @@ class UndertakingControllerSpec extends BaseSpec {
   val undertaking: Undertaking = getSampleValue(TestInstances.arbUndertakingForCreate.arbitrary)
   val businessEntityUpdates: UndertakingBusinessEntityUpdate =
     getSampleValue(TestInstances.arbUndertakingBusinessEntityUpdate.arbitrary)
+  val businessEntityUpdateEoriPrefix = "GB123453328"
 
   def undertakingWithEori(eori: EORI): Undertaking =
     undertaking.copy(undertakingBusinessEntity =
@@ -222,6 +223,40 @@ class UndertakingControllerSpec extends BaseSpec {
       u.get.undertakingStatus mustEqual Some(UndertakingStatus.suspendedManual.id)
     }
 
+    "return 200 and an Undertaking when eori ends with 777 and eori is not lead" in {
+      val eori1 = EORI("GB123456789012")
+      val eoriNumber = EORI("GB123456789777")
+
+      val undertakingToBeRetrieved = undertaking.copy(undertakingBusinessEntity =
+        List(
+          BusinessEntity(
+            eori1,
+            leadEORI = true,
+            arbContactDetails.arbitrary.sample.get.some
+          ),
+          BusinessEntity(
+            eoriNumber,
+            leadEORI = false,
+            arbContactDetails.arbitrary.sample.get.some
+          )
+        )
+      )
+
+      when(mockEscService.retrieveUndertaking(any()))
+        .thenReturn(Future.successful(Some(undertakingToBeRetrieved)))
+      val result: Future[Result] = testResponse[EORI](
+        eoriNumber,
+        "retrieveUndertakingResponse",
+        HttpStatus.OK
+      )
+
+      val u: JsResult[Undertaking] = Json.fromJson[Undertaking](contentAsJson(result))(digital.undertakingFormat)
+      u.isSuccess mustEqual true
+      u.get.undertakingBusinessEntity.exists(be =>
+        be.businessEntityIdentifier == eoriNumber && be.leadEORI == false
+      ) mustEqual true
+    }
+
     "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
       testResponse[JsValue](
         Json.obj("foo" -> "bar"),
@@ -231,6 +266,8 @@ class UndertakingControllerSpec extends BaseSpec {
     }
 
     "return 500 if the EORI ends in 999 " in {
+      when(mockEscService.retrieveUndertaking(any()))
+        .thenReturn(Future.successful(Some(undertakingWithEori(internalServerErrorEori))))
       testResponse[EORI](
         internalServerErrorEori,
         "errorDetailResponse",
@@ -239,6 +276,8 @@ class UndertakingControllerSpec extends BaseSpec {
     }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 107 if EORI ends in 888 (not found)" in {
+      when(mockEscService.retrieveUndertaking(any()))
+        .thenReturn(Future.successful(Some(undertakingWithEori(notFoundEori))))
       val result: Future[Result] = testResponse[EORI](
         notFoundEori,
         "retrieveUndertakingResponse",
@@ -272,6 +311,8 @@ class UndertakingControllerSpec extends BaseSpec {
     }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 055 if EORI is invalid" in {
+      when(mockEscService.retrieveUndertaking(any()))
+        .thenReturn(Future.successful(Some(undertakingWithEori(invalidEORI))))
       val result: Future[Result] = testResponse[EORI](
         invalidEORI,
         "retrieveUndertakingResponse",
@@ -377,8 +418,6 @@ class UndertakingControllerSpec extends BaseSpec {
     implicit val path: String = "/scp/amendundertakingmemberdata/v1 "
     implicit val action: Action[JsValue] = controller.amendUndertakingMemberData
 
-    val eori = businessEntityUpdates.businessEntityUpdates.head.businessEntity.businessEntityIdentifier
-
     "return 403 (as per EIS spec) and a valid errorDetailResponse if the request payload is not valid" in {
       testResponse[JsValue](
         Json.obj("foo" -> "bar"),
@@ -389,16 +428,16 @@ class UndertakingControllerSpec extends BaseSpec {
 
     "return 500 if the undertakingRef ends in 999 " in {
       testResponse[UndertakingBusinessEntityUpdate](
-        businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("999")),
+        getBusinessEntityUpdateWithEoriEnding("999"),
         "errorDetailResponse",
         HttpStatus.INTERNAL_SERVER_ERROR
       )
     }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 004 " +
-      "if Undertaking.reference ends in 888 (duplicate acknowledgementRef)" in {
+      "if Undertaking being added has eori that ends in 888 (duplicate acknowledgementRef)" in {
         testResponse[UndertakingBusinessEntityUpdate](
-          businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("888")),
+          getBusinessEntityUpdateWithEoriEnding("888"),
           "amendUndertakingMemberDataResponse",
           HttpStatus.OK,
           List(
@@ -411,24 +450,24 @@ class UndertakingControllerSpec extends BaseSpec {
       }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 106 " +
-      "if Undertaking.reference ends in 777" in {
+      "if Undertaking being added has eori that ends in 777" in {
         testResponse[UndertakingBusinessEntityUpdate](
-          businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("777")),
+          getBusinessEntityUpdateWithEoriEnding("777"),
           "amendUndertakingMemberDataResponse",
           HttpStatus.OK,
           List(
             contentAsJson(_) \\ "status" mustEqual
               List(JsString("NOT_OK")),
             contentAsJson(_) \\ "paramValue" mustEqual
-              List(JsString("106"), JsString(s"EORI not Subscribed in ETMP $eori"))
+              List(JsString("106"), JsString(s"EORI not Subscribed in ETMP ${businessEntityUpdateEoriPrefix}777"))
           )
         )
       }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 107 " +
-      "if Undertaking.reference ends in 666" in {
+      "if Undertaking being added has eori that ends in 666" in {
         testResponse[UndertakingBusinessEntityUpdate](
-          businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("666")),
+          getBusinessEntityUpdateWithEoriEnding("666"),
           "amendUndertakingMemberDataResponse",
           HttpStatus.OK,
           List(
@@ -441,46 +480,55 @@ class UndertakingControllerSpec extends BaseSpec {
       }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 108 " +
-      "if Undertaking.reference ends in 555" in {
+      "if Undertaking being added has eori that ends in 555" in {
         testResponse[UndertakingBusinessEntityUpdate](
-          businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("555")),
+          getBusinessEntityUpdateWithEoriEnding("555"),
           "amendUndertakingMemberDataResponse",
           HttpStatus.OK,
           List(
             contentAsJson(_) \\ "status" mustEqual
               List(JsString("NOT_OK")),
             contentAsJson(_) \\ "paramValue" mustEqual
-              List(JsString("108"), JsString(s"Relationship with another undertaking exist for EORI $eori"))
+              List(
+                JsString("108"),
+                JsString(s"Relationship with another undertaking exist for EORI ${businessEntityUpdateEoriPrefix}555")
+              )
           )
         )
       }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 109 " +
-      "if Undertaking.reference ends in 444" in {
+      "if Undertaking being added has eori that ends in 444" in {
         testResponse[UndertakingBusinessEntityUpdate](
-          businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("444")),
+          getBusinessEntityUpdateWithEoriEnding("444"),
           "amendUndertakingMemberDataResponse",
           HttpStatus.OK,
           List(
             contentAsJson(_) \\ "status" mustEqual
               List(JsString("NOT_OK")),
             contentAsJson(_) \\ "paramValue" mustEqual
-              List(JsString("109"), JsString(s"Relationship does not exist for EORI $eori"))
+              List(
+                JsString("109"),
+                JsString(s"Relationship does not exist for EORI ${businessEntityUpdateEoriPrefix}444")
+              )
           )
         )
       }
 
     "return 200 but with NOT_OK responseCommon.status and ERRORCODE 110 " +
-      "if Undertaking.reference ends in 333" in {
+      "if Undertaking being added has eori that ends in 333" in {
         testResponse[UndertakingBusinessEntityUpdate](
-          businessEntityUpdates.copy(undertakingIdentifier = UndertakingRef("333")),
+          getBusinessEntityUpdateWithEoriEnding("333"),
           "amendUndertakingMemberDataResponse",
           HttpStatus.OK,
           List(
             contentAsJson(_) \\ "status" mustEqual
               List(JsString("NOT_OK")),
             contentAsJson(_) \\ "paramValue" mustEqual
-              List(JsString("110"), JsString(s"Subsidy Compliance address does not exist for EORI $eori"))
+              List(
+                JsString("110"),
+                JsString(s"Subsidy Compliance address does not exist for EORI ${businessEntityUpdateEoriPrefix}333")
+              )
           )
         )
       }
@@ -493,6 +541,19 @@ class UndertakingControllerSpec extends BaseSpec {
         HttpStatus.OK
       )
     }
+  }
+
+  private def getBusinessEntityUpdateWithEoriEnding(ending: String) = {
+    val businessEntityUpdate = businessEntityUpdates.businessEntityUpdates.head
+    businessEntityUpdates.copy(businessEntityUpdates =
+      List(
+        businessEntityUpdate.copy(businessEntity =
+          businessEntityUpdate.businessEntity.copy(businessEntityIdentifier =
+            EORI(s"$businessEntityUpdateEoriPrefix$ending")
+          )
+        )
+      )
+    )
   }
 
   "Get undertaking balance" must {
