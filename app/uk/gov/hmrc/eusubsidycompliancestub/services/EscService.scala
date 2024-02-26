@@ -158,7 +158,11 @@ class EscService @Inject() (
   def getUndertakingBalance(eori: EORI): Future[Option[UndertakingBalance]] = {
     for {
       undertaking <- retrieveUndertaking(eori)
-      subsidies <- retrieveUndertakingSubsidiesByEori(eori)
+      leadEORI = undertaking match {
+        case Some(u) => u.leadEORI.getOrElse(eori)
+        case _ => eori
+      }
+      subsidies <- retrieveUndertakingSubsidiesByEori(leadEORI)
     } yield {
       (undertaking, subsidies) match {
         case (Some(u), us @ _) =>
