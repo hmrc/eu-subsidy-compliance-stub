@@ -30,7 +30,10 @@ case class Undertaking(
   lastSubsidyUsageUpdt: Option[LocalDate],
   undertakingStatus: Option[Int],
   undertakingBusinessEntity: List[BusinessEntity]
-)
+) {
+  def leadEORI: Option[EORI] =
+    undertakingBusinessEntity.find(_.leadEORI).map(_.businessEntityIdentifier)
+}
 object Undertaking {
   import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats.Implicits._
   implicit val undertakingFormat: OFormat[Undertaking] = Json.format[Undertaking]
