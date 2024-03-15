@@ -102,7 +102,7 @@ class UndertakingCache @Inject() (
 }
 
 object UndertakingCache {
-  private val DefaultCacheTtl: FiniteDuration = 14 days
+  private val DefaultCacheTtl: FiniteDuration = 140 days
   private val UndertakingReference = "data.Undertaking.reference"
   private val UndertakingSubsidiesIdentifier = "data.UndertakingSubsidies.undertakingIdentifier"
   private val industrySectorLimit = "data.Undertaking.industrySectorLimit"
