@@ -47,7 +47,7 @@ case class ErrorDetail(
 )
 
 object ErrorDetail {
-  implicit val oddEisFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("YYYY-MM-dd'T'HH:mm:ss'Z'")
+  implicit val oddEisFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
   implicit val write: Writes[ErrorDetail] = Json.writes
 }
 

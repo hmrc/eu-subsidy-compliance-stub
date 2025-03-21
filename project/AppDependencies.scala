@@ -3,15 +3,15 @@ import sbt._
 
 object AppDependencies {
 
-  val bootStrapVersion = "8.3.0"
+  val bootStrapVersion = "9.11.0"
 
   val compile = Seq(
     "uk.gov.hmrc"   %% "bootstrap-backend-play-30" % bootStrapVersion,
-    "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-30"    % "1.7.0",
+    "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-30"    % "2.6.0",
     "org.typelevel" %% "cats-core"                 % "2.9.0",
     "com.chuusai"   %% "shapeless"                 % "2.3.10",
     "com.github.fge" % "json-schema-validator"     % "2.2.6",
-    "uk.gov.hmrc"   %% "stub-data-generator"       % "1.1.0",
+    "uk.gov.hmrc"   %% "stub-data-generator"       % "1.4.0",
     "wolfendale"    %% "scalacheck-gen-regexp"     % "0.1.2"
   )
 
