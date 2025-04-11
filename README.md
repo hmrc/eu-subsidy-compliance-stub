@@ -40,13 +40,31 @@ The details for the test EORI data is as shown below:
 |                          | `...666`        | 202                 | Error while fetching the Currency conversion values           |
 | Get Undertaking Balance  | `...111908`     | 500                 | Undertaking doesn't exist                                     | 
 
-### Launching the service locally
+## Running the service
 
-To bring up the service on the configured port `9095`, use
+All dependant services can run via
+```
+sm2 --start ESC_ALL
+```
+
+To stop the microservice from running on service manager (e.g. to run your own version locally), you can run:
 
 ```
-sbt run
+sm2 -stop ESC_STUB  
 ```
+
+
+### Using localhost
+
+To run this microservice locally on the configured port **'9095'**, you can run:
+
+```
+sbt run 
+```
+
+**NOTE:** Ensure that you are not running the microservice via service manager before starting your service locally (vice versa) or the service will fail to start
+
+
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
