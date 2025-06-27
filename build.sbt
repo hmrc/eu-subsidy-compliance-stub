@@ -24,7 +24,6 @@ lazy val microservice = Project(appName, file("."))
     ScoverageKeys.coverageFailOnMinimum := true,
     Test / parallelExecution := false
   )
-  .settings(resolvers += Resolver.jcenterRepo)
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
 
 //Check both integration and normal scopes so formatAndTest can be applied when needed more easily.
