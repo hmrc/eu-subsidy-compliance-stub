@@ -19,7 +19,6 @@ object AppDependencies {
     "org.scalatestplus"      %% "scalacheck-1-15"        % "3.2.11.0"       % Test,
     "org.playframework"      %% "play-test"              % current          % Test,
     "uk.gov.hmrc"            %% "bootstrap-test-play-30" % bootStrapVersion % Test,
-    "wolfendale"             %% "scalacheck-gen-regexp"  % "0.1.2"          % Test,
-    "uk.gov.hmrc"            %% "stub-data-generator"    % "1.4.0"          % Test
+    "wolfendale"             %% "scalacheck-gen-regexp"  % "0.1.2"          % Test
   )
 }
