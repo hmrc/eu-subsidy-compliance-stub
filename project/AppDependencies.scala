@@ -11,7 +11,7 @@ object AppDependencies {
     "org.typelevel" %% "cats-core"                 % "2.9.0",
     "com.chuusai"   %% "shapeless"                 % "2.3.10",
     "com.github.fge" % "json-schema-validator"     % "2.2.6",
-    "uk.gov.hmrc"   %% "stub-data-generator"       % "1.4.0",
+    "uk.gov.hmrc"   %% "stub-data-generator"       % "1.5.0",
     "wolfendale"    %% "scalacheck-gen-regexp"     % "0.1.2"
   )
 
