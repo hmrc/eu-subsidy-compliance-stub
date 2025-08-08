@@ -594,8 +594,8 @@ class UndertakingControllerSpec extends BaseSpec {
       undertakingBalance.undertakingIdentifier mustEqual undertakingRef
       undertakingBalance.industrySectorLimit mustEqual industrySectorLimit
       undertakingBalance.conversionRate mustEqual SubsidyAmount(1.2)
-      undertakingBalance.availableBalanceEUR mustEqual SubsidyAmount(200.00)
-      undertakingBalance.availableBalanceGBP mustEqual SubsidyAmount(166.67)
+      undertakingBalance.availableBalanceEUR mustEqual SubsidyAmount(30200.00)
+      undertakingBalance.availableBalanceGBP mustEqual SubsidyAmount(25166.67)
       undertakingBalance.nationalCapBalanceEUR mustEqual industrySectorLimit
 
     }
