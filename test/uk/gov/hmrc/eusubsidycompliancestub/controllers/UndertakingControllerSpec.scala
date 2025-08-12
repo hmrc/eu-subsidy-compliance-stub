@@ -564,7 +564,7 @@ class UndertakingControllerSpec extends BaseSpec {
     val okRequest = GetUndertakingBalanceRequest(eori = Some(okEori))
     val notFoundEori = EORI("GB123456789012888")
     val notFoundEoriRequest = GetUndertakingBalanceRequest(eori = Some(notFoundEori))
-    val industrySectorLimit = IndustrySectorLimit(20000)
+    val industrySectorLimit = IndustrySectorLimit(50000)
     val undertakingRef = UndertakingRef("UR123456")
 
     val balance = UndertakingBalance(
@@ -594,8 +594,8 @@ class UndertakingControllerSpec extends BaseSpec {
       undertakingBalance.undertakingIdentifier mustEqual undertakingRef
       undertakingBalance.industrySectorLimit mustEqual industrySectorLimit
       undertakingBalance.conversionRate mustEqual SubsidyAmount(1.2)
-      undertakingBalance.availableBalanceEUR mustEqual SubsidyAmount(200.00)
-      undertakingBalance.availableBalanceGBP mustEqual SubsidyAmount(166.67)
+      undertakingBalance.availableBalanceEUR mustEqual SubsidyAmount(30200.00)
+      undertakingBalance.availableBalanceGBP mustEqual SubsidyAmount(25166.67)
       undertakingBalance.nationalCapBalanceEUR mustEqual industrySectorLimit
 
     }
