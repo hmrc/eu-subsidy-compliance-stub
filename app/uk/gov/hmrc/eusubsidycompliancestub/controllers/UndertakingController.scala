@@ -156,12 +156,12 @@ class UndertakingController @Inject() (
         if undertaking.undertakingBusinessEntity.exists(
           _.businessEntityIdentifier.endsWith("508")
         ) =>
-        // return an undertaking with status 'suspendedInvalidSector'
+        // return an undertaking with status 'suspendedUndertaking'
         Ok(
           Json.toJson(
             RetrieveUndertakingApiResponse(
               undertaking.copy(
-                undertakingStatus = Some(UndertakingStatus.suspendedInvalidSector.id)
+                undertakingStatus = Some(UndertakingStatus.suspendedUndertaking.id)
               )
             )
           )

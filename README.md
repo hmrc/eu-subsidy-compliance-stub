@@ -18,7 +18,7 @@ The details for the test EORI data is as shown below:
 |                          | `...777`        | 055                 | ID number missing or invalid                                 |  
 |                          | `...511`        | 200                 | Return an undertaking with a status of 'suspendedAutomated'  |  
 |                          | `...316`        | 200                 | Return an undertaking lead with a status of 'suspendedManual' |
-|                          | `...508`        | 200                 | Return undertaking with a status of 'suspendedInvalidSector' |  
+|                          | `...508`        | 200                 | Return undertaking with a status of 'suspendedUndertaking' |  
 | Amend Undertaking Member | `...999`        | 500                 | Internal server error                                        | 
 |                          | `...888`        | 004                 | Duplicate submission acknowledgment reference                |  
 |                          | `...777`        | 106                 | EORI not Subscribed in ETMP                                  |  
