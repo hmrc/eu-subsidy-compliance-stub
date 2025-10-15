@@ -23,14 +23,8 @@
     "industrySector": {
       "description": "0 = “Other, Non-Specific” \r\n1 = “Transport”\r\n 2 = “Agriculture”\r\n 3 = “Aquaculture”",
       "type": "string",
-      "minLength": 1,
-      "maxLength": 1,
-      "enum": [
-        "0",
-        "1",
-        "2",
-        "3"
-      ]
+      "minLength": 5,
+      "maxLength": 5
     },
     "amendmentType": {
       "description": "A = Amend Data\r\n D = Disable Undertaking ",

@@ -24,7 +24,7 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 class AppConfig @Inject() (config: Configuration) {
 
   def sectorCap(sector: Sector): BigDecimal = {
-    val sectorName = sector.id match {
+    val sectorName = 0 match {
       case 0 => "other"
       case 1 => "transport"
       case 2 => "agriculture"
