@@ -23,7 +23,7 @@
     "industrySector": {
       "description": "0 = “Other, Non-Specific” \r\n1 = “Transport”\r\n 2 = “Agriculture”\r\n 3 = “Aquaculture”",
       "type": "string",
-      "minLength": 5,
+      "minLength": 1,
       "maxLength": 5
     },
     "amendmentType": {
