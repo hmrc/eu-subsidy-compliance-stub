@@ -152,6 +152,20 @@ class UndertakingController @Inject() (
             )
           )
         ).toFuture
+      case Some(undertaking)
+          if undertaking.undertakingBusinessEntity.exists(
+            _.businessEntityIdentifier.endsWith("508")
+          ) =>
+        // return an undertaking with status 'suspendedUndertaking'
+        Ok(
+          Json.toJson(
+            RetrieveUndertakingApiResponse(
+              undertaking.copy(
+                undertakingStatus = Some(UndertakingStatus.suspendedUndertaking.id)
+              )
+            )
+          )
+        ).toFuture
       case Some(undertaking) if !isLead(undertaking) => returnUndertaking(undertaking)
       case Some(undertaking) =>
         eori match {

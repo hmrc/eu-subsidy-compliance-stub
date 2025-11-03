@@ -23,13 +23,7 @@
     "industrySector": {
       "type": "string",
       "minLength": 1,
-      "maxLength": 1,
-      "enum": [
-        "0",
-        "1",
-        "2",
-        "3"
-      ]
+      "maxLength": 5
     },
     "idType": {
       "description": "Type of Identification e.g. EORI",

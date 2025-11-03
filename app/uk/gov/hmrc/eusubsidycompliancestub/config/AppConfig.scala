@@ -24,11 +24,10 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 class AppConfig @Inject() (config: Configuration) {
 
   def sectorCap(sector: Sector): BigDecimal = {
-    val sectorName = sector.id match {
-      case 0 => "other"
-      case 1 => "transport"
-      case 2 => "agriculture"
-      case 3 => "aquaculture"
+    val sectorName = sector.toString.take(2) match {
+      case "01" => "agriculture"
+      case "03" => "aquaculture"
+      case _ => "other"
     }
     //The Play ConfigLoader that is used below only has a set number of Data types, BigDecimal is not one of them, so we need to manually convert the value we get
     val stringValue = config.get[String](s"sectorCap.$sectorName")
