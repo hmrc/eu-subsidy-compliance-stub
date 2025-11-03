@@ -22,7 +22,7 @@
     },
     "industrySector": {
       "type": "string",
-      "minLength": 0,
+      "minLength": 1,
       "maxLength": 5
     },
     "idType": {
