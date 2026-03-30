@@ -81,7 +81,7 @@ class EscServiceSpec extends BaseSpec with BeforeAndAfterEach {
         val amendedEntities =
           existingEntities
             .filterNot(deletedEntity.contains)
-            .map(entity => entity.copy(contacts = Some(getSampleValue(arbContactDetails.arbitrary))))
+            .map(entity => entity.copy(contacts = Some(getSampleValue(arbContactDetails.arbitrary.sample))))
         val amendments =
           deletedEntity.toList.flatMap(e => List(BusinessEntityUpdate(AmendmentType.delete, LocalDate.now(), e))) ++
             amendedEntities.map(e => BusinessEntityUpdate(AmendmentType.amend, LocalDate.now(), e))
@@ -105,7 +105,7 @@ class EscServiceSpec extends BaseSpec with BeforeAndAfterEach {
     "update undertaking" in {
       forAll { (eori: EORI, undertaking: Undertaking) =>
         await(undertakingCache.put(eori, undertaking))
-        val updatedSector: Sector = getSampleValue(Gen.oneOf(Sector.values - undertaking.industrySector))
+        val updatedSector: Sector = getSampleValue(Gen.oneOf(Sector.values - undertaking.industrySector).sample)
         await(
           escService.updateUndertaking(undertaking.reference, EisAmendmentType.A, updatedSector)
         )
@@ -117,7 +117,14 @@ class EscServiceSpec extends BaseSpec with BeforeAndAfterEach {
 
     "update lastSubsidyUsage" in {
       implicit val arbDate: Arbitrary[LocalDate] =
-        Arbitrary(Gen.date(LocalDate.now().minusYears(5), LocalDate.now().plusYears(5)))
+        Arbitrary {
+          Gen
+            .choose(
+              LocalDate.now().minusYears(5).toEpochDay,
+              LocalDate.now().plusYears(5).toEpochDay
+            )
+            .map(LocalDate.ofEpochDay)
+        }
       forAll { (eori: EORI, undertaking: Undertaking, date: LocalDate) =>
         await(undertakingCache.put(eori, undertaking))
         await(escService.updateLastSubsidyUsage(undertaking.reference, date))

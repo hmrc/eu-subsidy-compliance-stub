@@ -52,14 +52,14 @@ class UndertakingControllerSpec extends BaseSpec {
   )(appConfig = appConfig, ec = ExecutionContext.global)
 
   val internalServerErrorEori: EORI = EORI("GB123456789012999")
-  val undertaking: Undertaking = getSampleValue(TestInstances.arbUndertakingForCreate.arbitrary)
+  val undertaking: Undertaking = getSampleValue(TestInstances.arbUndertakingForCreate.arbitrary.sample)
   val businessEntityUpdates: UndertakingBusinessEntityUpdate =
-    getSampleValue(TestInstances.arbUndertakingBusinessEntityUpdate.arbitrary)
+    getSampleValue(TestInstances.arbUndertakingBusinessEntityUpdate.arbitrary.sample)
   val businessEntityUpdateEoriPrefix = "GB123453328"
 
   def undertakingWithEori(eori: EORI): Undertaking =
     undertaking.copy(undertakingBusinessEntity =
-      List(BusinessEntity(eori, leadEORI = true, getSampleValue(arbContactDetails.arbitrary).some))
+      List(BusinessEntity(eori, leadEORI = true, getSampleValue(arbContactDetails.arbitrary.sample).some))
     )
 
   "Create Undertaking" must {
