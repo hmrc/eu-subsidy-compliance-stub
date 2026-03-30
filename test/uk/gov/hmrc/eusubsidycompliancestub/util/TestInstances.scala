@@ -89,31 +89,6 @@ object TestInstances {
     RegexpGen.from(SubsidyRef.regex).map(SubsidyRef.apply)
   }
 
-//  implicit def arbSubsidy: Arbitrary[NonHmrcSubsidy] = {
-//      val a = for {
-//        amendmentType <- Gen.oneOf(Seq("1", "2", "3")).map(x => Some(EisSubsidyAmendmentType(x)))
-//        ref <- arbSubsidyRef.arbitrary.map(x => amendmentType.fold(Option.empty[SubsidyRef])(_ => Some(x)))
-//        allocationDate <- Gen.date(LocalDate.of(2020, 1, 1), LocalDate.now)
-//        submissionDate <- Gen.date(LocalDate.of(2020, 1, 1), LocalDate.now)
-//        publicAuthority <- arbString.arbitrary
-//        traderReference <- Gen.option(arbTraderRef.arbitrary)
-//        nonHMRCSubsidyAmount <- Gen
-//          .choose(BigDecimal(0), BigDecimal(999999999.99f))
-//          .map(x => SubsidyAmount(x.setScale(2, RoundingMode.DOWN).bigDecimal.stripTrailingZeros()))
-//        businessEntityIdentifier <- genEORI
-//      } yield NonHmrcSubsidy(
-//        ref,
-//        allocationDate,
-//        submissionDate,
-//        publicAuthority.some,
-//        traderReference,
-//        nonHMRCSubsidyAmount,
-//        businessEntityIdentifier.some,
-//        amendmentType
-//      )
-//      Arbitrary(a)
-//    }
-
   implicit def arbSubsidy: Arbitrary[NonHmrcSubsidy] = {
 
     val localDateGen: Gen[LocalDate] =
