@@ -160,7 +160,7 @@ object DataGenerator {
 
   def genEORI(random: Random = new Random()): EORI = {
     val prefix = genEORIPrefix(random)
-    val rest   = genEORIDigits(random)
+    val rest = genEORIDigits(random)
     EORI(s"$prefix$rest")
   }
 
@@ -178,7 +178,7 @@ object DataGenerator {
   }
 
   def genContactDetails(random: Random = new Random()): ContactDetails = {
-    val phone  = maybe(PhoneNumber(variableLengthString(1, 24, random)), random)
+    val phone = maybe(PhoneNumber(variableLengthString(1, 24, random)), random)
     val mobile = maybe(PhoneNumber(variableLengthString(1, 24, random)), random)
     ContactDetails(phone, mobile)
   }
@@ -209,7 +209,7 @@ object DataGenerator {
     randomDateBetween(LocalDate.of(2020, 1, 1), LocalDate.now(), random)
 
   def genRetrievedUndertaking(eori: EORI, random: Random = new Random()): Undertaking = {
-    val ref  = variableLengthString(1, 17, random)
+    val ref = variableLengthString(1, 17, random)
     val name = variableLengthString(1, 105, random)
     val industrySector = List(0, 1, 2, 3)(random.nextInt(4))
     val industrySectorLimit = genIndustrySectorLimit(random)
@@ -225,17 +225,16 @@ object DataGenerator {
       industrySectorLimit = industrySectorLimit,
       lastSubsidyUsageUpdt = Some(lastSubsidyUsageUpdt),
       undertakingStatus = Some(undertakingStatus),
-      undertakingBusinessEntity =
-        undertakingBusinessEntity.head.copy(
-          businessEntityIdentifier = eori,
-          leadEORI = true
-        ) :: undertakingBusinessEntity.tail
+      undertakingBusinessEntity = undertakingBusinessEntity.head.copy(
+        businessEntityIdentifier = eori,
+        leadEORI = true
+      ) :: undertakingBusinessEntity.tail
     )
   }
 
   def genTraderRef(random: Random = new Random()): TraderRef = {
     val length = random.between(0, 36) // 0..35 inclusive (matches your regex)
-    val value  = random.alphanumeric.filter(_.isLetterOrDigit).take(length).mkString
+    val value = random.alphanumeric.filter(_.isLetterOrDigit).take(length).mkString
     TraderRef(value)
   }
 
