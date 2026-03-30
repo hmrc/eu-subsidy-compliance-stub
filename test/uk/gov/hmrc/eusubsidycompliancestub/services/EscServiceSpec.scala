@@ -29,7 +29,6 @@ import uk.gov.hmrc.eusubsidycompliancestub.repositories.UndertakingCache
 import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator.getSampleValue
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances.{arbContactDetails, arbEori, arbSubsidies, arbUndertaking}
 import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.smartstub.AdvGen
 
 import java.time.LocalDate
 
