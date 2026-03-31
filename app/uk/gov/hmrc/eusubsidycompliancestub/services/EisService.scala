@@ -50,5 +50,5 @@ object EisService {
   }
 
   def retrieveUndertaking(eori: EORI): Undertaking =
-    getSampleValue(genRetrievedUndertaking(eori), eori.toLong.some)
+    DataGenerator.genRetrievedUndertaking(eori)
 }

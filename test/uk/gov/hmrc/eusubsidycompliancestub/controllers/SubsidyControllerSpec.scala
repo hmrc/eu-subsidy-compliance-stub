@@ -40,9 +40,9 @@ class SubsidyControllerSpec extends BaseSpec {
     authAndEnvAction = app.injector.instanceOf[AuthAndEnvAction]
   )(ExecutionContext.global)
 
-  val subsidyUpdate: SubsidyUpdate = getSampleValue(TestInstances.arbSubsidyUpdate.arbitrary)
-  val nilReturn: SubsidyUpdate = getSampleValue(TestInstances.arbSubsidyUpdateNilReturn.arbitrary)
-  val subsidiesRetrieve: SubsidyRetrieve = getSampleValue(TestInstances.arbSubsidyRetrieve.arbitrary)
+  val subsidyUpdate: SubsidyUpdate = getSampleValue(TestInstances.arbSubsidyUpdate.arbitrary.sample)
+  val nilReturn: SubsidyUpdate = getSampleValue(TestInstances.arbSubsidyUpdateNilReturn.arbitrary.sample)
+  val subsidiesRetrieve: SubsidyRetrieve = getSampleValue(TestInstances.arbSubsidyRetrieve.arbitrary.sample)
 
   "retrieve subsidy usage" must {
     implicit val path: String = "/scp/getundertakingtransactions/v1"
