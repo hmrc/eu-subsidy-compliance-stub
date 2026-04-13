@@ -167,9 +167,9 @@ class UndertakingController @Inject() (
           )
         ).toFuture
       case Some(undertaking)
-        if undertaking.undertakingBusinessEntity.exists(
-          _.businessEntityIdentifier.endsWith("509")
-        ) =>
+          if undertaking.undertakingBusinessEntity.exists(
+            _.businessEntityIdentifier.endsWith("509")
+          ) =>
         // return an undertaking with status 'inactive'
         Ok(
           Json.toJson(
