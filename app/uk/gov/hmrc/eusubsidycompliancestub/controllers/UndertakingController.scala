@@ -153,6 +153,20 @@ class UndertakingController @Inject() (
           )
         ).toFuture
       case Some(undertaking)
+        if undertaking.undertakingBusinessEntity.exists(
+          _.businessEntityIdentifier.endsWith("502")
+        ) =>
+        // return an undertaking with status 'suspendedBen'  beneficiary
+        Ok(
+          Json.toJson(
+            RetrieveUndertakingApiResponse(
+              undertaking.copy(
+                undertakingStatus = Some(UndertakingStatus.suspendedBen.id)
+              )
+            )
+          )
+        ).toFuture
+      case Some(undertaking)
           if undertaking.undertakingBusinessEntity.exists(
             _.businessEntityIdentifier.endsWith("508")
           ) =>
