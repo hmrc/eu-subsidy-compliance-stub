@@ -18,11 +18,11 @@ package uk.gov.hmrc.eusubsidycompliancestub.models
 
 import java.time.LocalDate
 
-import play.api.libs.functional.syntax.{unlift, _}
-import play.api.libs.json._
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.*
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.businessEntityReads
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.*
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.AmendmentType.AmendmentType
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.EORI
 
 case class BusinessEntityUpdate(
   amendmentType: AmendmentType,
@@ -35,7 +35,7 @@ object BusinessEntityUpdate {
     (JsPath \ "businessEntityIdentifier").write[EORI] and
       (JsPath \ "leadEORIIndicator").write[Boolean] and
       (JsPath \ "contacts").writeNullable[ContactDetails]
-  )(unlift(BusinessEntity.unapply))
+  )(be => (be.businessEntityIdentifier, be.leadEORI, be.contacts))
 
   implicit val businessEntityUpdateWrites: Writes[BusinessEntityUpdate] = new Writes[BusinessEntityUpdate] {
     override def writes(o: BusinessEntityUpdate): JsValue = Json.obj(

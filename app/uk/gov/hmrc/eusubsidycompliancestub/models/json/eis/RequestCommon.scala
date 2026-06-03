@@ -18,7 +18,7 @@ package uk.gov.hmrc.eusubsidycompliancestub.models.json.eis
 
 import java.util.UUID
 import play.api.libs.json.{Json, Writes}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.AcknowledgementRef
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.*
 
 final case class RequestCommon(
   originatingSystem: String = "MDTP",

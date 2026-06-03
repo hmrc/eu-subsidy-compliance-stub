@@ -20,7 +20,7 @@ import cats.implicits._
 import play.api.libs.json._
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{Params, RequestCommon}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, EisAmendmentType, IndustrySectorLimit, UndertakingName, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.*
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, CreateUndertakingRequest, Undertaking}
 

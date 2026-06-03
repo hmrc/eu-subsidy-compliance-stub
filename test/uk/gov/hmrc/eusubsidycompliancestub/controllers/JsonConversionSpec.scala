@@ -30,7 +30,7 @@ class JsonConversionSpec extends BaseSpec {
 
   "Json Writes " must {
     "match retrieveUndertakingResponse.schema.json" in {
-      forAll { undertaking: Undertaking =>
+      forAll { (undertaking: Undertaking) =>
         checkWrites[RetrieveUndertakingApiResponse](
           RetrieveUndertakingApiResponse(undertaking),
           "retrieveUndertakingResponse"
@@ -40,51 +40,80 @@ class JsonConversionSpec extends BaseSpec {
 
     "match createUndertakingRequest.schema.json" in {
       implicit val format: Format[Undertaking] = json.digital.undertakingFormat
-      forAll { undertaking: Undertaking =>
-        checkWrites[Undertaking](undertaking, "createUndertakingRequest")
-      }(implicitly, arbUndertakingForCreate, implicitly, implicitly, implicitly, implicitly)
+      forAll { (undertaking: Undertaking) => checkWrites[Undertaking](undertaking, "createUndertakingRequest") }(
+        implicitly,
+        arbUndertakingForCreate,
+        implicitly,
+        implicitly,
+        implicitly,
+        implicitly
+      )
     }
 
     "match retrieveUndertakingRequest.schema.json" in {
-      forAll { eori: EORI =>
-        checkWrites[EORI](eori, "retrieveUndertakingRequest")
-      }
+      forAll { (eori: EORI) => checkWrites[EORI](eori, "retrieveUndertakingRequest") }
     }
 
     "match updateUndertakingRequest.schema.json for disable" in {
       val writes = json.digital.updateUndertakingWrites(EisAmendmentType.D)
-      forAll { undertaking: Undertaking =>
+      forAll { (undertaking: Undertaking) =>
         checkWrites[Undertaking](undertaking, "updateUndertakingRequest")(writes)
-      }(implicitly, arbUndertaking, implicitly, implicitly, implicitly, implicitly)
+      }(
+        implicitly,
+        arbUndertaking,
+        implicitly,
+        implicitly,
+        implicitly,
+        implicitly
+      )
     }
 
     "match updateUndertakingRequest.schema.json for amend" in {
       val writes = json.digital.updateUndertakingWrites(EisAmendmentType.A)
-      forAll { undertaking: Undertaking =>
+      forAll { (undertaking: Undertaking) =>
         checkWrites[Undertaking](undertaking, "updateUndertakingRequest")(writes)
-      }(implicitly, arbUndertaking, implicitly, implicitly, implicitly, implicitly)
+      }(
+        implicitly,
+        arbUndertaking,
+        implicitly,
+        implicitly,
+        implicitly,
+        implicitly
+      )
     }
 
     "match errorDetailResponse.schema.json" in {
-      forAll { errorDetails: ErrorDetails =>
-        checkWrites[ErrorDetails](errorDetails, "errorDetailResponse")
-      }
+      forAll { (errorDetails: ErrorDetails) => checkWrites[ErrorDetails](errorDetails, "errorDetailResponse") }
     }
 
     "match updateSubsidyUsageRequest.schema.json" in {
-      forAll { subsidyUpdate: SubsidyUpdate =>
+      forAll { (subsidyUpdate: SubsidyUpdate) =>
         checkWrites[SubsidyUpdate](subsidyUpdate, "updateSubsidyUsageRequest")
-      }(implicitly, arbSubsidyUpdateWithSomeNilReturns, implicitly, implicitly, implicitly, implicitly)
+      }(
+        implicitly,
+        arbSubsidyUpdateWithSomeNilReturns,
+        implicitly,
+        implicitly,
+        implicitly,
+        implicitly
+      )
     }
 
     "match updateSubsidyUsageRequest.schema.json with just nil returns" in {
-      forAll { subsidyUpdate: SubsidyUpdate =>
+      forAll { (subsidyUpdate: SubsidyUpdate) =>
         checkWrites[SubsidyUpdate](subsidyUpdate, "updateSubsidyUsageRequest")
-      }(implicitly, arbSubsidyUpdateNilReturn, implicitly, implicitly, implicitly, implicitly)
+      }(
+        implicitly,
+        arbSubsidyUpdateNilReturn,
+        implicitly,
+        implicitly,
+        implicitly,
+        implicitly
+      )
     }
 
     "match amendUndertakingMemberDataRequest.schema.json" in {
-      forAll { undertakingBusinessEntityUpdate: UndertakingBusinessEntityUpdate =>
+      forAll { (undertakingBusinessEntityUpdate: UndertakingBusinessEntityUpdate) =>
         checkWrites[UndertakingBusinessEntityUpdate](
           undertakingBusinessEntityUpdate,
           "amendUndertakingMemberDataRequest"
@@ -93,7 +122,7 @@ class JsonConversionSpec extends BaseSpec {
     }
 
     "match retrieveUndertakingSubsidiesRequest.schema.json" in {
-      forAll { subsidyRetrieve: SubsidyRetrieve =>
+      forAll { (subsidyRetrieve: SubsidyRetrieve) =>
         checkWrites[SubsidyRetrieve](subsidyRetrieve, "retrieveUndertakingSubsidiesRequest")
       }
     }

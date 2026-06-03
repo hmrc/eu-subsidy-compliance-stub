@@ -20,7 +20,7 @@ import java.time.LocalDate
 
 import cats.implicits._
 import play.api.libs.json.{JsResult, _}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.*
 
 import scala.reflect.ClassTag
 

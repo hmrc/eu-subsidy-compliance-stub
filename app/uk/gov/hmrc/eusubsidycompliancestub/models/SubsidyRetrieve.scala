@@ -20,7 +20,7 @@ import cats.implicits._
 import java.time.LocalDate
 
 import play.api.libs.json._
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.*
 import uk.gov.hmrc.eusubsidycompliancestub.models.json._
 
 // assuming that we always want both subsidy types, and that any date range should apply to both

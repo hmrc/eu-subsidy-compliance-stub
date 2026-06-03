@@ -17,7 +17,7 @@
 package uk.gov.hmrc.eusubsidycompliancestub.models.undertakingrequest
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.*
 
 case class GetUndertakingBalanceRequest(
   eori: Option[EORI] = None,

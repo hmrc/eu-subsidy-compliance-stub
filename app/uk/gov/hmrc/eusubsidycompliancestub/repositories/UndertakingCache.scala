@@ -60,7 +60,7 @@ class UndertakingCache @Inject() (
         filter = Filters.equal("data.Undertaking.undertakingBusinessEntity.businessEntityIdentifier", eori)
       )
       .toFuture()
-      .map { items: Seq[CacheItem] =>
+      .map { (items: Seq[CacheItem]) =>
         items.headOption.flatMap { i =>
           val data = i.data.as[Map[String, JsValue]]
           data.get("Undertaking").map(u => u.as[Undertaking])
@@ -76,7 +76,7 @@ class UndertakingCache @Inject() (
         filter = Filters.equal(UndertakingReference, ref)
       )
       .toFuture()
-      .map { items: Seq[CacheItem] =>
+      .map { (items: Seq[CacheItem]) =>
         items.headOption.map { i =>
           i.id.asInstanceOf[EORI]
         }

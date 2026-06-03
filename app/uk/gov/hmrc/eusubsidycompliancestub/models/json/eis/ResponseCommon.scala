@@ -21,9 +21,9 @@ import cats.implicits.catsSyntaxOptionId
 import java.time.LocalDateTime
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.*
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisParamName.EisParamName
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisStatus.EisStatus
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EisParamName, EisParamValue, EisStatus, EisStatusString}
 
 case class Params(
   paramName: EisParamName,
@@ -52,7 +52,7 @@ object ResponseCommon {
       (JsPath \ "statusText").write[EisStatusString] and
       (JsPath \ "processingDate").write[LocalDateTime] and
       (JsPath \ "returnParameters").writeNullable[List[Params]]
-  )(unlift(ResponseCommon.unapply))
+  )(rc => (rc.status, rc.statusText, rc.processingDate, rc.returnParameters))
 
   def apply(errorCode: String, errorText: String): ResponseCommon =
     ResponseCommon(

@@ -20,8 +20,6 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.types.{AmendmentType, EORI, In
 import uk.gov.hmrc.eusubsidycompliancestub.models.{types, _}
 
 import java.time.LocalDate
-import shapeless.tag.@@
-
 import java.time.temporal.ChronoUnit
 import java.util.regex.Pattern
 import scala.util.Random
@@ -97,7 +95,7 @@ object DataGenerator {
     BusinessEntityUpdate(amendmentType, amendmentEffectiveDate, businessEntity)
   }
 
-  private def genIndustrySectorLimit(random: Random = new Random()): @@[BigDecimal, types.IndustrySectorLimit.Tag] = {
+  private def genIndustrySectorLimit(random: Random = new Random()): types.IndustrySectorLimit = {
     val max = BigDecimal("99999999999.99")
     val raw = BigDecimal(random.nextDouble()) * max
     val scaled = raw.setScale(2, BigDecimal.RoundingMode.DOWN)

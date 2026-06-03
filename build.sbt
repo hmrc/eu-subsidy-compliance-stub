@@ -8,7 +8,7 @@ lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
   .settings(
     majorVersion := 0,
-    scalaVersion := "2.13.18",
+    scalaVersion := "3.3.7",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     scalacOptions += "-Wconf:src=routes/.*:s",
     ScoverageKeys.coverageExcludedPackages :=
