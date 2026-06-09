@@ -28,6 +28,7 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntity, BusinessEntit
 import uk.gov.hmrc.eusubsidycompliancestub.repositories.UndertakingCache
 import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator.getSampleValue
 import uk.gov.hmrc.eusubsidycompliancestub.util.TestInstances.{arbContactDetails, arbEori, arbSubsidies, arbUndertaking}
+import org.mongodb.scala.ObservableFuture
 import uk.gov.hmrc.mongo.MongoComponent
 
 import java.time.LocalDate

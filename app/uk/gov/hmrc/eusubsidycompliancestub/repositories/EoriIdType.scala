@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.repositories
 
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.EORI
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.*
 import uk.gov.hmrc.mongo.cache.CacheIdType
 
 object EoriIdType extends CacheIdType[EORI] {

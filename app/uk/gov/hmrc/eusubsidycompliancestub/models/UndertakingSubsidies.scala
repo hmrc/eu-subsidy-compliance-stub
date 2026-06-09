@@ -17,7 +17,7 @@
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{SubsidyAmount, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.*
 
 case class UndertakingSubsidies(
   undertakingIdentifier: UndertakingRef,

@@ -23,12 +23,11 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.eusubsidycompliancestub.controllers.SubsidyController.{geFilteredNonHMRCSubsidyList, getFilteredHMRCSubsidyList}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{SubsidyUndertakingTransactionRequest, SubsidyUpdate, UndertakingSubsidies}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, SubsidyRef, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.*
 import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingSubsidyResponses.{AmendUndertakingSubsidyUsageApiResponse, GetUndertakingTransactionApiResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.services.EscService
 import uk.gov.hmrc.eusubsidycompliancestub.syntax.FutureSyntax.FutureOps
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext
 
@@ -155,12 +154,12 @@ class SubsidyController @Inject() (
 
 object SubsidyController {
 
-  /**
-    * This function will  (if getHMRCUsageTransaction is true), filter the HMRC subsidy list from the retrieved UndertakingSubsidies by the date range given in the request body
-    * else fetch empty list.
+  /** This function will (if getHMRCUsageTransaction is true), filter the HMRC subsidy list from the retrieved
+    * UndertakingSubsidies by the date range given in the request body else fetch empty list.
     * @param subsidyUndertakingTransactionRequest
     * @param subsidies
-    * @return optional list of HMRCSubsidy
+    * @return
+    *   optional list of HMRCSubsidy
     */
   def getFilteredHMRCSubsidyList(
     subsidyUndertakingTransactionRequest: SubsidyUndertakingTransactionRequest,
@@ -176,16 +175,16 @@ object SubsidyController {
         ) || x.acceptanceDate.isEqual(dateTo))
       )
     } else {
-      //In this scenario I am assuming that if getHMRCUsageTransaction is false , then we don't have to fetch anything. Please do confirm on this assumption
+      // In this scenario I am assuming that if getHMRCUsageTransaction is false , then we don't have to fetch anything. Please do confirm on this assumption
       List().some
     }
 
-  /**
-    * This function will  (if getNonHMRCUsageTransaction is true), filter the non HMRC subsidy list from the retrieved UndertakingSubsidies by the date range given in the request body
-    * else fetch empty list.
+  /** This function will (if getNonHMRCUsageTransaction is true), filter the non HMRC subsidy list from the retrieved
+    * UndertakingSubsidies by the date range given in the request body else fetch empty list.
     * @param subsidyUndertakingTransactionRequest
     * @param subsidies
-    * @return optional list of nonHMRCSubsidy
+    * @return
+    *   optional list of nonHMRCSubsidy
     */
   def geFilteredNonHMRCSubsidyList(
     subsidyUndertakingTransactionRequest: SubsidyUndertakingTransactionRequest,
@@ -202,6 +201,6 @@ object SubsidyController {
         )
         .map(_.copy(amendmentType = None))
     } else
-      //In this scenario I am assuming that if getNonHMRCUsageTransaction is false , then we don't have to fetch anything. Please do confirm on this assumption
+      // In this scenario I am assuming that if getNonHMRCUsageTransaction is false , then we don't have to fetch anything. Please do confirm on this assumption
       List().some
 }

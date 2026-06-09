@@ -29,7 +29,7 @@ class AppConfig @Inject() (config: Configuration) {
       case "03" => "aquaculture"
       case _ => "other"
     }
-    //The Play ConfigLoader that is used below only has a set number of Data types, BigDecimal is not one of them, so we need to manually convert the value we get
+    // The Play ConfigLoader that is used below only has a set number of Data types, BigDecimal is not one of them, so we need to manually convert the value we get
     val stringValue = config.get[String](s"sectorCap.$sectorName")
     BigDecimal(stringValue)
   }

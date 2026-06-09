@@ -9,16 +9,13 @@ object AppDependencies {
     "uk.gov.hmrc"   %% "bootstrap-backend-play-30" % bootStrapVersion,
     "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-30"    % "2.12.0",
     "org.typelevel" %% "cats-core"                 % "2.13.0",
-    "com.chuusai"   %% "shapeless"                 % "2.3.13",
-    "com.github.fge" % "json-schema-validator"     % "2.2.14",
-    "uk.gov.hmrc"   %% "stub-data-generator"       % "1.4.0",
-    "wolfendale"    %% "scalacheck-gen-regexp"     % "0.1.2"
+    "com.github.java-json-tools" % "json-schema-validator"         % "2.2.14"
   )
 
   val test = Seq(
     "org.scalatestplus"      %% "scalacheck-1-15"        % "3.2.11.0"       % Test,
     "org.playframework"      %% "play-test"              % current          % Test,
     "uk.gov.hmrc"            %% "bootstrap-test-play-30" % bootStrapVersion % Test,
-    "wolfendale"             %% "scalacheck-gen-regexp"  % "0.1.2"          % Test
+    "io.github.wolfendale"   %% "scalacheck-gen-regexp"  % "1.1.0"          % Test
   )
 }

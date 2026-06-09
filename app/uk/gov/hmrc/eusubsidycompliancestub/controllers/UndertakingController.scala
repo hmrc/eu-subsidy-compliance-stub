@@ -24,8 +24,8 @@ import play.api.mvc.{Action, ControllerComponents, Result}
 import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
 import uk.gov.hmrc.eusubsidycompliancestub.models.{BusinessEntityUpdate, Undertaking}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.{ErrorDetails, receiptDate, undertakingRequestReads}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.*
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EisAmendmentType.EisAmendmentType
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, UndertakingRef, UndertakingStatus}
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.Sector.Sector
 import uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses.{AmendUndertakingApiResponse, CreateUndertakingApiResponse, GetUndertakingBalanceApiResponse, RetrieveUndertakingApiResponse, UndertakingBalanceResponse, UpdateUndertakingApiResponse}
 import uk.gov.hmrc.eusubsidycompliancestub.services.{EisService, EscService}
@@ -81,7 +81,7 @@ class UndertakingController @Inject() (
         case e if e.endsWith("555") =>
           Ok(Json.toJson(CreateUndertakingApiResponse("113", s"Postcode missing for the address"))).toFuture
 
-        //create an Undertaking with lastSubsidyUsageUpdt which is 77 days older than today i.e between the range of 76-90 days
+        // create an Undertaking with lastSubsidyUsageUpdt which is 77 days older than today i.e between the range of 76-90 days
         case f if f.endsWith("444") =>
           val undertaking = Json.fromJson(json)(undertakingRequestReads).get
           val madeUndertaking =
@@ -133,7 +133,7 @@ class UndertakingController @Inject() (
             .filter(_.leadEORI)
             .head
             .businessEntityIdentifier
-            .endsWith("511") => //return an undertaking with a status of 'suspendedAutomated'
+            .endsWith("511") => // return an undertaking with a status of 'suspendedAutomated'
         Ok(
           Json.toJson(
             RetrieveUndertakingApiResponse(
@@ -144,7 +144,7 @@ class UndertakingController @Inject() (
       case Some(undertaking)
           if undertaking.undertakingBusinessEntity.exists(
             _.businessEntityIdentifier.endsWith("316")
-          ) => //return an undertaking lead with a status of 'suspendedManual'
+          ) => // return an undertaking lead with a status of 'suspendedManual'
         Ok(
           Json.toJson(
             RetrieveUndertakingApiResponse(
@@ -211,7 +211,7 @@ class UndertakingController @Inject() (
   }
 
   private def getAmendUndertakingResponse(undertakingRef: UndertakingRef, json: JsValue) = {
-    //memberAmendments should only contain 1 item
+    // memberAmendments should only contain 1 item
     val incomingEori =
       (json \ "memberAmendments").as[List[BusinessEntityUpdate]].head.businessEntity.businessEntityIdentifier
     incomingEori match {
@@ -329,7 +329,7 @@ class UndertakingController @Inject() (
 
   private def getUndertakingBalanceResponse(eoriOpt: Option[EORI]): Future[Result] = {
 
-    //return undertaking does not exist error when eori ends with 111908
+    // return undertaking does not exist error when eori ends with 111908
     if (eoriOpt.exists(_.endsWith("111908"))) {
       Ok(
         Json.toJson(

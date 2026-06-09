@@ -16,12 +16,10 @@
 
 package uk.gov.hmrc.eusubsidycompliancestub.services
 
-import cats.implicits.catsSyntaxOptionId
 import uk.gov.hmrc.eusubsidycompliancestub.config.AppConfig
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingStatus.UndertakingStatus
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.{EORI, IndustrySectorLimit}
 import uk.gov.hmrc.eusubsidycompliancestub.models.{CreateUndertakingRequest, Undertaking}
-import uk.gov.hmrc.eusubsidycompliancestub.services.DataGenerator.{genRetrievedUndertaking, getSampleValue}
 
 import java.time.LocalDate
 

@@ -18,7 +18,7 @@ package uk.gov.hmrc.eusubsidycompliancestub.models.undertakingResponses
 
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.eusubsidycompliancestub.models.json.eis.ResponseCommon
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.{IndustrySectorLimit, SubsidyAmount, UndertakingRef}
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.*
 import uk.gov.hmrc.eusubsidycompliancestub.models.{Undertaking, UndertakingSubsidies}
 
 case class GetUndertakingBalanceApiResponse(

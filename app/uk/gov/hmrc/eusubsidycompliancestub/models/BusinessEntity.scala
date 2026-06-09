@@ -17,7 +17,7 @@
 package uk.gov.hmrc.eusubsidycompliancestub.models
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.eusubsidycompliancestub.models.types.EORI
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.*
 
 case class BusinessEntity(
   businessEntityIdentifier: EORI,
