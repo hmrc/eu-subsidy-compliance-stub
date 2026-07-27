@@ -1,0 +1,96 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package uk.gov.hmrc.eusubsidycompliancestub.controllers
+
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{Action, ControllerComponents, Result}
+import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
+import uk.gov.hmrc.eusubsidycompliancestub.models.beneficiaryrequest.BeneficiaryValidationRequest
+import uk.gov.hmrc.eusubsidycompliancestub.models.beneficiaryResponses._
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.EORI
+import uk.gov.hmrc.eusubsidycompliancestub.services.EscService
+import uk.gov.hmrc.eusubsidycompliancestub.syntax.FutureSyntax.FutureOps
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
+@Singleton
+class BeneficiaryController @Inject() (
+  escService: EscService,
+  cc: ControllerComponents,
+  authAndEnvAction: AuthAndEnvAction
+)(implicit ec: ExecutionContext)
+    extends BackendController(cc) {
+
+  private def processingDate: String = Instant.now().truncatedTo(ChronoUnit.SECONDS).toString
+
+  private def errorResponse(code: String, text: String): Result =
+    UnprocessableEntity(
+      Json.toJson(BeneficiaryValidationErrorResponse(BeneficiaryErrorDetail(processingDate, code, text)))
+    )
+
+  def validate: Action[JsValue] = authAndEnvAction.async(parse.json) { implicit request =>
+    withJsonBody[BeneficiaryValidationRequest] { req =>
+      getValidationResponse(req)
+    }
+  }
+
+  private def getValidationResponse(req: BeneficiaryValidationRequest): Future[Result] = {
+    val id = req.idValue
+    val isValidateRequest = req.requestType == "V"
+
+    id match {
+      case a if a.endsWith("999") =>
+        InternalServerError("").toFuture
+
+      case b if b.endsWith("007") =>
+        errorResponse("007", "No Beneficiary ID Found").toFuture
+
+      case c if c.endsWith("006") =>
+        errorResponse("006", "No EORI Information Found").toFuture
+
+      case d if !Seq("EORI", "UTID").contains(req.idType) =>
+        errorResponse("001", "Invalid ID Type").toFuture
+
+      case _ =>
+        escService.retrieveUndertaking(EORI(id)).map {
+          case Some(undertaking) => Ok(Json.toJson(successFor(undertaking, isValidateRequest)))
+          case None              => errorResponse("006", "No EORI Information Found")
+        }
+    }
+  }
+
+
+  private def successFor(undertaking: Undertaking, validated: Boolean): BeneficiaryValidationSuccessResponse =
+    BeneficiaryValidationSuccessResponse(
+      BeneficiarySuccess(
+        processingDate = processingDate,
+        beneficiaryInfo = undertaking.undertakingBusinessEntity.map { be =>
+          BeneficiaryDetail(
+            eori = be.businessEntityIdentifier,
+            benName = Some(undertaking.name),
+            benIDType = Some("CRN"),
+            benIDValue = Some("01234567"),
+            validated = validated
+          )
+        }
+      )
+    )
+}
