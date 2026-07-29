@@ -25,4 +25,4 @@ POST       /scp/getsamundertakingbalance/v1     uk.gov.hmrc.eusubsidycompliances
 GET        /budg/inforeuro/api/public/currencies/gbp    uk.gov.hmrc.eusubsidycompliancestub.controllers.ExchangeRateController.retrieveExchangeRates
 
 # beneficiary ID validation (SCP22)
-POST       /scp/beneficiaryvalidation/v1        uk.gov.hmrc.eusubsidycompliancestub.controllers.BeneficiaryController.validate
+POST       /scp/beneficiary-validation/v1        uk.gov.hmrc.eusubsidycompliancestub.controllers.BeneficiaryController.validate
