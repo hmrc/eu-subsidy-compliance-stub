@@ -83,12 +83,13 @@ class BeneficiaryController @Inject() (
       BeneficiarySuccess(
         processingDate = processingDate,
         beneficiaryInfo = undertaking.undertakingBusinessEntity.map { be =>
+          val hasId = be.leadEORI
           BeneficiaryDetail(
             eori = be.businessEntityIdentifier,
-            benName = Some(undertaking.name),
-            benIDType = Some("CRN"),
-            benIDValue = Some("01234567"),
-            validated = validated
+            benName = if (hasId) Some(undertaking.name) else None,
+            benIDType = if (hasId) Some("CRN") else None,
+            benIDValue = if (hasId) Some("01234567") else None,
+            validated = hasId && validated
           )
         }
       )
