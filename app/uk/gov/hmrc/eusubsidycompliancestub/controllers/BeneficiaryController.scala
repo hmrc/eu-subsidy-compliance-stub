@@ -30,6 +30,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.collection.mutable
 
 @Singleton
 class BeneficiaryController @Inject() (
@@ -38,6 +39,9 @@ class BeneficiaryController @Inject() (
   authAndEnvAction: AuthAndEnvAction
 )(implicit ec: ExecutionContext)
     extends BackendController(cc) {
+
+  // In-memory store of EORIs validated via a V request — subsequent R requests return validated=true for these
+  private val validatedEoris: mutable.Set[String] = mutable.Set.empty
 
   private def processingDate: String = Instant.now().truncatedTo(ChronoUnit.SECONDS).toString
 
@@ -71,7 +75,9 @@ class BeneficiaryController @Inject() (
 
       case _ =>
         escService.retrieveUndertaking(EORI(id)).map {
-          case Some(undertaking) => Ok(Json.toJson(successFor(undertaking, isValidateRequest)))
+          case Some(undertaking) =>
+            if (isValidateRequest) undertaking.undertakingBusinessEntity.foreach(be => validatedEoris.add(be.businessEntityIdentifier))
+            Ok(Json.toJson(successFor(undertaking, isValidateRequest)))
           case None              => errorResponse("006", "No EORI Information Found")
         }
     }
@@ -89,7 +95,7 @@ class BeneficiaryController @Inject() (
             benName = if (hasId) Some(undertaking.name) else None,
             benIDType = if (hasId) Some("CRN") else None,
             benIDValue = if (hasId) Some("01234567") else None,
-            validated = hasId && validated
+            validated = hasId && (validated || validatedEoris.contains(be.businessEntityIdentifier))
           )
         }
       )
