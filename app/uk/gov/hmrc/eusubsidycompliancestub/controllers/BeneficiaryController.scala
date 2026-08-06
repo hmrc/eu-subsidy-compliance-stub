@@ -64,6 +64,9 @@ class BeneficiaryController @Inject() (
       case a if a.endsWith("999") =>
         InternalServerError("").toFuture
 
+      case b077 if b077.endsWith("077") =>
+        errorResponse("007", "No Beneficiary ID Found").toFuture
+
       case b if b.endsWith("007") =>
         errorResponse("007", "No Beneficiary ID Found").toFuture
 
