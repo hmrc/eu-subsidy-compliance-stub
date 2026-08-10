@@ -90,11 +90,23 @@ class UndertakingController @Inject() (
           escService.createUndertaking(eori, madeUndertaking).map { reference =>
             Ok(Json.toJson(CreateUndertakingApiResponse(reference)))
           }
+        case h if h.endsWith("033") =>
+          val undertaking = Json.fromJson(json)(undertakingRequestReads).get
+          val extraMember = BusinessEntity(EORI(eori.dropRight(2) + "34"), leadEORI = false, contacts = None)
+          val madeUndertaking =
+            EisService.makeUndertaking(undertaking, eori, undertakingStatus = UndertakingStatus(0).some)
+          val withMember =
+            madeUndertaking.copy(undertakingBusinessEntity = madeUndertaking.undertakingBusinessEntity :+ extraMember)
+          escService.createUndertaking(eori, withMember).map { reference =>
+            Ok(Json.toJson(CreateUndertakingApiResponse(reference)))
+          }
         case g if g.endsWith("077") =>
           val undertaking = Json.fromJson(json)(undertakingRequestReads).get
           val extraMember = BusinessEntity(EORI(eori.dropRight(2) + "78"), leadEORI = false, contacts = None)
-          val madeUndertaking = EisService.makeUndertaking(undertaking, eori, undertakingStatus = UndertakingStatus(0).some)
-          val withMember = madeUndertaking.copy(undertakingBusinessEntity = madeUndertaking.undertakingBusinessEntity :+ extraMember)
+          val madeUndertaking =
+            EisService.makeUndertaking(undertaking, eori, undertakingStatus = UndertakingStatus(0).some)
+          val withMember =
+            madeUndertaking.copy(undertakingBusinessEntity = madeUndertaking.undertakingBusinessEntity :+ extraMember)
           escService.createUndertaking(eori, withMember).map { reference =>
             Ok(Json.toJson(CreateUndertakingApiResponse(reference)))
           }

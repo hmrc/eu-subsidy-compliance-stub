@@ -79,13 +79,33 @@ class BeneficiaryController @Inject() (
       case _ =>
         escService.retrieveUndertaking(EORI(id)).map {
           case Some(undertaking) =>
-            if (isValidateRequest) undertaking.undertakingBusinessEntity.foreach(be => validatedEoris.add(be.businessEntityIdentifier))
+            if (isValidateRequest)
+              undertaking.undertakingBusinessEntity.foreach(be => validatedEoris.add(be.businessEntityIdentifier))
             Ok(Json.toJson(successFor(undertaking, isValidateRequest)))
-          case None              => errorResponse("006", "No EORI Information Found")
+          case None =>
+            Ok(
+              Json.toJson(
+                BeneficiaryValidationSuccessResponse(
+                  BeneficiarySuccess(
+                    processingDate = processingDate,
+                    beneficiaryInfo = List(
+                      BeneficiaryDetail(
+                        eori = id,
+                        benName = Some(id),
+                        benIDType = Some("CRN"),
+                        benIDValue = Some("01234567"),
+                        validated = false
+                      )
+                    )
+                  )
+                )
+              )
+            )
         }
     }
   }
 
+  // UTID can we fetch all EORIs
 
   private def successFor(undertaking: Undertaking, validated: Boolean): BeneficiaryValidationSuccessResponse =
     BeneficiaryValidationSuccessResponse(
