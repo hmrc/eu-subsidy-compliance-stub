@@ -72,7 +72,7 @@ class BeneficiaryController @Inject() (
         }
       )
     )
-  
+
   private def getValidationResponse(req: BeneficiaryValidationRequest): Future[Result] = {
     val id = req.idValue
     val isValidateRequest = req.requestType == "V"
@@ -94,7 +94,7 @@ class BeneficiaryController @Inject() (
         errorResponse("001", "Invalid ID Type").toFuture
 
 
-     // ------------------------ all validated multiple
+      // ------------------------ all validated multiple
       case e if e.endsWith("005") =>
         escService.retrieveUndertaking(EORI(id)).map {
           case Some(undertaking) =>
@@ -117,7 +117,7 @@ class BeneficiaryController @Inject() (
                       ),
                       BeneficiaryDetail(
                         eori = "GB503000000112",
-                        benName = Some("GB503000000112"),,
+                        benName = Some("GB503000000112"),
                         benIDType = Some("CRN"),
                         benIDValue = Some("01230123"),
                         validated = true
@@ -205,9 +205,9 @@ class BeneficiaryController @Inject() (
               )
             )
         }
-    
-  
-// ----------------- Validated single EORI
+
+
+      // ----------------- Validated single EORI
       case _ =>
         escService.retrieveUndertaking(EORI(id)).map {
           case Some(undertaking) =>
@@ -235,4 +235,5 @@ class BeneficiaryController @Inject() (
             )
         }
     }
-
+  }
+}
