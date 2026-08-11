@@ -56,6 +56,23 @@ class BeneficiaryController @Inject() (
     }
   }
 
+  private def successFor(undertaking: Undertaking, validated: Boolean): BeneficiaryValidationSuccessResponse =
+    BeneficiaryValidationSuccessResponse(
+      BeneficiarySuccess(
+        processingDate = processingDate,
+        beneficiaryInfo = undertaking.undertakingBusinessEntity.map { be =>
+          val hasId = be.leadEORI
+          BeneficiaryDetail(
+            eori = be.businessEntityIdentifier,
+            benName = if (hasId) Some(undertaking.name) else None,
+            benIDType = if (hasId) Some("CRN") else None,
+            benIDValue = if (hasId) Some("01234567") else None,
+            validated = hasId && (validated || validatedEoris.contains(be.businessEntityIdentifier))
+          )
+        }
+      )
+    )
+  
   private def getValidationResponse(req: BeneficiaryValidationRequest): Future[Result] = {
     val id = req.idValue
     val isValidateRequest = req.requestType == "V"
@@ -76,7 +93,93 @@ class BeneficiaryController @Inject() (
       case d if !Seq("EORI", "UTID").contains(req.idType) =>
         errorResponse("001", "Invalid ID Type").toFuture
 
-      case _ =>
+
+     // ------------------------ all validated multiple
+      case e if e.endsWith("005") =>
+        escService.retrieveUndertaking(EORI(id)).map {
+          case Some(undertaking) =>
+            if (isValidateRequest)
+              undertaking.undertakingBusinessEntity.foreach(be => validatedEoris.add(be.businessEntityIdentifier))
+            Ok(Json.toJson(successFor(undertaking, isValidateRequest)))
+          case None =>
+            Ok(
+              Json.toJson(
+                BeneficiaryValidationSuccessResponse(
+                  BeneficiarySuccess(
+                    processingDate = processingDate,
+                    beneficiaryInfo = List(
+                      BeneficiaryDetail(
+                        eori = id,
+                        benName = Some(id),
+                        benIDType = Some("CRN"),
+                        benIDValue = Some("01234567"),
+                        validated = true
+                      ),
+                      BeneficiaryDetail(
+                        eori = id,
+                        benName = Some(id),
+                        benIDType = Some("CRN"),
+                        benIDValue = Some("01230123"),
+                        validated = true
+                      ),
+                      BeneficiaryDetail(
+                        eori = id,
+                        benName = Some(id),
+                        benIDType = Some("CRN"),
+                        benIDValue = Some("4564567"),
+                        validated = true
+                      )
+                    )
+                  )
+                )
+              )
+            )
+        }
+
+      //  ---------------------------- not validated multiple
+      case f if f.endsWith("505") =>
+        escService.retrieveUndertaking(EORI(id)).map {
+          case Some(undertaking) =>
+            if (isValidateRequest)
+              undertaking.undertakingBusinessEntity.foreach(be => validatedEoris.add(be.businessEntityIdentifier))
+            Ok(Json.toJson(successFor(undertaking, isValidateRequest)))
+          case None =>
+            Ok(
+              Json.toJson(
+                BeneficiaryValidationSuccessResponse(
+                  BeneficiarySuccess(
+                    processingDate = processingDate,
+                    beneficiaryInfo = List(
+                      BeneficiaryDetail(
+                        eori = id,
+                        benName = Some(id),
+                        benIDType = Some("CRN"),
+                        benIDValue = Some("01234567"),
+                        validated = true
+                      ),
+                      BeneficiaryDetail(
+                        eori = "GB5030000000112",
+                        benName = Some("GB5030000000112"),
+                        benIDType = Some("CRN"),
+                        benIDValue = Some("01230123"),
+                        validated = true
+                      ),
+                      BeneficiaryDetail(
+                        eori = "GB5030000000113",
+                        benName = Some("GB5030000000113"),
+                        benIDType = Some("CRN"),
+                        benIDValue = Some("4564567"),
+                        validated = false
+                      )
+                    )
+                  )
+                )
+              )
+            )
+        }
+
+      // ----------------- not validated single EORI
+      case g if g.endsWith("606") =>
         escService.retrieveUndertaking(EORI(id)).map {
           case Some(undertaking) =>
             if (isValidateRequest)
@@ -102,25 +205,34 @@ class BeneficiaryController @Inject() (
               )
             )
         }
-    }
-  }
-
-  // UTID can we fetch all EORIs
-
-  private def successFor(undertaking: Undertaking, validated: Boolean): BeneficiaryValidationSuccessResponse =
-    BeneficiaryValidationSuccessResponse(
-      BeneficiarySuccess(
-        processingDate = processingDate,
-        beneficiaryInfo = undertaking.undertakingBusinessEntity.map { be =>
-          val hasId = be.leadEORI
-          BeneficiaryDetail(
-            eori = be.businessEntityIdentifier,
-            benName = if (hasId) Some(undertaking.name) else None,
-            benIDType = if (hasId) Some("CRN") else None,
-            benIDValue = if (hasId) Some("01234567") else None,
-            validated = hasId && (validated || validatedEoris.contains(be.businessEntityIdentifier))
-          )
+    
+  
+// ----------------- Validated single EORI
+      case _ =>
+        escService.retrieveUndertaking(EORI(id)).map {
+          case Some(undertaking) =>
+            if (isValidateRequest)
+              undertaking.undertakingBusinessEntity.foreach(be => validatedEoris.add(be.businessEntityIdentifier))
+            Ok(Json.toJson(successFor(undertaking, isValidateRequest)))
+          case None =>
+            Ok(
+              Json.toJson(
+                BeneficiaryValidationSuccessResponse(
+                  BeneficiarySuccess(
+                    processingDate = processingDate,
+                    beneficiaryInfo = List(
+                      BeneficiaryDetail(
+                        eori = id,
+                        benName = Some(id),
+                        benIDType = Some("CRN"),
+                        benIDValue = Some("01234567"),
+                        validated = true
+                      )
+                    )
+                  )
+                )
+              )
+            )
         }
-      )
-    )
-}
+    }
+
