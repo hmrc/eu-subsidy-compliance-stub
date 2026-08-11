@@ -116,8 +116,8 @@ class BeneficiaryController @Inject() (
                         validated = true
                       ),
                       BeneficiaryDetail(
-                        eori = id,
-                        benName = Some(id),
+                        eori = "GB503000000112",
+                        benName = Some("GB503000000112"),,
                         benIDType = Some("CRN"),
                         benIDValue = Some("01230123"),
                         validated = true
@@ -158,15 +158,15 @@ class BeneficiaryController @Inject() (
                         validated = true
                       ),
                       BeneficiaryDetail(
-                        eori = "GB5030000000112",
-                        benName = Some("GB5030000000112"),
+                        eori = "GB503000000112",
+                        benName = Some("GB503000000112"),
                         benIDType = Some("CRN"),
                         benIDValue = Some("01230123"),
                         validated = true
                       ),
                       BeneficiaryDetail(
-                        eori = "GB5030000000113",
-                        benName = Some("GB5030000000113"),
+                        eori = "GB503000000113",
+                        benName = Some("GB503000000113"),
                         benIDType = Some("CRN"),
                         benIDValue = Some("4564567"),
                         validated = false
