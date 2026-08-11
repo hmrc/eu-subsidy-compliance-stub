@@ -236,4 +236,24 @@ class BeneficiaryController @Inject() (
         }
     }
   }
+
+  // UTID can we fetch all EORIs
+
+  private def successFor(undertaking: Undertaking, validated: Boolean): BeneficiaryValidationSuccessResponse =
+    BeneficiaryValidationSuccessResponse(
+      BeneficiarySuccess(
+        processingDate = processingDate,
+        beneficiaryInfo = undertaking.undertakingBusinessEntity.map { be =>
+          val leadEori = undertaking.undertakingBusinessEntity.find(_.leadEORI).map(_.businessEntityIdentifier).getOrElse("")
+          val hasId = be.leadEORI || leadEori.endsWith("033")
+          BeneficiaryDetail(
+            eori = be.businessEntityIdentifier,
+            benName = if (hasId) Some(undertaking.name) else None,
+            benIDType = if (hasId) Some("CRN") else None,
+            benIDValue = if (hasId) Some("01234567") else None,
+            validated = hasId && (validated || validatedEoris.contains(be.businessEntityIdentifier))
+          )
+        }
+      )
+    )
 }
