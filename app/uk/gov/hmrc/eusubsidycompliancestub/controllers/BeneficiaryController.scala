@@ -64,8 +64,17 @@ class BeneficiaryController @Inject() (
         InternalServerError("").toFuture
 
       case b077 if b077.endsWith("077") =>
-        errorResponse("007", "No Beneficiary ID Found").toFuture
-
+        escService.retrieveUndertaking(EORI(id)).flatMap {
+          case Some(_) => errorResponse("007", "No Beneficiary ID Found").toFuture
+          case None =>
+            if (isValidateRequest) validatedEoris.add(id)
+            Ok(Json.toJson(BeneficiaryValidationSuccessResponse(
+              BeneficiarySuccess(
+                processingDate = processingDate,
+                beneficiaryInfo = List(BeneficiaryDetail(eori = id, benName = Some(id), benIDType = Some("CRN"), benIDValue = Some("01234567"), validated = isValidateRequest))
+              )
+            ))).toFuture
+        }
       case b if b.endsWith("007") =>
         errorResponse("007", "No Beneficiary ID Found").toFuture
 
@@ -216,8 +225,6 @@ class BeneficiaryController @Inject() (
         }
     }
   }
-
-  // UTID can we fetch all EORIs
 
   private def successFor(undertaking: Undertaking, validated: Boolean): BeneficiaryValidationSuccessResponse =
     BeneficiaryValidationSuccessResponse(
