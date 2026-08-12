@@ -55,24 +55,6 @@ class BeneficiaryController @Inject() (
       getValidationResponse(req)
     }
   }
-
-  private def successFor(undertaking: Undertaking, validated: Boolean): BeneficiaryValidationSuccessResponse =
-    BeneficiaryValidationSuccessResponse(
-      BeneficiarySuccess(
-        processingDate = processingDate,
-        beneficiaryInfo = undertaking.undertakingBusinessEntity.map { be =>
-          val hasId = be.leadEORI
-          BeneficiaryDetail(
-            eori = be.businessEntityIdentifier,
-            benName = if (hasId) Some(undertaking.name) else None,
-            benIDType = if (hasId) Some("CRN") else None,
-            benIDValue = if (hasId) Some("01234567") else None,
-            validated = hasId && (validated || validatedEoris.contains(be.businessEntityIdentifier))
-          )
-        }
-      )
-    )
-
   private def getValidationResponse(req: BeneficiaryValidationRequest): Future[Result] = {
     val id = req.idValue
     val isValidateRequest = req.requestType == "V"
@@ -92,7 +74,6 @@ class BeneficiaryController @Inject() (
 
       case d if !Seq("EORI", "UTID").contains(req.idType) =>
         errorResponse("001", "Invalid ID Type").toFuture
-
 
       // ------------------------ all validated multiple
       case e if e.endsWith("005") =>
@@ -206,7 +187,6 @@ class BeneficiaryController @Inject() (
             )
         }
 
-
       // ----------------- Validated single EORI
       case _ =>
         escService.retrieveUndertaking(EORI(id)).map {
@@ -244,7 +224,8 @@ class BeneficiaryController @Inject() (
       BeneficiarySuccess(
         processingDate = processingDate,
         beneficiaryInfo = undertaking.undertakingBusinessEntity.map { be =>
-          val leadEori = undertaking.undertakingBusinessEntity.find(_.leadEORI).map(_.businessEntityIdentifier).getOrElse("")
+          val leadEori =
+            undertaking.undertakingBusinessEntity.find(_.leadEORI).map(_.businessEntityIdentifier).getOrElse("")
           val hasId = be.leadEORI || leadEori.endsWith("033")
           BeneficiaryDetail(
             eori = be.businessEntityIdentifier,
