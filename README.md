@@ -42,6 +42,17 @@ The details for the test EORI data is as shown below:
 |                          | `...666`        | 202                 | Error while fetching the Currency conversion values           |
 | Get Undertaking Balance  | `...111908`     | 500                 | Undertaking doesn't exist                                     | 
 
+New additions that need added to the table
+
+001 - invalid id type
+006 -  no Eori information found
+007 -  no ben found - single Eori with
+077 -  no ben found - multiple with missing
+005 - all validated multiple
+505 - not validated multiple
+606 - not validated single Eori
+default - validated single Eori
+
 ## Running the service
 
 All dependant services can run via
