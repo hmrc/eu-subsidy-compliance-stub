@@ -44,8 +44,8 @@ The details for the test EORI data is as shown below:
 
 New additions that need added to the table
 
-001 - invalid id type
 006 -  no Eori information found
+101 - missing data
 007 -  no ben found - single Eori with
 077 -  no ben found - multiple with missing
 005 - all validated multiple
