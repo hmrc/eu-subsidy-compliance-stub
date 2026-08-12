@@ -51,7 +51,11 @@ New additions that need added to the table
 005 - all validated multiple
 505 - not validated multiple
 606 - not validated single Eori
+033 - Multiple ids , all found 
+
 default - validated single Eori
+
+GB123456780012 — Existing Admin Multi-Member Some Missing
 
 ## Running the service
 
