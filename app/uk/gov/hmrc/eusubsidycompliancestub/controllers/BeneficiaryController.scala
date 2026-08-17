@@ -260,7 +260,7 @@ class BeneficiaryController @Inject() (
         beneficiaryInfo = undertaking.undertakingBusinessEntity.map { be =>
           val leadEori =
             undertaking.undertakingBusinessEntity.find(_.leadEORI).map(_.businessEntityIdentifier).getOrElse("")
-          val hasId = be.leadEORI || leadEori.endsWith("033")
+          val hasId = be.leadEORI || leadEori.endsWith("033") || be.businessEntityIdentifier.endsWith("088")
           BeneficiaryDetail(
             eori = be.businessEntityIdentifier,
             benName = if (hasId) Some(undertaking.name) else None,
