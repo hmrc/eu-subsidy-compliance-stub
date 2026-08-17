@@ -240,8 +240,8 @@ class BeneficiaryController @Inject() (
                       BeneficiaryDetail(
                         eori = id,
                         benName = Some(id),
-                        benIDType = Some("TestIdType"),
-                        benIDValue = Some("TestIdVal"),
+                        benIDType = Some("CRN"),
+                        benIDValue = Some("01234567"),
                         validated = true
                       )
                     )
