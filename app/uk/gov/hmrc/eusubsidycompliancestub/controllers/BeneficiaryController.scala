@@ -68,12 +68,24 @@ class BeneficiaryController @Inject() (
           case Some(_) => errorResponse("007", "No Beneficiary ID Found").toFuture
           case None =>
             if (isValidateRequest) validatedEoris.add(id)
-            Ok(Json.toJson(BeneficiaryValidationSuccessResponse(
-              BeneficiarySuccess(
-                processingDate = processingDate,
-                beneficiaryInfo = List(BeneficiaryDetail(eori = id, benName = Some(id), benIDType = Some("CRN"), benIDValue = Some("01234567"), validated = isValidateRequest))
+            Ok(
+              Json.toJson(
+                BeneficiaryValidationSuccessResponse(
+                  BeneficiarySuccess(
+                    processingDate = processingDate,
+                    beneficiaryInfo = List(
+                      BeneficiaryDetail(
+                        eori = id,
+                        benName = Some(id),
+                        benIDType = Some("CRN"),
+                        benIDValue = Some("01234567"),
+                        validated = isValidateRequest
+                      )
+                    )
+                  )
+                )
               )
-            ))).toFuture
+            ).toFuture
         }
       case b if b.endsWith("007") =>
         errorResponse("007", "No Beneficiary ID Found").toFuture
