@@ -22,6 +22,7 @@ import uk.gov.hmrc.eusubsidycompliancestub.models.Undertaking
 import uk.gov.hmrc.eusubsidycompliancestub.models.beneficiaryrequest.BeneficiaryValidationRequest
 import uk.gov.hmrc.eusubsidycompliancestub.models.beneficiaryResponses._
 import uk.gov.hmrc.eusubsidycompliancestub.models.types.EORI
+import uk.gov.hmrc.eusubsidycompliancestub.models.types.UndertakingRef
 import uk.gov.hmrc.eusubsidycompliancestub.services.EscService
 import uk.gov.hmrc.eusubsidycompliancestub.syntax.FutureSyntax.FutureOps
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -56,9 +57,21 @@ class BeneficiaryController @Inject() (
     }
   }
   private def getValidationResponse(req: BeneficiaryValidationRequest): Future[Result] = {
-    val id = req.idValue
-    val isValidateRequest = req.requestType == "V"
+    if (req.idType == "UTID") {
+      escService
+        .findEoriByUndertakingReference(UndertakingRef(req.idValue))
+        .flatMap { eori =>
+          processValidation(eori.toString, req.requestType == "V")
+        }
+        .recover { case _: Exception =>
+          errorResponse("007", "No Beneficiary ID Found")
+        }
+    } else {
+      processValidation(req.idValue, req.requestType == "V")
+    }
+  }
 
+  private def processValidation(id: String, isValidateRequest: Boolean): Future[Result] = {
     id match {
       case a if a.endsWith("999") =>
         InternalServerError("").toFuture
@@ -92,9 +105,6 @@ class BeneficiaryController @Inject() (
 
       case c if c.endsWith("006") =>
         errorResponse("006", "No EORI Information Found").toFuture
-
-      case d if !Seq("EORI", "UTID").contains(req.idType) =>
-        errorResponse("001", "Invalid ID Type").toFuture
 
       // ------------------------ all validated multiple
       case e if e.endsWith("005") =>
