@@ -182,7 +182,7 @@ class EscService @Inject() (
     } yield subsidies.getOrElse(UndertakingSubsidies.emptyInstance(subsidyRetrieve.undertakingIdentifier))
   }
 
-  private def findEoriByUndertakingReference(undertakingRef: UndertakingRef): Future[EORI] = {
+  def findEoriByUndertakingReference(undertakingRef: UndertakingRef): Future[EORI] = {
     undertakingCache.findUndertakingEoriByUndertakingRef(undertakingRef).map {
       case Some(e) => e
       case None => throw new IllegalStateException(s"No undertaking for undertaking reference: $undertakingRef")
