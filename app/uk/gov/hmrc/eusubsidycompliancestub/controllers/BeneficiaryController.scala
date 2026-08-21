@@ -56,13 +56,16 @@ class BeneficiaryController @Inject() (
       getValidationResponse(req)
     }
   }
-   private def getValidationResponse(req: BeneficiaryValidationRequest): Future[Result] = {
+  private def getValidationResponse(req: BeneficiaryValidationRequest): Future[Result] = {
     if (req.idType == "UTID") {
-      escService.findEoriByUndertakingReference(UndertakingRef(req.idValue)).flatMap { eori =>
-        processValidation(eori.toString, req.requestType == "V")
-      }.recover {
-        case _: Exception => errorResponse("007", "No Beneficiary ID Found")
-      }
+      escService
+        .findEoriByUndertakingReference(UndertakingRef(req.idValue))
+        .flatMap { eori =>
+          processValidation(eori.toString, req.requestType == "V")
+        }
+        .recover { case _: Exception =>
+          errorResponse("007", "No Beneficiary ID Found")
+        }
     } else {
       processValidation(req.idValue, req.requestType == "V")
     }
@@ -102,7 +105,6 @@ class BeneficiaryController @Inject() (
 
       case c if c.endsWith("006") =>
         errorResponse("006", "No EORI Information Found").toFuture
-
 
       // ------------------------ all validated multiple
       case e if e.endsWith("005") =>
