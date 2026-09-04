@@ -249,9 +249,30 @@ class BeneficiaryController @Inject() (
       case _ =>
         escService.retrieveUndertaking(EORI(id)).map {
           case Some(undertaking) =>
-            if (isValidateRequest)
+            if(isValidateRequest) {
               undertaking.undertakingBusinessEntity.foreach(be => validatedEoris.add(be.businessEntityIdentifier))
-            Ok(Json.toJson(successFor(undertaking, isValidateRequest)))
+              Ok(Json.toJson(successFor(undertaking, isValidateRequest)))
+            }
+            else {
+              Ok(
+                Json.toJson(
+                  BeneficiaryValidationSuccessResponse(
+                    BeneficiarySuccess(
+                      processingDate = processingDate,
+                      beneficiaryInfo = List(
+                        BeneficiaryDetail(
+                          eori = id,
+                          benName = Some(id),
+                          benIDType = Some("CRN"),
+                          benIDValue = Some("01234567"),
+                          validated = true
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            }
           case None =>
             Ok(
               Json.toJson(
