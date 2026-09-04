@@ -10,6 +10,7 @@ lazy val microservice = Project(appName, file("."))
     majorVersion := 0,
     scalaVersion := "3.3.7",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
+    libraryDependencies += "org.mozilla" % "rhino" % "1.8.0",
     scalacOptions += "-Wconf:src=routes/.*:s",
     ScoverageKeys.coverageExcludedPackages :=
       List(
