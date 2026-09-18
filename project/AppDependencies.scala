@@ -7,9 +7,9 @@ object AppDependencies {
 
   val compile = Seq(
     "uk.gov.hmrc"   %% "bootstrap-backend-play-30" % bootStrapVersion,
-    "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-30"    % "2.14.0",
+    ("uk.gov.hmrc.mongo" %% "hmrc-mongo-play-30"    % "2.14.0").exclude("org.mozilla", "rhino"),
     "org.typelevel" %% "cats-core"                 % "2.13.0",
-    ("com.github.java-json-tools" % "json-schema-validator"         % "2.2.14").exclude("org.mozilla", "rhino")
+    "com.github.java-json-tools" % "json-schema-validator"         % "2.2.14"
   )
 
   val test = Seq(
